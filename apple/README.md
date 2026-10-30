@@ -29,9 +29,9 @@ source tree: `LegacyPairing.swift` only declares a hook, and a private build add
     Packages/LoftCore/Sources/LoftCore/LegacyPairing+Ops.swift      (gitignored)
 
 with `apple/scripts/gen-legacy-pairing.py <ops-dir>`, which reads the deployment's `gateway.toml` (name and
-addresses) and `client-pins.txt` (the pins 0.1.x had built in). `ops/build/mac-compile.sh` and `ops/build/ios-release.sh`
-run it when the private ops directory is present and remove the file otherwise. Without it there is nothing to
-migrate, which is right for every build but ours. `swift test` with `LOFT_EXPECT_LEGACY=1` fails if a build that
+addresses) and `client-pins.txt` (the pins 0.1.x had built in). The private build scripts run it (the Mac only when asked:
+its releases are public downloads, so a public Mac build leaves the file out) and remove the file otherwise. Without
+it there is nothing to migrate, which is right for every public build. `swift test` with `LOFT_EXPECT_LEGACY=1` fails if a build that
 should carry it doesn't.
 
 ## Build and test (on a Mac with Xcode and XcodeGen)
@@ -61,13 +61,15 @@ The Mac UI tests run a Debug copy of the app under its own bundle id and URL sch
 only): its own defaults, the token in memory, no Finder location, no update check. So they leave an installed Loft
 on the same Mac alone, and the script unregisters and deletes the test build afterwards.
 
-## Update check (Mac only)
+## Updates (Mac only)
 
-The Mac app is not in the App Store, so it asks `https://loft.incremental.no/releases.json` for a newer `macos`
-release at most once a day (`LoftCore/UpdateCheck.swift`, docs/releases-json.md): a GET with a User-Agent and a
-fixed `Accept-Language`, nothing else. A newer one shows *Loft x.y.z is available…* in the menu, which opens its
-page. Settings › General › *Check for updates* switches it off; `LOFT_NO_UPDATE_CHECK=1` too (CI). The iPhone app
-has no check: the App Store updates it.
+The Mac app is not in the App Store, so it updates itself with Sparkle (`App/Updater.swift`, docs/mac-updates.md):
+once a day it reads `https://loft.incremental.no/appcast.xml`, and a newer build shows Sparkle's *Install Update*
+window, or *Loft x.y.z is available…* in the menu, which opens it. Installing verifies the EdDSA signature and the
+Developer ID, swaps the app and reopens it. Settings › General › *Check for updates* switches the check off;
+`LOFT_NO_UPDATE_CHECK=1` too (CI and UI tests never start Sparkle). Builds before 0.2.0 (13) used
+`releases.json` (`LoftCore/UpdateCheck.swift`, still used by the docs' format tests). The iPhone app has no check:
+the App Store updates it.
 
 ## Norwegian
 

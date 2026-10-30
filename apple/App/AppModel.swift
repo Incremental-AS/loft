@@ -25,13 +25,13 @@ final class MenuModel: ObservableObject {
         : LoftEnvironment()
     var client: GatewayClient { env.client }
 
-    /// releases.json (docs/releases-json.md): the DMG isn't updated by the App Store. Off in UI
-    /// tests and with LOFT_NO_UPDATE_CHECK=1, so no test or CI run ever asks the real site.
-    let updates: UpdateChecker? = UITestMode.isOn || ProcessInfo.processInfo.environment["LOFT_NO_UPDATE_CHECK"] == "1"
-        ? nil
-        : UpdateChecker(currentVersion: Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "0")
-    /// A newer Loft for Mac: the menu shows "Loft x.y.z is available…".
-    @Published private(set) var availableUpdate: AvailableRelease?
+    /// Sparkle (Updater.swift, docs/mac-updates.md): the DMG isn't updated by the App Store. Off in
+    /// UI tests and with LOFT_NO_UPDATE_CHECK=1, so no test or CI run ever asks the real site.
+    let updater: Updater? = UITestMode.isOn || ProcessInfo.processInfo.environment["LOFT_NO_UPDATE_CHECK"] == "1"
+        ? nil : Updater()
+    /// A newer Loft for Mac that Sparkle found in the background: the menu shows "Loft x.y.z is
+    /// available…", which opens Sparkle's Install Update window.
+    @Published private(set) var availableUpdate: String?
     @Published private(set) var updateCheckOn = true
     var shared: SharedState { env.shared }
 
@@ -124,14 +124,15 @@ final class MenuModel: ObservableObject {
         }
         pathMonitor.start(queue: .main)
 
-        updateCheckOn = updates?.isEnabled ?? false
-        availableUpdate = updates?.available
+        if let u = updater {
+            u.onAvailable = { [weak self] v in MainActor.assumeIsolated { self?.availableUpdate = v } }
+            u.start()
+            updateCheckOn = u.automaticallyChecks
+        } else {
+            updateCheckOn = false
+        }
 
         timers = [
-            // The checker itself keeps to once a day; the hourly tick only notices the day is up.
-            Timer.scheduledTimer(withTimeInterval: 3600, repeats: true) { [weak self] _ in
-                Task { @MainActor in await self?.checkForUpdate() }
-            },
             Timer.scheduledTimer(withTimeInterval: 300, repeats: true) { [weak self] _ in
                 Task { @MainActor in await self?.reprobe() }
             },
@@ -143,7 +144,6 @@ final class MenuModel: ObservableObject {
             },
         ]
 
-        Task { await checkForUpdate() }
         Task {
             await env.refreshPins()
             await reprobe()
@@ -165,25 +165,14 @@ final class MenuModel: ObservableObject {
 
     // MARK: update check
 
-    func checkForUpdate() async {
-        guard let u = updates else { return }
-        let r = await u.checkIfDue()
-        if let e = u.lastError { appLog.info("update check: \(e, privacy: .public)") }
-        availableUpdate = r
-    }
-
     func setUpdateCheck(_ on: Bool) {
-        guard let u = updates else { return }
-        u.isEnabled = on
+        guard let u = updater else { return }
+        u.automaticallyChecks = on
         updateCheckOn = on
-        availableUpdate = u.available
-        if on { Task { await checkForUpdate() } }
+        if !on { availableUpdate = nil }
     }
 
-    func openUpdate() {
-        guard let u = availableUpdate?.url, u.scheme == "https" else { return }
-        NSWorkspace.shared.open(u)
-    }
+    func openUpdate() { updater?.checkForUpdates() }
 
     private func domain(for root: RootInfo) -> NSFileProviderDomain {
         NSFileProviderDomain(identifier: NSFileProviderDomainIdentifier(rawValue: root.id),

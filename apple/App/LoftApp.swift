@@ -137,7 +137,7 @@ struct LoftApp: App {
             }
             Divider()
             if let u = model.availableUpdate {
-                Button(Copy.updateAvailable(u.version)) { model.openUpdate() }
+                Button(Copy.updateAvailable(u)) { model.openUpdate() }
             }
             Button(Copy.settings) { model.showSettings(model.settingsTab) }
             Button(Copy.quit) { NSApplication.shared.terminate(nil) }

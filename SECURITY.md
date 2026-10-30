@@ -15,7 +15,8 @@ attacker could do with it. Give us reasonable time to ship a fix before you publ
   not hold a pinned key.
 * The apps (`apple/`, `android/`, `windows/`, `linux/`): token storage, pin checks, TLS, what reaches disk.
 * The API (`api/openapi.yaml`) as implemented, and the container image and `.deb` we publish.
-* `loft.incremental.no` where it serves the pairing page, downloads and `releases.json`.
+* `loft.incremental.no` where it serves the pairing page, downloads, `releases.json` and the Mac's signed
+  `appcast.xml`; the Mac updater's checks (`docs/mac-updates.md`: any way to make it install code we didn't sign).
 
 ## Out of scope
 

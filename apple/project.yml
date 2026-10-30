@@ -17,7 +17,7 @@ settings:
   base:
     DEVELOPMENT_TEAM: 5A3JX4D37B
     MARKETING_VERSION: 0.2.0
-    CURRENT_PROJECT_VERSION: 12         # Mac and iPhone share the build counter
+    CURRENT_PROJECT_VERSION: 14         # Mac and iPhone share the build counter
     ARCHS: "arm64 x86_64"          # one universal dmg
     ONLY_ACTIVE_ARCH: NO
     ENABLE_HARDENED_RUNTIME: YES
@@ -34,6 +34,11 @@ settings:
 packages:
   LoftCore:
     path: Packages/LoftCore
+  # Mac updates (App/Updater.swift, docs/mac-updates.md). A binary framework; sign-notarize.sh
+  # drops its XPC services (only sandboxed apps use them) and re-signs the rest as ours.
+  Sparkle:
+    url: https://github.com/sparkle-project/Sparkle
+    exactVersion: 2.10.1
 targets:
   Loft:
     type: application
@@ -69,8 +74,20 @@ targets:
             NSSendFileTypes: [public.movie]
             NSRequiredContext: {}
             NSKeyEquivalent: {default: V}
+        # Sparkle (docs/mac-updates.md). The appcast is signed as well as each DMG; the
+        # private half of SUPublicEDKey is on the build Mac only. No "install automatically"
+        # option: Loft asks first, then installs and reopens itself.
+        SUFeedURL: https://loft.incremental.no/appcast.xml
+        SUPublicEDKey: VviOL1kEmEIOnB2KxLj+/ZeilHQDjPcpDYOVyd7EhLs=   # gitleaks:allow (the public half of the update key: public by design)
+        SURequireSignedFeed: true
+        SUVerifyUpdateBeforeExtraction: true
+        SUEnableAutomaticChecks: true     # once a day; the off switch is in Settings › General
+        SUScheduledCheckInterval: 86400
+        SUAllowsAutomaticUpdates: false
+        SUEnableSystemProfiling: false
     dependencies:
       - package: LoftCore
+      - package: Sparkle
       - target: LoftFileProvider
         embed: true
         codeSign: false

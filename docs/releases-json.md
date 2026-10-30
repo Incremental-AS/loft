@@ -1,7 +1,8 @@
 # releases.json: the update check
 
-Loft apps that don't update through an app store (Mac, Android, Windows and Linux) fetch
-`https://loft.incremental.no/releases.json` at most once a day. It is the only request a Loft app makes to Incremental.
+Loft apps that don't update through an app store (Android, Windows, Linux, and Mac builds before Sparkle) fetch
+`https://loft.incremental.no/releases.json` at most once a day. The Mac reads `appcast.xml` instead
+(`docs/mac-updates.md`). These are the only requests a Loft app makes to Incremental.
 The request carries no device ID, no account and no gateway details: just a plain GET with an app-name User-Agent
 (the Android app adds its version). Each app has a setting that switches the check off. The iPhone app never
 checks: the App Store updates it.
@@ -30,7 +31,9 @@ report nothing.
 | `sha256` | optional | Hex SHA-256 of the download, shown next to it (Windows builds are unsigned for now). |
 | `notes` | optional | Release notes URL or a short line. |
 
-`macos` is for the Mac DMG: the Mac app shows "Loft x.y.z is available…" in its menu, which opens `url`. Apps ignore
+`macos` is for Mac builds up to 0.2.0 (12): they show "Loft x.y.z is available…" in the menu, which opens `url`.
+From build 13 the Mac updates through Sparkle and `appcast.xml` instead (`docs/mac-updates.md`); keep `macos` current
+for the older builds. Apps ignore
 unknown keys and refuse a non-`https` `url`. Parsers: `android/core/.../UpdateCheck.kt`,
 `windows/src/Loft.Core/UpdateChecker.cs`, `linux/internal/update/update.go`,
 `apple/Packages/LoftCore/Sources/LoftCore/UpdateCheck.swift` (all four also accept the same objects under a

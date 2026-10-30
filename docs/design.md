@@ -223,6 +223,7 @@ needs a pinned route: the home network, a VPN, or a `direct` public address.
 ### E.4 Update check
 
 Apps outside an app store fetch `https://loft.incremental.no/releases.json` (`docs/releases-json.md`) at most once a
-day. It is the only request Loft makes to Incremental, and it can be switched off.
+day; the Mac reads `appcast.xml` and installs the update itself through Sparkle (`docs/mac-updates.md`). That is the
+only request Loft makes to Incremental, and it can be switched off.
 
 Made with ❤️ in 🇳🇴 by Incremental (www.incremental.no)

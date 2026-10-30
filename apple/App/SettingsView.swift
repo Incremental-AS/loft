@@ -67,7 +67,7 @@ struct SettingsView: View {
         Form {
             Toggle(Copy.openAtLogin, isOn: Binding(get: { model.openAtLogin },
                                                    set: { model.setOpenAtLogin($0) }))
-            if model.updates != nil {
+            if model.updater != nil {
                 Toggle(Copy.checkForUpdates, isOn: Binding(get: { model.updateCheckOn },
                                                            set: { model.setUpdateCheck($0) }))
                 Text(Copy.updateCheckHelp).font(.callout).foregroundStyle(.secondary)

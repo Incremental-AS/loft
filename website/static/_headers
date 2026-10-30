@@ -26,3 +26,7 @@
 /releases.json
   Content-Type: application/json
   Cache-Control: public, max-age=600
+# The Mac's Sparkle feed (docs/mac-updates.md), signed. Same short cache.
+/appcast.xml
+  Content-Type: application/xml
+  Cache-Control: public, max-age=600
