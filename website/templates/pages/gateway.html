@@ -1,0 +1,30 @@
+{{> page-head}}
+<section class="section section-tight" aria-labelledby="need-title">
+  <div class="wrap prose-block">
+    <h2 id="need-title">{{page.need.title}}</h2>
+    <ul>{{#each page.need.items}}<li>{{it}}</li>{{/each}}</ul>
+  </div>
+</section>
+<section class="section section-soft">
+  <div class="wrap">
+    <ol class="guide">
+      {{#each page.steps}}
+      <li{{#if it.id}} id="{{attr:it.id}}"{{/if}}>
+        <h2>{{it.title}}</h2>
+        {{#if it.body}}<div class="prose-block">{{it.body}}</div>{{/if}}
+        {{#if it.parts}}{{#each it.parts}}
+        <section class="guide-part" id="{{attr:it.id}}">
+          <h3>{{it.title}}</h3>
+          {{#if it.before}}<div class="prose-block">{{it.before}}</div>{{/if}}
+          {{#if it.code}}<pre data-copy="{{attr:ui.copy}}" data-copied="{{attr:ui.copied}}"><code>{{it.code}}</code></pre>{{/if}}
+          {{#if it.after}}<div class="prose-block">{{it.after}}</div>{{/if}}
+        </section>
+        {{/each}}{{/if}}
+      </li>
+      {{/each}}
+    </ol>
+  </div>
+</section>
+<div class="section">
+{{> prose}}
+</div>

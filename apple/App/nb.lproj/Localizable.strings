@@ -1,0 +1,50 @@
+/* Loft for Mac, Norwegian (bokmål). Keys are the English text in Copy.swift; %@ is a value.
+   Rules: short and plain, the website's words (gateway, paring/pare, paringslenke, fingeravtrykk
+   for a key fingerprint, hjemme/borte). Capital letter after every colon (not in times or URLs).
+   The English text is the key: change a key here and in the Swift source together. */
+
+/* Pairing */
+"Pair with your gateway" = "Par med gatewayen din";
+"On the gateway, run loft-gateway pair. Open the link it shows on this Mac, or copy it and paste it here. The link carries the gateway's address and its keys, so Loft talks to your gateway from the very first connection." = "Kjør loft-gateway pair på gatewayen. Åpne lenken den viser på denne Macen, eller kopier den og lim den inn her. Lenken inneholder gatewayens adresse og nøkler, så Loft snakker med din gateway fra aller første tilkobling.";
+"Pairing link" = "Paringslenke";
+"Paste" = "Lim inn";
+"Continue" = "Fortsett";
+"Set up manually…" = "Sett opp manuelt …";
+"Set up manually" = "Sett opp manuelt";
+"Type the gateway's address and one of its key fingerprints. loft-gateway pair shows both. The fingerprint is how Loft checks it's really your gateway, so there's no setup without it." = "Skriv inn adressen til gatewayen og ett av fingeravtrykkene dens. Du finner begge i det loft-gateway pair viser. Med fingeravtrykket sjekker Loft at det virkelig er din gateway, så uten det kommer du ikke videre.";
+"Address" = "Adresse";
+"Key fingerprint" = "Fingeravtrykk";
+"Base64, ends in =" = "Base64, slutter på =";
+"Use a pairing link instead" = "Bruk en paringslenke i stedet";
+"Pair with “%@”?" = "Pare med «%@»?";
+"At home: %@" = "Hjemme: %@";
+"Away from home: %@, through a tunnel. Sign in at home first." = "Borte: %@, gjennom en tunnel. Logg inn hjemme først.";
+"Away from home: %@, straight to the gateway." = "Borte: %@, rett til gatewayen.";
+"Away from home: not set up. Loft works on the home network only." = "Borte: Ikke satt opp. Loft virker bare på hjemmenettet.";
+"This Mac is paired with %@. Pairing with another gateway signs you out of that one." = "Denne Macen er paret med %@. Parer du med en annen gateway, blir du logget ut av den du har nå.";
+"Pair" = "Par";
+"Pair with your gateway…" = "Par med gatewayen din …";
+"Pair with another gateway…" = "Par med en annen gateway …";
+"Gateway: %@ (%@)" = "Gateway: %@ (%@)";
+"This Mac isn't paired with a gateway yet." = "Denne Macen er ikke paret med en gateway ennå.";
+"Cancel" = "Avbryt";
+
+/* Pairing errors */
+"That isn't a Loft pairing link. Copy the whole link that loft-gateway pair shows." = "Det er ikke en paringslenke for Loft. Kopier hele lenken som loft-gateway pair viser.";
+"This pairing link is from a newer gateway. Update Loft, then try again." = "Denne paringslenken er fra en nyere gateway. Oppdater Loft før du prøver igjen.";
+"This pairing link has no valid key fingerprint. Make a new one with loft-gateway pair." = "Denne paringslenken har ikke noe gyldig fingeravtrykk. Lag en ny med loft-gateway pair.";
+"Loft only connects to a gateway over https." = "Loft kobler seg bare til en gateway over https.";
+"Check the address. It should look like nas-gateway.local:8443." = "Sjekk adressen. Den skal se ut som nas-gateway.local:8443.";
+"That doesn't look like a key fingerprint. Copy it from loft-gateway pair." = "Det ser ikke ut som et fingeravtrykk. Kopier det fra loft-gateway pair.";
+
+/* Sign-in errors */
+"You're not at home right now. Connect to the home network for the first sign-in. After that, Loft works from anywhere." = "Du er ikke hjemme nå. Koble til hjemmenettet for den første innloggingen. Etter det virker Loft hvor som helst.";
+"That username and password didn't work on the NAS. Check them and try again." = "Brukernavnet og passordet virket ikke på NAS-en. Sjekk dem og prøv igjen.";
+"Loft can't use the NAS's built-in accounts, like admin. Sign in with your own NAS account." = "Loft kan ikke bruke de innebygde kontoene på NAS-en, som admin. Logg inn med din egen konto på NAS-en.";
+"Too many tries. Wait 15 minutes, then try again." = "For mange forsøk. Vent 15 minutter før du prøver igjen.";
+"Something went wrong. Try again." = "Noe gikk galt. Prøv igjen.";
+
+/* Update check */
+"Loft %@ is available…" = "Loft %@ er tilgjengelig …";
+"Check for updates" = "Se etter oppdateringer";
+"Once a day, Loft asks loft.incremental.no if there's a newer version. It sends nothing about you, this Mac or your files." = "Én gang i døgnet spør Loft loft.incremental.no om det finnes en nyere versjon. Den sender ingenting om deg, denne Macen eller filene dine.";

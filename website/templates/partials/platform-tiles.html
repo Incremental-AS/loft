@@ -1,0 +1,11 @@
+<ul class="tiles">
+  {{#each platforms}}
+  <li class="tile">
+    <h3>{{it.name}}</h3>
+    <p class="tile-label">{{home.platforms.col_shows}}</p>
+    <p>{{it.shows}}</p>
+    <p class="tile-label">{{home.platforms.col_get}}</p>
+    <a href="{{link:download}}#{{it.id}}">{{it.get}}</a>
+  </li>
+  {{/each}}
+</ul>

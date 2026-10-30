@@ -1,0 +1,37 @@
+# /etc/loft/gateway.toml. `loft-gateway init` writes this for you; this is the long form.
+# No secrets in this file. All top-level keys go ABOVE [direct].
+# Every setting with its current value: `loft-admin config --effective`.
+
+smb_server = "nas.example.org"          # the SMB server the gateway signs in to as each user
+smb_encryption = "required"             # or "server" for boxes without SMB3 encryption
+db_path = "/var/lib/loft/index.db"      # local disk: SQLite WAL fails on a CIFS/NFS mount
+
+# Optional limits, empty = none.
+shares = []                             # [] = every share the account can open
+blocked_shares = []                     # e.g. ["backup"]: never offered, never reachable
+blocked_paths = []                      # e.g. ["Family/Paperwork/Passwords"]
+allowed_users_re = "[A-Za-z0-9._-]+"    # who may sign in (full match)
+denied_users_re = "guest"               # add service accounts that can open everything
+code_users_re = ""                      # who may make sign-in codes ("" = nobody)
+
+# Pairing (docs/pairing.md). `loft-gateway init` makes the live and standby keys.
+gateway_name = "Home"
+lan_url = "https://10.0.0.5:8443"       # how devices at home reach [direct]
+public_url = ""                         # e.g. "https://files.example.org"
+public_mode = "none"                    # "none" | "tunnel" | "direct"
+direct_spki_pins = ["<live-pin>", "<standby-pin>"]
+
+# Sign-in limits. With public_mode = "direct" they face the internet.
+login_max_fail_user = 5
+login_max_fail_ip = 20
+login_window_s = 900
+
+[direct]                                # home network / VPN, or a port forward in "direct" mode
+host = "0.0.0.0"
+port = 8443
+certfile = "/etc/loft/direct.crt"
+keyfile = "/etc/loft/direct.key"
+
+[public]                                # for a tunnel: proxy -> http://127.0.0.1:8080
+host = "127.0.0.1"
+port = 8080

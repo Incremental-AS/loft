@@ -1,0 +1,18 @@
+# Loft for the signed-in user: mount ~/Loft, keep it in sync, tray icon.
+#   systemctl --user enable --now loft
+[Unit]
+Description=Loft: NAS folders in ~/Loft
+Documentation=https://loft.incremental.no/
+After=network-online.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/loft daemon
+# Exit 2 means "pair or sign in first": don't retry that in a loop.
+Restart=on-failure
+RestartSec=15
+RestartPreventExitStatus=2
+TimeoutStopSec=30
+
+[Install]
+WantedBy=default.target

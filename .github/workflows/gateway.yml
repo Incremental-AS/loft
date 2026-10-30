@@ -1,0 +1,39 @@
+name: gateway
+
+on:
+  push:
+    paths: ["gateway/**", "api/**", "conformance/**", ".github/workflows/gateway.yml"]
+  pull_request:
+    paths: ["gateway/**", "api/**", "conformance/**", ".github/workflows/gateway.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  locked:
+    # What ships: requirements.lock, installed with hashes checked. Python 3.12 is the
+    # minimum (the lock pins av 19, which needs it).
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ["3.12", "3.13"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Install (locked, hashes checked)
+        run: |
+          python -m pip install --require-hashes -r gateway/requirements.lock
+          python -m pip install --no-deps -e gateway
+          python -m pip install -r conformance/requirements.txt openapi-spec-validator
+      - name: Gateway tests
+        run: cd gateway && python -m pytest -q
+      - name: api/openapi.yaml is up to date
+        run: python api/gen_openapi.py --check
+      - name: Conformance against the dev gateway (tunnel mode)
+        run: PYTHON=python conformance/run_dev.sh -q
+      - name: Conformance against the dev gateway (direct mode)
+        run: PUBLIC_MODE=direct PYTHON=python conformance/run_dev.sh -q

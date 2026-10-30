@@ -1,0 +1,632 @@
+# Norsk tekst for loft.incremental.no. Skrevet på norsk, ikke oversatt ord for ord.
+# Teksten kommer fra Loft-tekstene i merkevaresettet (no.md, about-the-name.md): Endre den der først.
+# Stor forbokstav etter kolon, alltid (ikke i klokkeslett og URL-er). Setningsstil i overskrifter og knapper.
+# "DRAFT: " foran en verdi betyr plassholder, og {STORE_BOKSTAVER} betyr en verdi som ikke er bestemt ennå.
+# `build.py --release` nekter å bygge så lenge noen av dem finnes. Lenker skrives ut (/no/privacy/) og sjekkes av build.py.
+
+[site]
+og_alt = "Loft by Incremental: Filene dine, hjemme hos deg."
+
+[ui]
+skip = "Hopp til innholdet"
+home_label = "Loft by Incremental, forsiden"
+nav_label = "Hovedmeny"
+footer_nav_label = "Nettstedet"
+menu = "Meny"
+other_lang = "English"
+other_hreflang = "en"
+theme_system = "Tema: Følg systemet"
+theme_light = "Tema: Lyst"
+theme_dark = "Tema: Mørkt"
+copy = "Kopier"
+coming_soon = "Kommer snart."
+copied = "Kopiert"
+flag_norway = "Norge"
+
+[nav]
+how = "Slik virker det"
+download = "Last ned"
+gateway = "Sett opp en gateway"
+compatibility = "Kompatibilitet"
+privacy = "Personvern"
+security = "Sikkerhet"
+support = "Brukerstøtte"
+source = "Kildekode"
+about = "Om navnet"
+
+[cta]
+download = "Last ned"
+gateway = "Sett opp en gateway"
+
+[footer]
+endorsement = "Laget i 🇳🇴 av Incremental AS"
+# Ikke «varemerker» før en varemerkesøknad er sendt (trademark-check.md).
+smallprint = "Loft er gratis og åpen kildekode under lisensen Apache-2.0. Navnet «Loft by Incremental» og Loft-ikonet tilhører Incremental AS og omfattes ikke av lisensen for koden."
+
+[diagram]
+alt = "Telefonen og PC-en kobler seg kryptert til Loft-gatewayen hjemme, som leser og skriver filene på NAS-en din."
+devices = "Telefonen og PC-en din"
+tls = "Kryptert (TLS)"
+home = "Hjemme"
+gateway = "Loft-gateway"
+smb = "SMB"
+nas = "NAS-en din"
+
+[[platforms]]
+id = "iphone"
+name = "iPhone og iPad"
+shows = "Filer-appen, og «Save to Loft» i delingsmenyen"
+get = "App Store (kommer snart)"
+coming_soon = true
+detail = "Loft legger NAS-en i Filer-appen, så <em>Save to Files › Loft</em> virker fra alle apper, og legger til <em>Save to Loft</em> i delingsmenyen."
+# Offisielt App Store-merke (norsk versjon) her når appen er ute.
+[[platforms.downloads]]
+label = "Last ned i App Store"
+href = "{APP_STORE_URL}"
+
+[[platforms]]
+id = "mac"
+name = "Mac"
+shows = "Finder, i sidepanelet"
+get = "Last ned (DMG) (kommer snart)"
+coming_soon = true
+detail = "Loft legger NAS-en i sidepanelet i Finder. Filene lastes ned når du åpner dem, og går hjem igjen når du lagrer."
+version = "versjon {VERSION}"
+after = "Åpne DMG-filen og dra Loft til Programmer."
+sha256 = "{SHA256}"
+[[platforms.downloads]]
+label = "Last ned for Mac (.dmg)"
+href = "{DOWNLOAD_URL}"
+
+[[platforms]]
+id = "android"
+name = "Android"
+shows = "Filer-appen og systemets filvelger, og i delingsmenyen"
+get = "Last ned (APK fra dette nettstedet) (kommer snart)"
+coming_soon = true
+detail = "Loft legger NAS-en i Filer-appen og systemets filvelger, legger Loft til i delingsmenyen og kan laste opp bilder rett til en mappe på NAS-en."
+version = "versjon {VERSION}"
+note = "<em>Hvorfor ikke Google Play?</em> Vi publiserer Loft for Android her, som en APK signert av Incremental. Første gang ber Android deg tillate installering fra nettleseren. Appen sjekker dette nettstedet for oppdateringer."
+sha256 = "{SHA256}"
+[[platforms.downloads]]
+label = "Last ned for Android (.apk)"
+href = "{DOWNLOAD_URL}"
+
+[[platforms]]
+id = "windows"
+name = "Windows 10 og 11"
+shows = "Filutforsker, med filer som lastes ned når du åpner dem"
+get = "Last ned (zip) (kommer snart)"
+coming_soon = true
+detail = "Loft legger NAS-en i Filutforsker. Filene vises med en gang og lastes ned når du åpner dem."
+version = "Windows 10 og 11 · versjon {VERSION}"
+after = "Det er ikke noe installasjonsprogram: Pakk ut mappen der du vil, og start Loft derfra."
+# Usignert inntil videre. Fjern SmartScreen-setningene når versjonene er signert. Merknaden slutter med kolon
+# fordi malen skriver SHA-256-linjen (sha256 under) rett etter den.
+note = "Windows SmartScreen kan advare om at appen er ukjent, fordi denne versjonen ikke er kodesignert ennå. Velg <em>Mer informasjon › Kjør likevel</em> hvis du lastet den ned fra denne siden. Vil du sjekke at filen er vår, sammenlign SHA-256-sjekksummen:"
+sha256 = "{SHA256}"
+[[platforms.downloads]]
+label = "Last ned for Windows (.zip)"
+href = "{DOWNLOAD_URL}"
+
+[[platforms]]
+id = "linux"
+name = "Linux"
+shows = "en <code>~/Loft</code>-mappe, med statusikon der skrivebordet har det"
+get = "Last ned (.deb, .rpm, AppImage, tarball) (kommer snart)"
+coming_soon = true
+detail = "Loft monterer NAS-en på <code>~/Loft</code>. Filene leses når du åpner dem, og endringer lastes opp i bakgrunnen. Et statusikon viser hvordan det går, der skrivebordsmiljøet støtter det."
+version = "versjon {VERSION}"
+sha256 = "{SHA256}"
+[[platforms.downloads]]
+label = ".deb"
+href = "{DOWNLOAD_URL}"
+[[platforms.downloads]]
+label = ".rpm"
+href = "{DOWNLOAD_URL}"
+[[platforms.downloads]]
+label = "AppImage"
+href = "{DOWNLOAD_URL}"
+[[platforms.downloads]]
+label = "tarball"
+href = "{DOWNLOAD_URL}"
+
+[[platforms]]
+id = "gateway"
+name = "Loft-gateway"
+shows = "står hjemme på Linux (x86_64 eller arm64, så en 64-biters Raspberry Pi holder)"
+get = ".deb eller containerbilde (kommer snart)"
+# .deb-pakken og containerbildet er bygget, men ikke utgitt. Så lenge coming_soon er satt, viser Last ned ingen
+# nedlastingsknapper, versjon eller sjekksum for dette kortet (templates/pages/download.html).
+# Fjern den, og «Kommer snart.» her og på Sett opp en gateway, ved --release. Det finnes ikke noe apt-depot.
+coming_soon = true
+detail = "Står hjemme på Linux, x86_64 eller arm64 (en 64-biters Raspberry Pi holder), med Python 3.12 eller nyere. Debian 13, Ubuntu 24.04 og nyeste Raspberry Pi OS har det. På et eldre system bruker du containeren."
+# Til --release: lenker til siden, ikke #container (delen er skjult). Ved release: /no/gateway/#container
+list = "<ul><li><strong>Debian 13 og Ubuntu 24.04:</strong> en <code>.deb</code> for x86_64, som du laster ned her. Pakken for arm64 er på vei. → <a href=\"/no/gateway/\">Sett opp en gateway</a></li><li><strong>Container:</strong> et multiarkitektur-bilde for x86_64 og arm64. → <a href=\"/no/gateway/\">Sett opp en gateway</a></li></ul>"
+
+# ---------------------------------------------------------------- forside
+
+[pages.home]
+title = "Loft by Incremental: Filene dine, hjemme hos deg"
+description = "Loft legger de delte mappene på din egen NAS rett i Finder, Filutforsker og Filer. Gratis og åpen kildekode. Filene blir hjemme."
+
+[home.hero]
+kicker = "Gratis og åpen kildekode"
+title = "Filene dine, hjemme hos deg."
+lead = "Loft legger de delte mappene på NAS-en din i filappen du allerede bruker, på iPhone, iPad, Mac, Android, Windows og Linux. En liten gateway står hjemme. Ingen andre lagrer filene dine."
+alt = "Et rødt tømmerloft i snøen med ett opplyst vindu"
+
+[home.what]
+title = "NAS-en din, uansett hvor du er"
+[[home.what.points]]
+title = "I filappen du allerede bruker."
+body = "De delte mappene dukker opp i Finder på Mac, i Filer på iPhone, iPad og Android, i Filutforsker på Windows og som en mappe i hjemmekatalogen på Linux. Ikke noe nytt sted å lære seg."
+[[home.what.points]]
+title = "Filene kommer når du åpner dem."
+body = "Loft viser alt, men laster bare ned det du åpner. Når du lagrer, går filen hjem igjen. Et stort arkiv trenger ikke få plass på en liten telefon."
+[[home.what.points]]
+title = "NAS-en bestemmer."
+body = "Loft logger inn på NAS-en som deg, med brukernavnet og passordet du allerede har. Det er NAS-ens egne tilganger som avgjør hva du kan se og endre. Gatewayen kan stramme inn ytterligere hvis du vil, men aldri åpne mer."
+
+[home.home]
+title = "Ikke skyen. Loftet."
+body = "<p>Loft kopierer ikke filene dine til en server et annet sted. De ligger på NAS-en, hjemme hos deg, og går bare mellom NAS-en og dine egne enheter, gjennom en gateway du drifter selv. Det finnes ingen Loft-konto og ingen Loft-server, og Incremental ser aldri filene dine, filnavnene eller passordet ditt.</p><p>Appene for Mac, Android, Windows og Linux sjekker høyst én gang i døgnet om det finnes en ny versjon. Det er det eneste en Loft-app noen gang spør oss om, og du kan slå det av. → <a href=\"/no/privacy/\">Personvern</a></p>"
+
+[home.open]
+title = "Gratis, og koden er åpen"
+body = "<p>Loft koster ingenting. Gatewayen og alle appene er åpen kildekode under lisensen Apache-2.0: Du kan lese koden, bygge den selv og endre den. Koden legges ut på GitHub med den første utgivelsen. → <a href=\"/no/source/\">Kildekode</a></p>"
+smallprint = "Navnet «Loft by Incremental» og ikonet er ikke en del av lisensen. Lager du en egen versjon, gi den et eget navn."
+
+[home.platforms]
+title = "Fem apper og én gateway"
+col_shows = "Dukker opp i"
+col_get = "Slik får du den"
+after = "Android-appen lastes ned her, ikke fra Google Play. → <a href=\"/no/download/#android\">Hvorfor, og hvordan du installerer den</a>"
+
+[home.how]
+title = "Tre steg"
+[[home.how.steps]]
+title = "Installer gatewayen."
+body = "Sett opp Loft-gatewayen på en liten Linux-maskin hjemme, ved siden av NAS-en. Kjør <code>loft-gateway init</code>. Den spør hvor de delte mappene ligger og ordner resten."
+[[home.how.steps]]
+title = "Skann paringskoden."
+body = "<code>loft-gateway pair</code> viser en QR-kode og en lenke. Skann koden med appen, eller åpne lenken. Koden inneholder gatewayens adresse og nøkler, så appen snakker med <em>din</em> gateway fra aller første tilkobling."
+[[home.how.steps]]
+title = "Filene dukker opp."
+body = "Logg inn med brukernavnet og passordet ditt på NAS-en. De delte mappene dukker opp i Finder, Filutforsker eller Filer, og du bruker dem som alle andre mapper."
+[[home.how.links]]
+label = "Slik virker det, i detalj"
+href = "/no/how-it-works/"
+[[home.how.links]]
+label = "Sett opp en gateway"
+href = "/no/gateway/"
+
+[home.honest]
+title = "Hva som er kryptert, og hvem som kan se hva"
+body = "<ul><li><strong>Hjemme</strong> snakker appen med gatewayen over en kryptert forbindelse (TLS) som er låst til gatewayens nøkkel. Den kan ikke ledes om til noen andre.</li><li><strong>Borte</strong> velger du selv hvordan gatewayen nås:<ul><li><strong>Gjennom en tunnel</strong> (for eksempel Cloudflare Tunnel). Det er enkelt og krever ingen åpen port. Forbindelsen er kryptert, men tunnelleverandøren dekrypterer den underveis, så <strong>leverandøren kan lese trafikken</strong>. Passordet ditt sendes aldri denne veien: Du logger inn hjemme, én gang.</li><li><strong>Direkte</strong>, med en åpnet port på ruteren. Forbindelsen er låst til gatewayens nøkkel og kryptert <strong>hele veien</strong>. Ingen underveis kan lese den, og du kan logge inn hvor som helst.</li></ul></li><li><strong>Passordet ditt</strong> går bare over en låst forbindelse til din egen gateway. Gatewayen lagrer det kryptert, på en måte som bare virker sammen med den innloggede enheten din.</li><li><strong>Mellom gatewayen og NAS-en</strong> bruker Loft SMB 3 med kryptering slått på. Har du en eldre NAS uten SMB-kryptering, kan gatewayen få lov til å koble til ukryptert på hjemmenettet. Det er ditt valg, og det er av som standard.</li></ul>"
+more = "→ <a href=\"/no/how-it-works/#sikkerhet\">Hele bildet</a>"
+
+[home.name]
+title = "Hvorfor «Loft»?"
+body = "Et loft er rommet under taket. Men loft er også et gammelt hus på gården: Et laftet hus i to etasjer, med mat nede og kister, finklær og verdisaker oppe, og sengeplass for gjester. Store norske leksikon kaller det «både skattkammer og stasstue». Det var det vi ville lage for filene dine: Et sted hjemme for det som er verdt å ta vare på."
+more = "→ <a href=\"/no/about-the-name/\">Mer om navnet</a>"
+quote = "Både skattkammer og stasstue."
+quote_cite = "Store norske leksikon"
+
+[home.cta]
+title = "Ta filene med hjem."
+lead = "Installer gatewayen, skann koden, og NAS-en er i lomma."
+
+# ---------------------------------------------------------------- slik virker det
+
+[pages.how-it-works]
+title = "Slik virker det · Loft by Incremental"
+description = "Slik kobler Loft telefonen og PC-en til NAS-en hjemme: Gatewayen, paring, innlogging og nøyaktig hva som er kryptert hvor."
+kicker = "Slik virker det"
+h1 = "En gateway hjemme, en app i lomma."
+lead = "Loft har to deler. En gateway står ved siden av NAS-en, og appen ligger på enheten din. Appen snakker bare med gatewayen din, og gatewayen snakker bare med NAS-en din."
+diagram_label = "Diagram"
+
+[pages.how-it-works.parts]
+title = "Delene"
+[[pages.how-it-works.parts.items]]
+title = "NAS-en."
+body = "Alt som deler mapper over SMB: En NAS, en Windows-server, en Linux-maskin med Samba. Loft endrer ingenting på den og installerer ingenting der."
+[[pages.how-it-works.parts.items]]
+title = "Loft-gatewayen."
+body = "En liten tjeneste på en Linux-maskin hjemme. Den logger inn på NAS-en <em>som deg</em>, så NAS-ens egne tilganger gjelder. Det er den eneste appene dine kobler seg til."
+[[pages.how-it-works.parts.items]]
+title = "Appene."
+body = "Loft for iPhone og iPad, Mac, Android, Windows og Linux. De legger de delte mappene i systemets egen filapp og henter filene når du åpner dem."
+
+[pages.how-it-works.pairing]
+title = "Paring"
+body = "<p><code>loft-gateway pair</code> skriver ut en QR-kode og en lenke. Begge inneholder gatewayens navn, adresser og fingeravtrykkene til nøklene. Appen sjekker fingeravtrykkene ved hver tilkobling, så den kan ikke lures til å snakke med en annen maskin. Det er også derfor det ikke finnes noe felt for å skrive inn en serveradresse: En innskrevet adresse er akkurat slik en falsk gateway ville samlet inn passord. (Trenger du det likevel, ligger <em>Set up manually</em> under avanserte innstillinger i appen.)</p><p>Lenken ser slik ut: <code>https://loft.incremental.no/pair#…</code>. Alt etter <code>#</code> blir på enheten din. Nettlesere sender aldri den delen til nettstedet vårt.</p><p>Hver enhet pares med én gateway om gangen.</p>"
+
+[pages.how-it-works.security]
+id = "sikkerhet"
+title = "Hva som er kryptert på hver vei"
+col_home = "Hjemme"
+col_tunnel = "Borte, gjennom tunnel"
+col_direct = "Borte, direkte"
+body = "<p><strong>Hva bør jeg velge?</strong> Tunnel er det enkle valget. Ingenting åpnes på ruteren, men du stoler på at tunnelleverandøren behandler trafikken din ordentlig. Direkte betyr å åpne en port til gatewayen. Ingen underveis kan lese noe, men gatewayen kan nås fra internett, så den begrenser antall innloggingsforsøk. Mange NAS-er sperrer ikke en konto etter feil passord, så gatewayen gjør det for dem. Du kan også la være å bruke noen av dem og bare bruke Loft hjemme.</p><p><strong>Passordet ditt.</strong> Det sendes bare over en låst forbindelse til gatewayen din. Gatewayen lagrer det kryptert med to nøkler, én som gatewayen har og én som bare enheten din har, så en kopi av gatewayens database er ikke nok til å lese det. Fjerner du en enhet, slettes kopien som hører til den.</p><p><strong>Det vi ikke kan beskytte mot, sagt rett ut.</strong> Mens gatewayen kjører og du bruker den, må den bruke passordet ditt mot NAS-en. Den som tar kontroll over gatewayen mens den kjører, kan fange opp passordene til dem som bruker den akkurat da. Det gjelder alle gatewayer som logger inn på SMB som deg. Kjør derfor gatewayen på en maskin som ikke gjør noe annet, og hold den oppdatert.</p><p><strong>Oppdateringer.</strong> Gatewayen oppdaterer seg aldri selv. Du installerer den nye <code>.deb</code>-filen eller henter et nytt containerbilde, etter at du har lest endringsnotatene.</p>"
+report = "→ Funnet et sikkerhetsproblem? <a href=\"/no/security/\">Sikkerhet</a> (hello@incremental.no)"
+[[pages.how-it-works.security.rows]]
+leg = "App ↔ gateway"
+home = "Kryptert, låst til gatewayens nøkkel"
+tunnel = "Kryptert til tunnelleverandøren, som <strong>kan lese trafikken</strong>, deretter gjennom leverandørens tunnel til gatewayen"
+direct = "Kryptert, låst til gatewayens nøkkel, <strong>hele veien</strong>"
+[[pages.how-it-works.security.rows]]
+leg = "Innlogging med passord"
+home = "Ja"
+tunnel = "<strong>Nei.</strong> Logg inn hjemme først"
+direct = "Ja, forbindelsen er låst"
+[[pages.how-it-works.security.rows]]
+leg = "Gateway ↔ NAS"
+home = "SMB 3, kryptering påkrevd (kan lempes for en eldre NAS)"
+tunnel = "samme"
+direct = "samme"
+
+# ---------------------------------------------------------------- last ned
+
+[pages.download]
+title = "Last ned · Loft by Incremental"
+description = "Last ned Loft for iPhone, iPad, Mac, Android, Windows og Linux, og Loft-gatewayen. Gratis og åpen kildekode."
+kicker = "Last ned"
+h1 = "Hent Loft."
+lead = "Loft er gratis på alle plattformer. Du trenger også en Loft-gateway hjemme. Har du ikke det ennå, <a href=\"/no/gateway/\">sett den opp først</a>: Det tar én kommando og én QR-kode."
+[pages.download.updates]
+title = "Sjekk etter oppdateringer"
+# Samme som avsnittet om oppdateringssjekk på Personvern (som i tillegg nevner Apples personvernvilkår). Alle fire appene
+# som ikke kommer fra App Store, har sjekken: Android, Windows og Linux (sjekket mot koden 2026-10-30) og Mac (fra
+# 2026-10-30, LoftCore UpdateCheck.swift). Hver av dem er en vanlig GET av releases.json med bare en User-Agent som
+# navngir appen, høyst én gang i døgnet, med en bryter i appens innstillinger («Check for updates» på Mac). iPhone-appen sjekker aldri.
+body = "<p>Appene for Mac, Android, Windows og Linux sjekker <code>loft.incremental.no/releases.json</code> etter ny versjon, høyst én gang i døgnet. Det er den eneste forespørselen noen Loft-app sender til oss. Den henter bare den ene filen: Ingen konto, ingen enhets-ID, ingenting om gatewayen eller filene dine. Den sier høyst hvilken app som spør. Du kan slå den av i appens innstillinger. Appen for iPhone og iPad oppdateres gjennom App Store.</p><p>Kildekode og sjekksummer for hver versjon: → <a href=\"/no/source/\">Kildekode</a></p>"
+
+# ---------------------------------------------------------------- sett opp en gateway
+
+[pages.gateway]
+title = "Sett opp en gateway · Loft by Incremental"
+description = "Installer Loft-gatewayen på en liten Linux-maskin hjemme, pek den mot NAS-en, og koble appene til med én QR-kode."
+kicker = "Sett opp en gateway"
+h1 = "Gi NAS-en en dør."
+lead = "Gatewayen er den lille delen av Loft som står hjemme. Appene snakker med den, og den snakker med NAS-en, innlogget som deg. Det tar rundt ti minutter, og du gjør det bare én gang."
+
+[pages.gateway.need]
+title = "Dette trenger du"
+items = [
+  '''En Linux-maskin som alltid står på, på samme nett som NAS-en: x86_64 eller arm64, med Python 3.12 eller nyere. Debian 13, Ubuntu 24.04 og nyeste Raspberry Pi OS har det; på et eldre system bruker du containeren. En 64-biters Raspberry Pi holder. Bruk helst en maskin som ikke gjør noe annet (se <a href="/no/how-it-works/#sikkerhet">Sikkerhet</a>).''',
+  "En NAS eller server som deler mapper over SMB 3, og adressen dens på nettet ditt.",
+  "Brukernavnet og passordet ditt på NAS-en. Dem skriver du inn i appen senere, ikke i innstillingene på gatewayen.",
+]
+
+[[pages.gateway.steps]]
+title = "Installer"
+# Until --release: only this paragraph. At release, rename parts_at_release back to parts and
+# drop this body and the "Coming soon." lead-ins in the parts.
+body = "<p><strong>Kommer snart.</strong> Gatewayen kan ikke lastes ned ennå. Når den kan det, ligger <code>.deb</code>-filen og containerbildet under <a href=\"/no/download/#gateway\">Last ned</a>, og kommandoene for å installere dem står her.</p>"
+[[pages.gateway.steps.parts_at_release]]
+id = "debian"
+title = "Debian 13 og Ubuntu 24.04"
+# Ikke utgitt ennå: steg 1 er «Kommer snart» til --release. Det finnes ikke noe pakkedepot.
+before = "<p><strong>Kommer snart.</strong> Last ned <code>.deb</code>-filen fra <a href=\"/no/download/#gateway\">Last ned</a> og installer den. Det finnes ikke noe pakkedepot ennå, så en ny versjon er også en ny nedlasting.</p>"
+code = "sudo apt install ./loft-gateway_*_amd64.deb"
+after = "<p>Pakken for arm64, til Raspberry Pi, er på vei. Til da bruker du containeren på arm64.</p>"
+[[pages.gateway.steps.parts_at_release]]
+id = "container"
+title = "Container"
+before = "<p><strong>Kommer snart.</strong> Et multiarkitektur-bilde for x86_64 og arm64. Første gang den starter, skriver den ut paringskoden (<code>docker logs loft</code>).</p>"
+code = """docker run -d --name loft --restart unless-stopped \\
+  -p 8443:8443 \\
+  -e LOFT_SMB_SERVER=&lt;nas-address&gt; \\
+  -e LOFT_LAN_URL=https://&lt;gateway-address&gt;:8443 \\
+  -v loft-etc:/etc/loft -v loft-state:/var/lib/loft \\
+  loft-gateway:0.2.0
+docker logs loft
+docker exec -it loft loft-container loft-gateway doctor --user alice
+docker exec loft loft-container loft-gateway pair"""
+after = "<p>I containeren kjører miniatyrbilde-prosessen for seg selv uten rettigheter, i stedet for i systemd-sandkassen som <code>.deb</code>-pakken bruker. Miniatyrbildene virker likt.</p>"
+
+[[pages.gateway.steps]]
+title = "Pek den mot NAS-en"
+body = '''<p>Kjør <code>loft-gateway init</code>. Den spør etter adressen til NAS-en, skriver innstillingsfilen og lager gatewayens nøkler. Til slutt viser den en paringskode.</p>
+<p>Kjør så <code>loft-gateway doctor</code>. Den sjekker at gatewayen når NAS-en, hvilken SMB-versjon og kryptering NAS-en tilbyr, at klokka går riktig og at sertifikatet er gyldig. Er noe galt, sier den hva. Legg til <code>--user</code> og brukernavnet ditt på NAS-en, så sjekker den innloggingen og de delte mappene også. Den spør etter passordet og skriver det aldri ut.</p>
+<p><strong>Eldre NAS uten SMB-kryptering?</strong> Som standard nekter gatewayen å koble til uten. Med <code>smb_encryption = "server"</code> i innstillingsfilen bestemmer NAS-en i stedet, og forbindelsen på hjemmenettet krypteres bare hvis NAS-en ber om det. Det er ditt valg.</p>'''
+
+[[pages.gateway.steps]]
+title = "Koble til appene"
+body = '''<p>Kjør <code>loft-gateway pair</code> og skann QR-koden med Loft-appen, eller åpne lenken på enheten. Koden inneholder gatewayens adresse og nøkler, så appen vet at den snakker med <em>din</em> gateway fra aller første tilkobling. Logg så inn med brukernavnet og passordet ditt på NAS-en.</p>
+<p>Det finnes ikke noe felt for å skrive inn en gateway-adresse, og det er med vilje: En adresse du skriver selv, kan lede deg til en falsk gateway som samler inn passord. Trenger du det likevel, har appen <em>Sett opp manuelt</em> under avanserte innstillinger.</p>'''
+
+[[pages.gateway.steps]]
+id = "utenfra"
+title = "Borte fra hjemmet (valgfritt)"
+body = '''<p>Hjemme trengs ikke noe mer. Vil du bruke Loft når du er ute, velger du ett av to:</p>
+<ul><li><strong>En tunnel</strong>, for eksempel Cloudflare Tunnel. Ingen åpen port på ruteren, men tunnelleverandøren kan lese trafikken, og du logger inn hjemme.</li><li><strong>Direkte</strong>, med en port på ruteren videresendt til gatewayen. Kryptert hele veien, og du kan logge inn hvor som helst. Gatewayen begrenser antall innloggingsforsøk.</li></ul>
+<p>Forskjellen står forklart i <a href="/no/how-it-works/#sikkerhet">Slik virker det</a>. Kjør <code>loft-gateway pair</code> på nytt etter at du har endret dette, så koden får med den nye adressen.</p>'''
+
+[[pages.gateway.sections]]
+id = "begrens"
+title = "Begrens hva Loft viser (valgfritt)"
+body = "<p>Loft viser alle delte mapper NAS-kontoen din har tilgang til, og NAS-ens egne tilganger bestemmer resten. Du kan snevre det inn i innstillingsfilen: Bare noen delte mapper, skjulte mapper eller stier, eller bare noen brukere. Alt dette er tomt som standard.</p>"
+[[pages.gateway.sections]]
+id = "oppdatering"
+title = "Oppdatering"
+body = '''<p>Gatewayen oppdaterer seg aldri selv. Installer den nye <code>.deb</code>-filen eller hent et nytt containerbilde etter at du har lest endringsnotatene. → <a href="/no/source/">Kildekode</a> for endringsnotater og sjekksummer.</p>'''
+
+# ---------------------------------------------------------------- kompatibilitet
+
+[pages.compatibility]
+title = "Kompatibilitet · Loft by Incremental"
+description = "Hvilke NAS-er og servere Loft er testet med, og hva du trenger på nettverket."
+kicker = "Kompatibilitet"
+h1 = "Dette virker Loft med."
+lead = "Loft virker med SMB-delinger, som er det de fleste NAS-er, Windows-servere og Samba bruker. Her er det vi faktisk har testet. Står ikke din på listen, kan den godt virke likevel. Kjør <code>loft-gateway doctor</code>, så får du svar."
+
+[pages.compatibility.need]
+title = "Dette trenger du"
+items = [
+  "En NAS eller server som deler mapper over <strong>SMB 3</strong>. Loft krever SMB-kryptering som standard, og en NAS uten kan tillates på hjemmenettet.",
+  "En <strong>Linux-maskin hjemme</strong> til gatewayen: x86_64 eller arm64 med Python 3.12 eller nyere (Debian 13, Ubuntu 24.04 og nyeste Raspberry Pi OS har det), eller en maskin som kjører containere.",
+  "For bruk borte: En <strong>tunnel</strong> (for eksempel Cloudflare Tunnel) eller en <strong>åpnet port</strong> på ruteren. Hjemme trenger du ingen av delene.",
+]
+
+# status: ok | warn | danger | untested. Endre en rad bare når konformitetstestene eller en ekte test har vist det.
+# Bare Samba har et resultat så langt (2026-10-30).
+[pages.compatibility.tested]
+title = "Testede NAS-er og servere"
+col_server = "NAS / server"
+col_status = "Status"
+col_notes = "Merknad"
+[[pages.compatibility.tested.rows]]
+server = "Samba (Linux)"
+status = "ok"
+status_label = "Testet automatisk"
+notes = "Hver endring i koden testes mot Samba: Med SMB-kryptering påkrevd, tilbudt og slått av, gjennom tunnel og direkte"
+[[pages.compatibility.tested.rows]]
+server = "Ubiquiti UniFi UNAS"
+status = "untested"
+status_label = "Ikke testet ennå"
+notes = ""
+[[pages.compatibility.tested.rows]]
+server = "TrueNAS SCALE"
+status = "untested"
+status_label = "Ikke testet ennå"
+notes = ""
+[[pages.compatibility.tested.rows]]
+server = "Windows Server (SMB)"
+status = "untested"
+status_label = "Ikke testet ennå"
+notes = ""
+[[pages.compatibility.tested.rows]]
+server = "Synology"
+status = "untested"
+status_label = "Ikke testet ennå"
+notes = "Har du en, kjør <code>loft-gateway doctor</code> og fortell oss hvordan det gikk"
+
+[pages.compatibility.apps]
+title = "Appene"
+col_app = "App"
+col_needs = "Krever"
+[[pages.compatibility.apps.rows]]
+app = "iPhone og iPad"
+needs = "iOS eller iPadOS 17 eller nyere"
+[[pages.compatibility.apps.rows]]
+app = "Mac"
+needs = "macOS 14 eller nyere"
+[[pages.compatibility.apps.rows]]
+app = "Android"
+needs = "Android 8 eller nyere"
+[[pages.compatibility.apps.rows]]
+app = "Windows"
+needs = "Windows 10 eller 11"
+[[pages.compatibility.apps.rows]]
+app = "Linux"
+needs = "FUSE. Statusikon der skrivebordsmiljøet støtter det"
+
+[pages.compatibility.tell]
+title = "Fortell oss"
+body = "<p>Har du testet Loft med noe som ikke står her? Send en e-post til <strong>hello@incremental.no</strong> med utdataene fra <code>loft-gateway doctor</code>.</p><p>Fjern det som er privat først: Adresser, navn på delte mapper og brukernavn.</p>"
+
+# ---------------------------------------------------------------- personvern, brukerstøtte, sikkerhet, kildekode
+
+[pages.privacy]
+title = "Personvern · Loft by Incremental"
+description = "Hva Loft og dette nettstedet vet om deg. Kort fortalt: Nesten ingenting."
+kicker = "Personvern"
+h1 = "Filene dine har vi ingenting med."
+lead = "Loft er laget slik at vi aldri trenger filene dine, passordene dine eller vanene dine. Her er alt vi, og tjenestene vi bruker, kan se."
+[[pages.privacy.sections]]
+title = "Filene dine"
+body = '''<p>Filene går fra enheten din til gatewayen din og videre til NAS-en din. Alle tre er dine. Filene går aldri via Incremental, og vi har verken kopi eller tilgang. Bruker du en tunnel for å nå filene hjemmefra, kan tunnelleverandøren lese den trafikken. Det gjelder leverandøren, ikke oss. Detaljene står i <a href="/no/how-it-works/#sikkerhet">Slik virker det</a>.</p>'''
+[[pages.privacy.sections]]
+title = "Passordet ditt"
+body = "<p>NAS-passordet ditt går bare til din egen gateway, over en forbindelse som er låst til gatewayens nøkkel. Gatewayen lagrer det kryptert, og det er ubrukelig uten den innloggede enheten din. Vi ser det aldri.</p>"
+[[pages.privacy.sections]]
+title = "Appene"
+# Samme som avsnittet om oppdateringssjekk på Last ned, pluss Apples personvernvilkår. Mac, Android, Windows og Linux har
+# alle sjekken (se merknaden på Last ned); hold de to avsnittene like.
+body = "<p>Appene for Mac, Android, Windows og Linux sjekker <code>loft.incremental.no/releases.json</code> etter ny versjon, høyst én gang i døgnet. Det er den eneste forespørselen noen Loft-app sender til oss. Den henter bare den ene filen: Ingen konto, ingen enhets-ID, ingenting om gatewayen eller filene dine. Den sier høyst hvilken app som spør. Du kan slå den av i appens innstillinger. Appen for iPhone og iPad oppdateres gjennom App Store, der Apples personvernvilkår gjelder.</p>"
+[[pages.privacy.sections]]
+title = "Dette nettstedet"
+# Forutsetter driftsplanen: en Cloudflare Worker, nedlastinger fra GitHub Releases. Oppdater dette om det endres.
+body = "<p>Ingen informasjonskapsler, ingen analyse, ingen sporing, ingen fonter eller skript fra andre. Valget mellom lyst og mørkt lagres i din egen nettleser og sendes ingen steder. Nettstedet leveres av Cloudflare, og nedlastingene kommer fra GitHub. Som alle vertstjenester ser de IP-adressen din og hvilken fil du ba om. Vi legger ingenting til.</p>"
+[[pages.privacy.sections]]
+title = "Paringslenker"
+body = "<p>Paringsdetaljene i en lenke står etter <code>#</code>, og den delen sender nettlesere aldri til en server. Siden <code>/pair</code> leser den heller ikke.</p>"
+[[pages.privacy.sections]]
+title = "Spørsmål"
+body = "<p>Incremental AS er ansvarlig for dette nettstedet og Loft-appene. Skriv til hello@incremental.no.</p>"
+
+[pages.support]
+title = "Brukerstøtte · Loft by Incremental"
+description = "Hjelp med Loft: Hva du bør sjekke først, hvor du melder fra om feil, og hvordan du melder et sikkerhetsproblem."
+kicker = "Brukerstøtte"
+h1 = "Er noe galt?"
+lead = "Loft er gratis, og det er laget av et lite team. Vi har ingen kundeservice, men vi har en feilliste, og vi leser den."
+[[pages.support.sections]]
+title = "Sjekk dette først"
+# Finder-banneret og stien i Systeminnstillinger er macOS 27.2 sine egne tekster (FinderKit NE99/NE100, LoginItems.appex), sjekket på en Mac 2026-10-30.
+# NAS-linjen stemmer for 0.1 og dagens kode (ny skanning hvert 300. sekund); endres når endringsvarsling kommer.
+body = '''<ul>
+<li><strong>Kjør <code>loft-gateway doctor</code> på gatewayen.</strong> De fleste problemer ligger mellom gatewayen og NAS-en, og den sier som regel hva som er galt.</li>
+<li><strong>Mac: Loft vises ikke i Finder-sidepanelet.</strong> macOS kan ha slått den av. Se etter <em>«Loft» er ikke aktivert</em> i Finder og velg <em>Aktiver</em>, eller slå på Loft under Systeminnstillinger › Generelt › Påloggingsobjekter og utvidelser › Filleverandører.</li>
+<li><strong>Endringer gjort på NAS-en tar noen minutter før de vises.</strong> Endringer fra Loft vises i løpet av sekunder.</li>
+<li><strong>Får du ikke logget inn hjemmefra?</strong> Med tunnel virker innlogging bare hjemme. Det er med vilje: Se <a href="/no/how-it-works/#sikkerhet">Slik virker det</a>.</li>
+<li><strong>Finner ikke appen gatewayen?</strong> Koble til på nytt: Kjør <code>loft-gateway pair</code> og skann den nye koden.</li>
+</ul>'''
+[[pages.support.sections]]
+title = "Meld fra om feil"
+body = '''<p>Send en e-post til <strong>hello@incremental.no</strong>. Skriv hvilken app og versjon, hvilken NAS, og lim inn det <code>loft-gateway doctor</code> skriver ut.</p>
+<p>Fjern alt privat fra utskriften først: Adresser, navn på delte mapper og brukernavn.</p>'''
+[[pages.support.sections]]
+title = "Sikkerhetsproblemer"
+body = '''<p>Ikke opprett en offentlig sak. Skriv heller til hello@incremental.no. → <a href="/no/security/">Sikkerhet</a></p>'''
+
+[pages.security]
+title = "Sikkerhet · Loft by Incremental"
+description = "Slik melder du fra om et sikkerhetsproblem i Loft, og slik er Loft bygd for å beskytte filene og passordet ditt."
+kicker = "Sikkerhet"
+h1 = "Funnet et hull? Si fra til oss først."
+lead = "Har du funnet et sikkerhetsproblem i Loft, gatewayen, appene eller dette nettstedet, så skriv til <strong>hello@incremental.no</strong> før du forteller det til noen andre."
+# Ingen svartid, kreditering eller dusør med vilje: Det er ikke bestemt en policy for dette ennå.
+[[pages.security.sections]]
+title = "Slik melder du fra"
+body = '''<ul>
+<li>Beskriv hva du fant, hvordan det kan gjenskapes, og hvilken versjon du testet.</li>
+<li>Ikke opprett en offentlig sak, og ikke test mot gatewayer som ikke er dine.</li>
+<li>Gi oss rimelig tid til å rette det før du publiserer.</li>
+<li><code>SECURITY.md</code> i kodelageret sier det samme, i tilfelle du fant oss der først.</li>
+</ul>'''
+[[pages.security.sections]]
+title = "Slik er Loft bygd"
+body = '''<ul>
+<li>Appene snakker bare med en gateway de er paret med. Nøklene følger med paringskoden, så appen stoler aldri blindt på første tilkobling.</li>
+<li>Passordet ditt går bare over en forbindelse som er låst til gatewayen din, og gatewayen lagrer det kryptert med en nøkkel som bare finnes på enheten din.</li>
+<li>Gatewayen logger inn på NAS-en som deg, så NAS-ens egne tilganger gjelder. Den bruker SMB 3 med kryptering som standard.</li>
+<li>I direktemodus begrenser gatewayen antall innloggingsforsøk, fordi mange NAS-er ikke gjør det.</li>
+<li>Gatewayen oppdaterer seg aldri selv. Hver utgivelse har en SHA-256-sjekksum.</li>
+<li>Hver endring i koden skannes for hemmeligheter før den slippes inn.</li>
+</ul>
+<p>Hva som er kryptert på hver vei, og hva vi ikke kan beskytte mot: <a href="/no/how-it-works/#sikkerhet">Slik virker det</a>.</p>'''
+
+[pages.source]
+title = "Kildekode · Loft by Incremental"
+description = "Loft er åpen kildekode under Apache-2.0-lisensen. Gatewayen, alle appene og dette nettstedet legges ut på GitHub med den første utgivelsen."
+kicker = "Kildekode"
+h1 = "Les hver eneste linje."
+lead = "Gatewayen, alle fem appene og dette nettstedet er åpen kildekode under Apache-2.0-lisensen. Kodelageret blir offentlig på GitHub med den første utgivelsen."
+[[pages.source.sections]]
+title = "Dette ligger i kodelageret"
+body = '''<ul>
+<li><code>gateway/</code>: Loft-gatewayen (Python)</li>
+<li><code>apple/</code>: Appene for Mac, iPhone og iPad (Swift)</li>
+<li><code>android/</code>: Android-appen (Kotlin)</li>
+<li><code>windows/</code>: Windows-appen (C#)</li>
+<li><code>linux/</code>: Linux-appen (Go)</li>
+<li><code>api/openapi.yaml</code>: API-et alle appene bruker mot gatewayen</li>
+<li><code>conformance/</code>: Testene alle appene må bestå mot en ekte Samba-server</li>
+<li><code>website/</code>: Dette nettstedet</li>
+<li><code>docs/</code></li>
+</ul>'''
+[[pages.source.sections]]
+title = "Utgivelser"
+body = '''<p>Hver utgivelse får endringsnotater på GitHub og en SHA-256-sjekksum for hver nedlasting.</p>'''
+[[pages.source.sections]]
+title = "Navnet er ikke med i lisensen"
+body = "<p>Du kan fritt bruke, endre og dele koden under Apache-2.0. Navnet «Loft by Incremental» og Loft-ikonet omfattes ikke av lisensen, så lager du din egen versjon, gir du den ditt eget navn og ikon. <code>TRADEMARKS.md</code> i kodelageret forklarer det.</p>"
+[[pages.source.sections]]
+title = "Bli med"
+body = '''<p>Feilmeldinger og kompatibilitetsresultater tas imot med takk som saker. Har du testet Loft med en NAS som ikke står på <a href="/no/compatibility/">Kompatibilitet</a>-lista, så si fra.</p>'''
+
+# ---------------------------------------------------------------- om navnet (about-the-name.md §3, kilder §4)
+
+[pages.about-the-name]
+title = "Om navnet · Loft by Incremental"
+# §1, én linje
+description = "Loft er rommet under taket, og navnet på det gamle huset i to etasjer der gården oppbevarte det fineste den hadde."
+kicker = "Om navnet"
+h1 = "Derfor heter det Loft."
+lead = "Du vet hva et loft er. Men ordet har en lengre historie enn bodene under taket, og den er grunnen til navnet."
+figure_alt = "Et tradisjonelt loft, med svalgang rundt øverste etasje og trapp utenpå."
+figure_caption = "Et tradisjonelt loft, med svalgang rundt øverste etasje og trapp utenpå. Illustrasjon, ikke et bestemt hus."
+sources_title = "Kilder"
+[[pages.about-the-name.sections]]
+title = "Rommet under taket"
+body = "<p>Et loft er «etasje eller rom under taket i et hus», som Bokmålsordboka sier. Det er der ting blir satt bort. Hos Ibsen, i <em>Rosmersholm</em> fra 1886, skal en reisekoffert «hentet ned fra loftet», og vi har et eget ord for boden der oppe: <em>Loftbod</em>.</p>"
+[[pages.about-the-name.sections]]
+title = "Huset der gården tok vare på det fineste"
+body = "<p>Lenge før det betydde rommet under taket, var loft navnet på et hus. Store norske leksikon beskriver loftet som en bygningstype i to etasjer som fantes i Norge allerede i tidlig middelalder, med svalgang foran eller rundt øverste etasje og en trapp utenpå huset opp til svalen.</p><p>Underetasjen var lagerrom for mat. Øverste etasje ble som regel brukt til kister og klær, og var sengekammer for gjester og andre. Loftet var ofte gårdens fineste hus, «både skattkammer og stasstue».</p><p>På Norsk Folkemuseum står loftet fra Ose i Bygland, bygd rundt 1700, og det viser mønsteret: Mat i første etasje, gårdens beste klær og utstyr i andre, og om sommeren ble begge etasjene brukt som gjesterom og sovested. Leksikonet legger til at ordet loft om rommet under taket har sitt opphav i nettopp denne middelalderske bygningstypen.</p>"
+figure = true
+[[pages.about-the-name.sections]]
+title = "Du kan fortsatt besøke dem"
+body = "<p>Flere loft er bevart på norske friluftsmuseer:</p><ul><li><strong>Dagsgardsloftet</strong> på Maihaugen, opprinnelig bygd i 1268 og flyttet dit fra Skjåk i 1909.</li><li><strong>Rolstadloftet</strong> på Norsk Folkemuseum, fra rundt 1300. Det var et soveloft, og slisser i veggene viser at det kan ha vært minst seks soveplasser.</li><li><strong>Oseloftet</strong>, også på Norsk Folkemuseum, fra rundt 1700.</li><li><strong>Vindlausloftet</strong> på Vest-Telemark Museum. Tømmeret er datert til like etter 1167, og ifølge Store norske leksikon er det trolig Norges eldste profane bygning i tre.</li></ul>"
+[[pages.about-the-name.sections]]
+title = "Ikke helt et stabbur"
+body = "<p>Stabburet er matlageret som står på stolper så mus og rotter ikke kommer inn, og det ble vanlig fra 1700-tallet. Forskjellen sitter i trappen: Loftet har trappen ute, opp til svalen, mens buret som regel har den inne. I praksis er grensen uskarp. Loft ble også satt på stabber etter hvert, og i Nore og Uvdal kalles hele loftet gjerne «bur» eller «stabbur».</p>"
+[[pages.about-the-name.sections]]
+title = "Luft, himmel, høyde"
+body = "<p>Ordet kommer av norrønt <em>lopt</em>, i slekt med <em>luft</em>. Det Norske Akademis ordbok oppgir de gamle betydningene som blant annet «luft, himmel, høyde». Engelsk har <em>loft</em> fra det samme norrøne ordet, og <em>aloft</em>, «oppe i lufta», fra <em>ā lopt</em>.</p>"
+[[pages.about-the-name.sections]]
+title = "Derfor valgte vi det"
+body = "<p>Loft holder filene dine hjemme, under ditt eget tak, i stedet for i noen andres sky. Et loft var der en husholdning tok vare på det den satte pris på, og selve ordet har himmelen i seg. Vi likte et navn som rommer begge deler.</p>"
+[[pages.about-the-name.sources]]
+text = "Bokmålsordboka, «loft», Språkrådet og Universitetet i Bergen"
+href = "https://ordbokene.no/bm/35641/loft"
+[[pages.about-the-name.sources]]
+text = "Bokmålsordboka, «loftbod»"
+href = "https://ordbokene.no/bm/35643/loftbod"
+[[pages.about-the-name.sources]]
+text = "Store norske leksikon, Ola Storsletten, «loft»"
+href = "https://snl.no/loft"
+[[pages.about-the-name.sources]]
+text = "Store norske leksikon, «loft – bygningstype»"
+href = "https://snl.no/loft_-_bygningstype"
+[[pages.about-the-name.sources]]
+text = "Store norske leksikon, Bjørn Thingsaker, «bur – bygning»"
+href = "https://snl.no/bur_-_bygning"
+[[pages.about-the-name.sources]]
+text = "Store norske leksikon, «Vindlausloftet»"
+href = "https://snl.no/Vindlausloftet"
+[[pages.about-the-name.sources]]
+text = "Norsk Folkemuseum, «Oseloftet»"
+href = "https://norskfolkemuseum.no/oselofte"
+[[pages.about-the-name.sources]]
+text = "Norsk Folkemuseum, «Rolstadloftet»"
+href = "https://norskfolkemuseum.no/rolstadloftet"
+[[pages.about-the-name.sources]]
+text = "Norsk Folkemuseum, «Raulandsloftet»"
+href = "https://norskfolkemuseum.no/Raulandsloftet"
+[[pages.about-the-name.sources]]
+text = "Maihaugen, «Dagsgardsloftet»"
+href = "https://maihaugen.no/friluftsmuseet/bygda/dagsgardsloftet"
+[[pages.about-the-name.sources]]
+text = "Det Norske Akademis ordbok (NAOB), «loft»"
+href = "https://naob.no/ordbok/loft"
+[[pages.about-the-name.sources]]
+text = "Merriam-Webster, «loft»"
+href = "https://www.merriam-webster.com/dictionary/loft"
+alt_label = "«aloft»"
+alt_href = "https://www.merriam-webster.com/dictionary/aloft"
+
+# ---------------------------------------------------------------- /pair (vises på /pair, se build.py og en.toml)
+
+[pages.pair]
+title = "Åpne denne på en enhet med Loft · Loft by Incremental"
+description = "Dette er en paringslenke til en Loft-gateway. Installer Loft, og åpne lenken igjen."
+h1 = "Åpne denne på en enhet med Loft."
+text = "Dette er en paringslenke til en Loft-gateway. Installer Loft, og åpne lenken igjen eller skann QR-koden fra gatewayen, så kobler appen seg til."
+download = "Last ned Loft"
+what = "Hva er Loft?"
+smallprint = "Paringsopplysningene blir værende i lenken, på enheten din. Denne siden leser dem ikke og sender dem ingen steder."
+
+# ---------------------------------------------------------------- 404
+
+[pages.404]
+title = "Fant ikke siden · Loft by Incremental"
+description = "Fant ikke siden."
+kicker = "404"
+h1 = "Ingenting her oppe."
+lead = "Vi har lett under hver takbjelke. Siden finnes ikke, eller den er flyttet."
+home_button = "Forside"
+download_button = "Last ned"

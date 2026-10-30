@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Loft Material 3 colours, seed loft rust #B5541A, scheme Fidelity (keeps the rust close to the seed).
+     Generated from the Loft brand palette (materialyoucolor).
+     Put the light set in values/colors.xml and the dark set in values-night/colors.xml
+     (or paste the hex into the Compose ColorScheme). Dynamic colour is OFF by default. -->
+<resources>
+    <color name="md_theme_light_primary">#953D00</color>
+    <color name="md_theme_light_on_primary">#FFFFFF</color>
+    <color name="md_theme_light_primary_container">#B5541A</color>
+    <color name="md_theme_light_on_primary_container">#FFF3EF</color>
+    <color name="md_theme_light_secondary">#845239</color>
+    <color name="md_theme_light_on_secondary">#FFFFFF</color>
+    <color name="md_theme_light_secondary_container">#FFBD9E</color>
+    <color name="md_theme_light_on_secondary_container">#7A4A31</color>
+    <color name="md_theme_light_tertiary">#005D89</color>
+    <color name="md_theme_light_on_tertiary">#FFFFFF</color>
+    <color name="md_theme_light_tertiary_container">#0077AD</color>
+    <color name="md_theme_light_on_tertiary_container">#EFF6FF</color>
+    <color name="md_theme_light_error">#BA1A1A</color>
+    <color name="md_theme_light_on_error">#FFFFFF</color>
+    <color name="md_theme_light_error_container">#FFDAD6</color>
+    <color name="md_theme_light_on_error_container">#93000A</color>
+    <color name="md_theme_light_surface">#FFF8F6</color>
+    <color name="md_theme_light_on_surface">#231915</color>
+    <color name="md_theme_light_surface_variant">#FADDD0</color>
+    <color name="md_theme_light_on_surface_variant">#564339</color>
+    <color name="md_theme_light_surface_container_lowest">#FFFFFF</color>
+    <color name="md_theme_light_surface_container_low">#FFF1EB</color>
+    <color name="md_theme_light_surface_container">#FEEAE2</color>
+    <color name="md_theme_light_surface_container_high">#F8E4DC</color>
+    <color name="md_theme_light_surface_container_highest">#F2DFD7</color>
+    <color name="md_theme_light_outline">#897268</color>
+    <color name="md_theme_light_outline_variant">#DDC1B5</color>
+    <color name="md_theme_light_inverse_surface">#392E29</color>
+    <color name="md_theme_light_inverse_on_surface">#FFEDE6</color>
+    <color name="md_theme_light_inverse_primary">#FFB692</color>
+    <color name="md_theme_dark_primary">#FFB692</color>
+    <color name="md_theme_dark_on_primary">#562000</color>
+    <color name="md_theme_dark_primary_container">#B5541A</color>
+    <color name="md_theme_dark_on_primary_container">#FFF3EF</color>
+    <color name="md_theme_dark_secondary">#F9B898</color>
+    <color name="md_theme_dark_on_secondary">#4D2610</color>
+    <color name="md_theme_dark_secondary_container">#6B3D26</color>
+    <color name="md_theme_dark_on_secondary_container">#EAAA8B</color>
+    <color name="md_theme_dark_tertiary">#8CCDFF</color>
+    <color name="md_theme_dark_on_tertiary">#00344E</color>
+    <color name="md_theme_dark_tertiary_container">#0077AD</color>
+    <color name="md_theme_dark_on_tertiary_container">#EFF6FF</color>
+    <color name="md_theme_dark_error">#FFB4AB</color>
+    <color name="md_theme_dark_on_error">#690005</color>
+    <color name="md_theme_dark_error_container">#93000A</color>
+    <color name="md_theme_dark_on_error_container">#FFDAD6</color>
+    <color name="md_theme_dark_surface">#1B110D</color>
+    <color name="md_theme_dark_on_surface">#F2DFD7</color>
+    <color name="md_theme_dark_surface_variant">#564339</color>
+    <color name="md_theme_dark_on_surface_variant">#DDC1B5</color>
+    <color name="md_theme_dark_surface_container_lowest">#150C08</color>
+    <color name="md_theme_dark_surface_container_low">#231915</color>
+    <color name="md_theme_dark_surface_container">#281D19</color>
+    <color name="md_theme_dark_surface_container_high">#332823</color>
+    <color name="md_theme_dark_surface_container_highest">#3E322D</color>
+    <color name="md_theme_dark_outline">#A48C81</color>
+    <color name="md_theme_dark_outline_variant">#564339</color>
+    <color name="md_theme_dark_inverse_surface">#F2DFD7</color>
+    <color name="md_theme_dark_inverse_on_surface">#392E29</color>
+    <color name="md_theme_dark_inverse_primary">#9E4306</color>
+</resources>

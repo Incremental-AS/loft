@@ -1,0 +1,24 @@
+#!/bin/sh
+set -e
+if [ "$1" = configure ]; then
+    if ! getent passwd loft >/dev/null; then
+        adduser --system --group --home /var/lib/loft --no-create-home \
+                --shell /usr/sbin/nologin --gecos "Loft gateway" loft >/dev/null
+    fi
+    install -d -m 0750 -o root -g loft /etc/loft
+    install -d -m 0700 -o loft -g loft /var/lib/loft
+    if [ -d /run/systemd/system ]; then
+        systemctl daemon-reload >/dev/null || true
+        systemctl enable --now loft-thumb.socket >/dev/null || true
+        if [ -f /etc/loft/gateway.toml ]; then
+            systemctl enable loft-gateway.service >/dev/null || true
+            systemctl try-restart loft-gateway.service >/dev/null || true
+        fi
+    fi
+    if [ ! -f /etc/loft/gateway.toml ]; then
+        echo "Loft gateway installed. Set it up with:  sudo loft-gateway init"
+        echo "then check it with:                     sudo loft-gateway doctor --user <account>"
+        echo "and start it:                           sudo systemctl enable --now loft-gateway"
+    fi
+fi
+exit 0

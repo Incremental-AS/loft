@@ -1,0 +1,3 @@
+"CFBundleDisplayName" = "Loft";
+"NSCameraUsageDescription" = "Skann paringskoden fra gatewayen din, og ta bilder som lagres rett i en mappe i Loft. Bildene havner ikke i bildebiblioteket ditt.";
+"NSLocalNetworkUsageDescription" = "Loft kobler seg rett til NAS-en når du er hjemme.";

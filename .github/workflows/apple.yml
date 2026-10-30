@@ -1,0 +1,77 @@
+# Loft for Mac and iPhone: LoftCore tests (Linux and macOS, including the client against the
+# gateway's dev server), an unsigned Mac build and an iPhone simulator build.
+# Building is not releasing: nothing is signed, notarized, uploaded or published here.
+# The Mac and iPhone UI tests (apple/scripts/mac-ui-test.sh, ios-ui-test.sh) need a logged-in
+# Mac and run on the build Mac, not here.
+name: apple
+
+on:
+  push:
+    paths: ["apple/**", "gateway/**", ".github/workflows/apple.yml"]
+  pull_request:
+    paths: ["apple/**", "gateway/**", ".github/workflows/apple.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  LOFT_NO_UPDATE_CHECK: "1"
+
+jobs:
+  core-linux:
+    # LoftCore is Foundation-only, so it builds and tests on Linux too. PairedGatewayTests
+    # need SecTrust (macOS/iOS) and skip themselves here.
+    runs-on: ubuntu-24.04
+    container: swift:6.1-noble
+    steps:
+      - uses: actions/checkout@v4
+      - name: Python for the dev gateway, curl
+        run: apt-get update -qq && apt-get install -y -qq python3 python3-venv curl
+      - name: Gateway venv (locked, hashes checked)
+        run: |
+          python3 -m venv /opt/gw
+          /opt/gw/bin/pip install -q --require-hashes -r gateway/requirements.lock
+      - name: Norwegian strings match the sources
+        run: python3 apple/scripts/check-strings.py
+      - name: LoftCore tests, with the client against dev_server.py
+        run: apple/scripts/core-it.sh /opt/gw/bin/python
+
+  core-macos:
+    runs-on: macos-26
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Gateway venv (locked, hashes checked)
+        run: |
+          python -m venv "$RUNNER_TEMP/gw"
+          "$RUNNER_TEMP/gw/bin/pip" install -q --require-hashes -r gateway/requirements.lock
+      - name: LoftCore tests, with the client against dev_server.py (incl. pinned pairing)
+        run: apple/scripts/core-it.sh "$RUNNER_TEMP/gw/bin/python"
+
+  build:
+    runs-on: macos-26
+    steps:
+      - uses: actions/checkout@v4
+      - name: XcodeGen
+        run: brew install xcodegen
+      - name: Project
+        run: cd apple && xcodegen generate
+      - name: Mac app (unsigned, Debug)
+        run: |
+          xcodebuild -project apple/Loft.xcodeproj -scheme Loft -configuration Debug \
+            -derivedDataPath build/DerivedData \
+            CODE_SIGNING_ALLOWED=NO CODE_SIGN_IDENTITY="" build
+      - name: Mac UI tests compile (run on a logged-in Mac with apple/scripts/mac-ui-test.sh)
+        run: |
+          xcodebuild -project apple/Loft.xcodeproj -scheme Loft -configuration Debug \
+            -destination "platform=macOS" -derivedDataPath build/DerivedData-macui \
+            ONLY_ACTIVE_ARCH=YES LOFT_MAC_BUNDLE_ID=no.incremental.loft.uitest LOFT_URL_SCHEME=loft-uitest \
+            build-for-testing
+      - name: iPhone app (simulator, unsigned)
+        run: |
+          xcodebuild -project apple/Loft.xcodeproj -scheme LoftPhone -configuration Debug \
+            -destination "generic/platform=iOS Simulator" -derivedDataPath build/DerivedData-iossim \
+            CODE_SIGNING_ALLOWED=NO build

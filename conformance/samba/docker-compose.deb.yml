@@ -1,0 +1,17 @@
+# Override for run-deb.sh: the "gateway" service is a clean Debian with the .deb
+# installed by apt, instead of the container image.
+services:
+  gateway:
+    build:
+      context: .
+      dockerfile: Dockerfile.debtest
+      args:
+        BASE: ${DEB_BASE:-debian:trixie}
+    image: loft-ci-debtest:latest
+    healthcheck:
+      test: ["CMD", "/opt/loft/venv/bin/python", "-c",
+             "import urllib.request,sys; sys.exit(urllib.request.urlopen('http://127.0.0.1:8080/healthz',timeout=3).status!=200)"]
+      interval: 2s
+      timeout: 5s
+      retries: 60
+    volumes: [gw-etc:/etc/loft, gw-state:/var/lib/loft]

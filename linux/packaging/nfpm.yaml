@@ -1,0 +1,39 @@
+# nfpm config for the .deb and .rpm (linux/scripts/package.sh sets ARCH and VERSION and
+# copies the binary for that arch to dist/nfpm/loft).
+name: loft
+arch: ${ARCH}
+platform: linux
+version: ${VERSION}
+release: 1
+section: net
+priority: optional
+maintainer: Incremental AS <hello@incremental.no>
+vendor: Incremental AS
+homepage: https://loft.incremental.no/
+license: Apache-2.0
+description: |
+  Your NAS folders in ~/Loft, through your own Loft gateway.
+  Files are fetched when opened and uploaded when saved, at home and away.
+  A FUSE file system with a local cache, an upload queue for offline edits
+  and a tray icon where the desktop has one.
+depends:
+  - fuse3
+contents:
+  - src: dist/nfpm/loft
+    dst: /usr/bin/loft
+    file_info:
+      mode: 0755
+  - src: packaging/no.incremental.loft.desktop
+    dst: /usr/share/applications/no.incremental.loft.desktop
+  - src: packaging/no.incremental.loft-pair.desktop
+    dst: /usr/share/applications/no.incremental.loft-pair.desktop
+  - src: packaging/no.incremental.loft.metainfo.xml
+    dst: /usr/share/metainfo/no.incremental.loft.metainfo.xml
+  - src: packaging/loft.service
+    dst: /usr/lib/systemd/user/loft.service
+  - src: packaging/icons/hicolor
+    dst: /usr/share/icons/hicolor
+    type: tree
+scripts:
+  postinstall: packaging/postinstall.sh
+  postremove: packaging/postinstall.sh

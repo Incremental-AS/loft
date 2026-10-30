@@ -1,0 +1,647 @@
+# English copy for loft.incremental.no. English is the source; no.toml is written natively, not translated.
+# The words come from the Loft copy files in the brand kit (en.md, about-the-name.md): change them there first.
+# A value that starts with "DRAFT: " is a layout placeholder, and a {CURLY_CAPS} token is a value that isn't
+# decided yet. `build.py --release` refuses to build while either remains.
+# Links to other pages are written out (/privacy/, /download/#android); build.py checks every one of them.
+
+# build.py --release refuses while this list has entries. Each is copy that reads finished but isn't true yet.
+[release]
+# Pre-launch (2026-10-30): every download is coming_soon and the GitHub links are out while the repo is private.
+# When the repo goes public, put back: the Source button + Releases link, the GitHub issue links on Compatibility
+# and Support, and the link on the home page (git log -S "Incremental-AS/loft/issues" content/).
+hold = []
+
+[site]
+og_alt = "Loft by Incremental: Your files, kept at home."
+
+[ui]
+skip = "Skip to content"
+home_label = "Loft by Incremental, home"
+nav_label = "Main"
+footer_nav_label = "Site"
+menu = "Menu"
+other_lang = "Norsk"
+other_hreflang = "nb"
+theme_system = "Theme: follow the system"
+theme_light = "Theme: light"
+theme_dark = "Theme: dark"
+copy = "Copy"
+copied = "Copied"
+coming_soon = "Coming soon."
+flag_norway = "Norway"
+
+[nav]
+how = "How it works"
+download = "Download"
+gateway = "Set up a gateway"
+compatibility = "Compatibility"
+privacy = "Privacy"
+security = "Security"
+support = "Support"
+source = "Source"
+about = "About the name"
+
+[cta]
+download = "Download"
+gateway = "Set up a gateway"
+
+[footer]
+endorsement = "Built in 🇳🇴 by Incremental AS"
+# Not "trademarks" until a trademark application is filed (trademark-check.md).
+smallprint = "Loft is free and open source under the Apache-2.0 licence. The name “Loft by Incremental” and the Loft icon belong to Incremental AS and are not covered by the code licence."
+
+[diagram]
+alt = "Your phone and computer connect over an encrypted connection to the Loft gateway at home, which reads and writes the files on your NAS."
+devices = "Your phone and computer"
+tls = "Encrypted (TLS)"
+home = "At home"
+gateway = "Loft gateway"
+smb = "SMB"
+nas = "Your NAS"
+
+# The five apps plus the gateway. The home tiles use name/shows/get; the Download page uses the rest.
+# href and sha256 come from the release pipeline.
+[[platforms]]
+id = "iphone"
+name = "iPhone and iPad"
+shows = "the Files app, plus “Save to Loft” in the share sheet"
+get = "App Store (coming soon)"
+coming_soon = true
+detail = "Loft puts your NAS in the Files app, so <em>Save to Files › Loft</em> works from any app, and adds <em>Save to Loft</em> to the share sheet."
+# Official App Store badge goes here once the app is live (brand guide: the only third-party badge allowed).
+[[platforms.downloads]]
+label = "Download on the App Store"
+href = "{APP_STORE_URL}"
+
+[[platforms]]
+id = "mac"
+name = "Mac"
+shows = "Finder, in the sidebar"
+get = "Download (DMG) (coming soon)"
+coming_soon = true
+detail = "Loft puts your NAS in the Finder sidebar. Files download when you open them and go back home when you save."
+version = "version {VERSION}"
+after = "Open the DMG and drag Loft into Applications."
+sha256 = "{SHA256}"
+[[platforms.downloads]]
+label = "Download for Mac (.dmg)"
+href = "{DOWNLOAD_URL}"
+
+[[platforms]]
+id = "android"
+name = "Android"
+shows = "the Files app and the system file picker, plus a share target"
+get = "Download (APK from this site) (coming soon)"
+coming_soon = true
+detail = "Loft puts your NAS in the Files app and the system file picker, adds Loft to the share menu, and can upload photos straight to a folder on the NAS."
+version = "version {VERSION}"
+note = "<em>Why not Google Play?</em> We publish Loft for Android here, as an APK, signed by Incremental. Android will ask you to allow installs from your browser the first time. The app checks this site for updates."
+sha256 = "{SHA256}"
+[[platforms.downloads]]
+label = "Download for Android (.apk)"
+href = "{DOWNLOAD_URL}"
+
+[[platforms]]
+id = "windows"
+name = "Windows 10 and 11"
+shows = "File Explorer, with files that download when you open them"
+get = "Download (zip) (coming soon)"
+coming_soon = true
+detail = "Loft puts your NAS in File Explorer. Files show up right away and download when you open them."
+version = "Windows 10 and 11 · version {VERSION}"
+after = "There's no installer: unzip the folder wherever you like and start Loft from it."
+# Builds ship unsigned for now. Drop the SmartScreen sentences once they're signed. The note ends in a colon
+# because the template prints the SHA-256 line (sha256 below) right after it.
+note = "Windows SmartScreen may warn you that the app is unrecognised, because this build isn't code-signed yet. Choose <em>More info › Run anyway</em> if you downloaded it from this page. To check that the file is ours, compare its SHA-256 checksum:"
+sha256 = "{SHA256}"
+[[platforms.downloads]]
+label = "Download for Windows (.zip)"
+href = "{DOWNLOAD_URL}"
+
+[[platforms]]
+id = "linux"
+name = "Linux"
+shows = "a <code>~/Loft</code> folder, with a tray icon where your desktop has one"
+get = "Download (.deb, .rpm, AppImage, tarball) (coming soon)"
+coming_soon = true
+detail = "Loft mounts your NAS at <code>~/Loft</code>. Files are read when you open them, and changes are uploaded in the background. A tray icon shows the status where your desktop supports one."
+version = "version {VERSION}"
+sha256 = "{SHA256}"
+[[platforms.downloads]]
+label = ".deb"
+href = "{DOWNLOAD_URL}"
+[[platforms.downloads]]
+label = ".rpm"
+href = "{DOWNLOAD_URL}"
+[[platforms.downloads]]
+label = "AppImage"
+href = "{DOWNLOAD_URL}"
+[[platforms.downloads]]
+label = "tarball"
+href = "{DOWNLOAD_URL}"
+
+[[platforms]]
+id = "gateway"
+name = "Loft gateway"
+shows = "runs at home on Linux (x86_64 or arm64, so a 64-bit Raspberry Pi will do)"
+get = ".deb or container image (coming soon)"
+# The .deb and the container image are built but not released. While coming_soon is set, the Download page
+# renders no download buttons, version or checksum for this card (templates/pages/download.html).
+# Drop it, and the "Coming soon." lead-ins here and on Set up a gateway, with --release. There is no apt repository.
+coming_soon = true
+detail = "Runs at home on Linux, x86_64 or arm64 (a 64-bit Raspberry Pi will do), with Python 3.12 or newer. Debian 13, Ubuntu 24.04 and current Raspberry Pi OS have it. On an older system, use the container."
+# Until --release the container part of Set up a gateway is hidden, so this links to the page; at release: /gateway/#container
+list = "<ul><li><strong>Debian 13 and Ubuntu 24.04:</strong> a <code>.deb</code> for x86_64, downloaded from this page. The arm64 package is on its way. → <a href=\"/gateway/\">Set up a gateway</a></li><li><strong>Container:</strong> a multi-arch image, for x86_64 and arm64. → <a href=\"/gateway/\">Set up a gateway</a></li></ul>"
+
+# ---------------------------------------------------------------- home
+
+[pages.home]
+title = "Loft by Incremental: your files, kept at home"
+description = "Loft puts the shared folders on your own NAS in Finder, Explorer and Files. Free and open source. Your files stay at home."
+
+[home.hero]
+kicker = "Free and open source"
+title = "Your files, kept at home."
+lead = "Loft puts the shared folders on your NAS in the file app you already use, on iPhone, iPad, Mac, Android, Windows and Linux. A small gateway runs at home. No one else stores your files."
+alt = "A red timber loft in the snow with one lit window"
+
+[home.what]
+title = "Your NAS, wherever you are"
+[[home.what.points]]
+title = "In the file app you already use."
+body = "Your shared folders show up in Finder on the Mac, in Files on iPhone, iPad and Android, in File Explorer on Windows and as a folder in your home directory on Linux. No new place to learn."
+[[home.what.points]]
+title = "Files arrive when you open them."
+body = "Loft lists everything but only downloads what you open. When you save, the file goes back home. A big archive doesn't have to fit on a small phone."
+[[home.what.points]]
+title = "The NAS stays in charge."
+body = "Loft signs in to the NAS as you, with the username and password you already have. The NAS's own permissions decide what you can see and change. The gateway can narrow that further if you want, but never widen it."
+
+[home.home]
+title = "Not the cloud. The loft."
+body = "<p>Loft doesn't copy your files to a server somewhere. They stay on your NAS, in your home, and they travel only between the NAS and your own devices, through a gateway you run yourself. There is no Loft account and no Loft server, and Incremental never sees your files, your file names or your password.</p><p>The Mac, Android, Windows and Linux apps check for a new version at most once a day. That's the only request any Loft app makes to us, and you can switch it off. → <a href=\"/privacy/\">Privacy</a></p>"
+
+[home.open]
+title = "Free, and the code is public"
+body = "<p>Loft costs nothing. The gateway and every app are open source under the Apache-2.0 licence, so you can read the code, build it yourself and change it. The code goes up on GitHub with the first release. → <a href=\"/source/\">Source</a></p>"
+smallprint = "The name “Loft by Incremental” and the icon are not part of the licence. If you ship a fork, give it its own name."
+
+[home.platforms]
+title = "Five apps and one gateway"
+col_shows = "Shows up in"
+col_get = "Get it"
+after = "Android comes from this site, not Google Play. → <a href=\"/download/#android\">Why, and how to install it</a>"
+
+[home.how]
+title = "Three steps"
+[[home.how.steps]]
+title = "Install the gateway."
+body = "Put the Loft gateway on a small Linux machine at home, next to the NAS. Run <code>loft-gateway init</code>. It asks where your shared folders are and sets everything up."
+[[home.how.steps]]
+title = "Scan the pairing code."
+body = "<code>loft-gateway pair</code> shows a QR code and a link. Scan it with the app, or open the link. The code carries the gateway's address and its keys, so your app talks to <em>your</em> gateway from the very first connection."
+[[home.how.steps]]
+title = "Your files show up."
+body = "Sign in with your NAS username and password. Your shared folders appear in Finder, Explorer or Files, and you use them like any other folder."
+[[home.how.links]]
+label = "How it works, in detail"
+href = "/how-it-works/"
+[[home.how.links]]
+label = "Set up a gateway"
+href = "/gateway/"
+
+[home.honest]
+title = "What's encrypted, and who could see what"
+body = "<ul><li><strong>At home</strong>, the app talks to the gateway over an encrypted connection (TLS) that is pinned to your gateway's key, so it can't be redirected to someone else's.</li><li><strong>Away from home</strong>, you choose how the gateway is reached:<ul><li><strong>Through a tunnel</strong> (for example Cloudflare Tunnel). It's easy to set up and needs no open port. The connection is encrypted, but the tunnel provider decrypts it on the way through, so <strong>the provider can read your traffic</strong>. Your password is never sent this way: you sign in at home, once.</li><li><strong>Directly</strong>, with a port forwarded on your router. The connection is pinned to your gateway's key and encrypted <strong>end to end</strong>. Nobody in between can read it, and you can sign in from anywhere.</li></ul></li><li><strong>Your password</strong> only ever crosses a pinned connection to your own gateway. The gateway stores it encrypted, in a way that only works together with your signed-in device.</li><li><strong>Between the gateway and the NAS</strong>, Loft uses SMB 3 with encryption switched on. For an older NAS without SMB encryption, the gateway can be told to allow an unencrypted connection on your home network. It's your choice, and it's off by default.</li></ul>"
+more = "→ <a href=\"/how-it-works/#security\">The full picture</a>"
+
+[home.name]
+title = "Why “Loft”?"
+body = "In Norwegian, a <em>loft</em> is the attic, the room under the roof. It is also an old farm building: a two-storey log house where the farm kept its food downstairs and its chests, best clothes and valuables upstairs, and where guests slept. Store norske leksikon calls it “both treasury and best parlour”. That's what we wanted for your files: a place at home for the things worth keeping."
+more = "→ <a href=\"/about-the-name/\">More about the name</a>"
+quote = "Both treasury and best parlour."
+quote_cite = "Store norske leksikon"
+
+[home.cta]
+title = "Bring your files home."
+lead = "Install the gateway, scan the code, and your NAS is in your pocket."
+
+# ---------------------------------------------------------------- how it works
+
+[pages.how-it-works]
+title = "How it works · Loft by Incremental"
+description = "How Loft connects your phone and computer to the NAS at home: the gateway, pairing, sign-in, and exactly what is encrypted on each route."
+kicker = "How it works"
+h1 = "A gateway at home, an app in your pocket."
+lead = "Loft has two parts. A gateway runs next to your NAS, and the app runs on your device. The app only ever talks to your gateway, and the gateway only ever talks to your NAS."
+diagram_label = "Diagram"
+
+[pages.how-it-works.parts]
+title = "The parts"
+[[pages.how-it-works.parts.items]]
+title = "The NAS."
+body = "Anything that shares folders over SMB: a NAS box, a Windows server, a Linux machine running Samba. Loft doesn't change it and doesn't install anything on it."
+[[pages.how-it-works.parts.items]]
+title = "The Loft gateway."
+body = "A small service on a Linux machine at home. It signs in to the NAS <em>as you</em>, so the NAS's own permissions apply. It is the only thing your apps connect to."
+[[pages.how-it-works.parts.items]]
+title = "The apps."
+body = "Loft for iPhone and iPad, Mac, Android, Windows and Linux. They put the shared folders in the system's own file app and fetch files when you open them."
+
+[pages.how-it-works.pairing]
+title = "Pairing"
+body = "<p><code>loft-gateway pair</code> prints a QR code and a link. Both carry the gateway's name, its addresses and the fingerprints of its keys. Your app checks those fingerprints on every connection, so it can't be tricked into talking to another machine. That's also why there's no “type the server address” box. A typed address is how a fake gateway would collect passwords. (If you need it anyway, <em>Set up manually</em> is in the app's advanced settings.)</p><p>The link looks like <code>https://loft.incremental.no/pair#…</code>. Everything after the <code>#</code> stays on your device. Browsers never send that part to our website.</p><p>Each device pairs with one gateway at a time.</p>"
+
+[pages.how-it-works.security]
+id = "security"
+title = "What's encrypted on each route"
+col_home = "At home"
+col_tunnel = "Away, through a tunnel"
+col_direct = "Away, direct"
+body = "<p><strong>Which should I choose?</strong> A tunnel is the easy option. Nothing is opened on your router, but you trust the tunnel provider with your traffic. Direct mode means forwarding a port to the gateway. Nobody in between can read anything, but the gateway is reachable from the internet, so it limits sign-in attempts. Many NAS boxes don't lock an account after failed passwords, so the gateway does it for them. You can also use neither and reach Loft only at home.</p><p><strong>Your password.</strong> It is sent only over a pinned connection to your gateway. The gateway stores it encrypted with two keys, one held by the gateway and one held only by your device, so a copy of the gateway's database is not enough to read it. Removing a device deletes its copy.</p><p><strong>What we can't protect against, said plainly.</strong> While the gateway is running and you're using it, it has to use your password to talk to the NAS. Someone who takes control of the running gateway could capture the passwords of the people using it at that moment. That's true of any gateway that signs in to SMB as you. So run the gateway on a machine that does nothing else, and keep it updated.</p><p><strong>Updates.</strong> The gateway never updates itself. You install the new <code>.deb</code> or pull a new container image, after reading the release notes.</p>"
+report = "→ Found a security problem? <a href=\"/security/\">Security</a> (hello@incremental.no)"
+[[pages.how-it-works.security.rows]]
+leg = "App ↔ gateway"
+home = "Encrypted, pinned to your gateway's key"
+tunnel = "Encrypted to the tunnel provider, who <strong>can read the traffic</strong>, then through the provider's tunnel to your gateway"
+direct = "Encrypted, pinned to your gateway's key, <strong>end to end</strong>"
+[[pages.how-it-works.security.rows]]
+leg = "Signing in with your password"
+home = "Yes"
+tunnel = "<strong>No.</strong> Sign in at home first"
+direct = "Yes, the connection is pinned"
+[[pages.how-it-works.security.rows]]
+leg = "Gateway ↔ NAS"
+home = "SMB 3, encryption required (can be relaxed for an older NAS)"
+tunnel = "same"
+direct = "same"
+
+# ---------------------------------------------------------------- download
+
+[pages.download]
+title = "Download · Loft by Incremental"
+description = "Download Loft for iPhone, iPad, Mac, Android, Windows and Linux, and the Loft gateway. Free and open source."
+kicker = "Download"
+h1 = "Get Loft."
+lead = "Loft is free on every platform. You also need a Loft gateway at home. If you don't have one yet, <a href=\"/gateway/\">set it up first</a>: it takes one command and one QR code."
+[pages.download.updates]
+title = "Checking for updates"
+# Same as the update-check paragraph on Privacy (which adds Apple's privacy terms). All four apps that don't come from
+# the App Store have the check: Android, Windows and Linux (confirmed against the code 2026-10-30) and Mac (since
+# 2026-10-30, LoftCore UpdateCheck.swift). Each is a plain GET of releases.json with only a User-Agent naming the app,
+# at most once a day, with a switch in the app's settings ("Check for updates" on the Mac). The iPhone app never checks.
+body = "<p>The Mac, Android, Windows and Linux apps check <code>loft.incremental.no/releases.json</code> for a new version, at most once a day. That request is the only one any Loft app makes to us. It's a plain download of that one file: no account, no device ID, nothing about your gateway or your files. At most, it says which app is asking. You can turn it off in the app's settings. The iPhone and iPad app updates through the App Store.</p><p>Source code and checksums for every release: → <a href=\"/source/\">Source</a></p>"
+
+# ---------------------------------------------------------------- set up a gateway
+
+# Commands from docs/design.md §B.5. Don't publish a command nobody has run; if one ends up different, rewrite the step.
+[pages.gateway]
+title = "Set up a gateway · Loft by Incremental"
+description = "Install the Loft gateway on a small Linux machine at home, point it at your NAS, and pair your apps with one QR code."
+kicker = "Set up a gateway"
+h1 = "Give your NAS a door."
+lead = "The gateway is the small piece of Loft that runs at home. Your apps talk to it, and it talks to your NAS, signed in as you. It takes about ten minutes, and you only do it once."
+
+[pages.gateway.need]
+title = "What you need"
+items = [
+  '''A Linux machine that's always on and on the same network as the NAS: x86_64 or arm64, with Python 3.12 or newer. Debian 13, Ubuntu 24.04 and current Raspberry Pi OS have it; on an older system, use the container. A 64-bit Raspberry Pi will do. Use a machine that does nothing else if you can (see <a href="/how-it-works/#security">Security</a>).''',
+  "A NAS or server that shares folders over SMB 3, and its address on your network.",
+  "Your NAS username and password. You'll type them into the app later, not into the gateway's settings.",
+]
+
+[[pages.gateway.steps]]
+title = "Install"
+# Until --release: only this paragraph. At release, rename parts_at_release back to parts and
+# drop this body and the "Coming soon." lead-ins in the parts.
+body = "<p><strong>Coming soon.</strong> The gateway isn't available to download yet. When it is, the <code>.deb</code> and the container image will be on <a href=\"/download/#gateway\">Download</a>, and the commands to install them will be right here.</p>"
+[[pages.gateway.steps.parts_at_release]]
+id = "debian"
+title = "Debian 13 and Ubuntu 24.04"
+# Not released yet: step 1 stays "Coming soon" until --release. No package repository exists.
+before = "<p><strong>Coming soon.</strong> Download the <code>.deb</code> from <a href=\"/download/#gateway\">Download</a> and install it. There's no package repository yet, so a new version is a new download too.</p>"
+code = "sudo apt install ./loft-gateway_*_amd64.deb"
+after = "<p>The arm64 package, for a Raspberry Pi, is on its way. Until then, use the container on arm64.</p>"
+[[pages.gateway.steps.parts_at_release]]
+id = "container"
+title = "Container"
+before = "<p><strong>Coming soon.</strong> A multi-arch image, for x86_64 and arm64. The first start prints the pairing code (<code>docker logs loft</code>).</p>"
+code = """docker run -d --name loft --restart unless-stopped \\
+  -p 8443:8443 \\
+  -e LOFT_SMB_SERVER=&lt;nas-address&gt; \\
+  -e LOFT_LAN_URL=https://&lt;gateway-address&gt;:8443 \\
+  -v loft-etc:/etc/loft -v loft-state:/var/lib/loft \\
+  loft-gateway:0.2.0
+docker logs loft
+docker exec -it loft loft-container loft-gateway doctor --user alice
+docker exec loft loft-container loft-gateway pair"""
+after = "<p>In the container, the thumbnail worker runs as a separate process without privileges, instead of in the systemd sandbox the <code>.deb</code> uses. Thumbnails work the same way.</p>"
+
+[[pages.gateway.steps]]
+title = "Point it at your NAS"
+body = '''<p>Run <code>loft-gateway init</code>. It asks for your NAS address, writes the settings file and creates the gateway's keys. At the end, it shows a pairing code.</p>
+<p>Then run <code>loft-gateway doctor</code>. It checks that the gateway can reach the NAS, which SMB version and encryption the NAS offers, that the clock is right, and that the certificate is valid. If something is wrong, it tells you what. Add <code>--user</code> and your NAS username to check sign-in and the shared folders too. It asks for the password and never prints it.</p>
+<p><strong>An older NAS without SMB encryption?</strong> By default the gateway refuses to connect without it. With <code>smb_encryption = "server"</code> in the settings file, the NAS decides instead, and the connection on your home network is encrypted only if the NAS asks for it. It's your choice.</p>'''
+
+[[pages.gateway.steps]]
+title = "Pair your apps"
+body = '''<p>Run <code>loft-gateway pair</code> and scan the QR code with the Loft app, or open the link on the device. The code carries the gateway's address and its keys, so the app knows it's talking to <em>your</em> gateway from the very first connection. Then sign in with your NAS username and password.</p>
+<p>There's no field for typing in a gateway address, on purpose: a typed address could lead you to a fake gateway that collects passwords. If you really need it, the app has <em>Set up manually</em> under advanced settings.</p>'''
+
+[[pages.gateway.steps]]
+id = "outside"
+title = "Away from home (optional)"
+body = '''<p>At home, nothing more is needed. To use Loft away from home, choose one:</p>
+<ul><li><strong>A tunnel</strong>, for example Cloudflare Tunnel. No open port on your router, but the tunnel provider can read the traffic, and you sign in at home.</li><li><strong>Direct</strong>, with a port forwarded on your router to the gateway. Encrypted end to end, and you can sign in from anywhere. The gateway limits sign-in attempts.</li></ul>
+<p>The differences are explained in <a href="/how-it-works/#security">How it works</a>. Run <code>loft-gateway pair</code> again after changing it, so the code includes the new address.</p>'''
+
+[[pages.gateway.sections]]
+id = "limit"
+title = "Limit what Loft shows (optional)"
+body = "<p>Loft shows every shared folder your NAS account can open, and the NAS's own permissions decide the rest. You can narrow it further in the settings file: only some shared folders, hidden folders or paths, or only some users. All of these are empty by default.</p>"
+[[pages.gateway.sections]]
+id = "updating"
+title = "Updating"
+body = '''<p>The gateway never updates itself. Install the new <code>.deb</code> or pull a new container image after reading the release notes. → <a href="/source/">Source</a> for release notes and checksums.</p>'''
+
+# ---------------------------------------------------------------- compatibility
+
+[pages.compatibility]
+title = "Compatibility · Loft by Incremental"
+description = "Which NAS boxes and servers Loft has been tested with, and what you need on your network."
+kicker = "Compatibility"
+h1 = "What Loft works with."
+lead = "Loft works with SMB shares, which is what most NAS boxes, Windows servers and Samba use. Here is what we have actually tested. If yours isn't on the list, it may well work. Run <code>loft-gateway doctor</code> and it will tell you."
+
+[pages.compatibility.need]
+title = "What you need"
+items = [
+  "A NAS or server that shares folders over <strong>SMB 3</strong>. Loft requires SMB encryption by default, and a NAS without it can be allowed on your home network.",
+  "A <strong>Linux machine at home</strong> for the gateway: x86_64 or arm64 with Python 3.12 or newer (Debian 13, Ubuntu 24.04 and current Raspberry Pi OS have it), or any machine that runs containers.",
+  "For use away from home: a <strong>tunnel</strong> (for example Cloudflare Tunnel) or a <strong>port forward</strong> on your router. Neither is needed at home.",
+]
+
+# status: ok | warn | danger | untested. Change a row only when the conformance suite or a real test has shown it.
+# Only Samba has a result so far (2026-10-30).
+[pages.compatibility.tested]
+title = "Tested NAS and servers"
+col_server = "NAS / server"
+col_status = "Status"
+col_notes = "Notes"
+[[pages.compatibility.tested.rows]]
+server = "Samba (Linux)"
+status = "ok"
+status_label = "Tested automatically"
+notes = "Every change to the code is tested against Samba: with SMB encryption required, offered and switched off, through a tunnel and directly"
+[[pages.compatibility.tested.rows]]
+server = "Ubiquiti UniFi UNAS"
+status = "untested"
+status_label = "Not tested yet"
+notes = ""
+[[pages.compatibility.tested.rows]]
+server = "TrueNAS SCALE"
+status = "untested"
+status_label = "Not tested yet"
+notes = ""
+[[pages.compatibility.tested.rows]]
+server = "Windows Server (SMB)"
+status = "untested"
+status_label = "Not tested yet"
+notes = ""
+[[pages.compatibility.tested.rows]]
+server = "Synology"
+status = "untested"
+status_label = "Not tested yet"
+notes = "If you have one, run <code>loft-gateway doctor</code> and tell us how it went"
+
+[pages.compatibility.apps]
+title = "Apps"
+col_app = "App"
+col_needs = "Needs"
+[[pages.compatibility.apps.rows]]
+app = "iPhone and iPad"
+needs = "iOS or iPadOS 17 or newer"
+[[pages.compatibility.apps.rows]]
+app = "Mac"
+needs = "macOS 14 or newer"
+[[pages.compatibility.apps.rows]]
+app = "Android"
+needs = "Android 8 or newer"
+[[pages.compatibility.apps.rows]]
+app = "Windows"
+needs = "Windows 10 or 11"
+[[pages.compatibility.apps.rows]]
+app = "Linux"
+needs = "FUSE. A tray icon where your desktop supports one"
+
+[pages.compatibility.tell]
+title = "Tell us"
+body = "<p>Tested Loft with something that isn't here? Write to <strong>hello@incremental.no</strong> with the output of <code>loft-gateway doctor</code>.</p><p>Remove anything private from the output first: addresses, share names and user names.</p>"
+
+# ---------------------------------------------------------------- privacy, support, security, source
+
+[pages.privacy]
+title = "Privacy · Loft by Incremental"
+description = "What Loft and this website know about you. Short version: almost nothing."
+kicker = "Privacy"
+h1 = "Your files are none of our business."
+lead = "Loft is built so we never need your files, your passwords or your habits. Here is everything we, and the services we use, can see."
+[[pages.privacy.sections]]
+title = "Your files"
+body = '''<p>Your files go from your device to your gateway and on to your NAS. All three are yours. They never pass through Incremental, and we have no copy and no access. If you use a tunnel for access away from home, the tunnel provider can read that traffic. That's the provider, not us. <a href="/how-it-works/#security">How it works</a> has the details.</p>'''
+[[pages.privacy.sections]]
+title = "Your password"
+body = "<p>Your NAS password goes only to your own gateway, over a connection pinned to its key. The gateway stores it encrypted, and it's useless without your signed-in device. We never see it.</p>"
+[[pages.privacy.sections]]
+title = "The apps"
+# Same as the update-check paragraph on Download, plus Apple's privacy terms. Mac, Android, Windows and Linux all have
+# the check (see the comment on Download); keep the two paragraphs identical.
+body = "<p>The Mac, Android, Windows and Linux apps check <code>loft.incremental.no/releases.json</code> for a new version, at most once a day. That request is the only one any Loft app makes to us. It's a plain download of that one file: no account, no device ID, nothing about your gateway or your files. At most, it says which app is asking. You can turn it off in the app's settings. The iPhone and iPad app updates through the App Store, where Apple's privacy terms apply.</p>"
+[[pages.privacy.sections]]
+title = "This website"
+# Assumes the hosting plan: a Cloudflare Worker, downloads from GitHub Releases. Update this if that changes.
+body = "<p>No cookies, no analytics, no tracking, no fonts or scripts from anyone else. The light/dark setting is stored in your own browser and never sent anywhere. The site is served by Cloudflare, and app downloads come from GitHub. Like any host, they see your IP address and which file you asked for. We add nothing on top.</p>"
+[[pages.privacy.sections]]
+title = "Pairing links"
+body = "<p>The pairing details in a link stay after the <code>#</code>, and browsers never send that part to a server. The <code>/pair</code> page doesn't read it either.</p>"
+[[pages.privacy.sections]]
+title = "Questions"
+body = "<p>Incremental AS is responsible for this website and for the Loft apps. Write to hello@incremental.no.</p>"
+
+[pages.support]
+title = "Support · Loft by Incremental"
+description = "Help with Loft: what to check first, where to report a problem, and how to report a security issue."
+kicker = "Support"
+h1 = "Something not right?"
+lead = "Loft is free, and it's made by a small team. There's no help desk, but there is an issue tracker, and we read it."
+[[pages.support.sections]]
+title = "Check these first"
+# Finder's banner and the Settings path are macOS 27.2's own strings (FinderKit NE99/NE100, LoginItems.appex), checked on a Mac 2026-10-30.
+# The NAS line is true for 0.1 and current code (rescan every 300 s); change it when change notify ships.
+body = '''<ul>
+<li><strong>Run <code>loft-gateway doctor</code> on the gateway.</strong> Most problems are between the gateway and the NAS, and it will usually say what's wrong.</li>
+<li><strong>Mac: Loft isn't in the Finder sidebar.</strong> macOS may have switched it off. Look for <em>“Loft” is not enabled</em> in Finder and choose <em>Enable</em>, or turn Loft on under System Settings › General › Login Items &amp; Extensions › File Providers.</li>
+<li><strong>Changes made on the NAS take a few minutes to show up.</strong> Changes from Loft show up within seconds.</li>
+<li><strong>Can't sign in away from home?</strong> On a tunnel, sign-in only works at home. That's on purpose: see <a href="/how-it-works/#security">How it works</a>.</li>
+<li><strong>The app can't find the gateway?</strong> Pair again: run <code>loft-gateway pair</code> and scan the new code.</li>
+</ul>'''
+[[pages.support.sections]]
+title = "Report a problem"
+body = '''<p>Write to <strong>hello@incremental.no</strong>. Say which app and version, which NAS, and paste the output of <code>loft-gateway doctor</code>.</p>
+<p>Remove anything private from the output first: addresses, share names and user names.</p>'''
+[[pages.support.sections]]
+title = "Security problems"
+body = '''<p>Please don't open a public issue. Write to hello@incremental.no instead. → <a href="/security/">Security</a></p>'''
+
+[pages.security]
+title = "Security · Loft by Incremental"
+description = "How to report a security problem in Loft, and how Loft is built to keep your files and password safe."
+kicker = "Security"
+h1 = "Found a hole? Tell us first."
+lead = "If you've found a security problem in Loft, the gateway, the apps or this website, please write to <strong>hello@incremental.no</strong> before telling anyone else."
+# No response time, credit or bounty on purpose: no disclosure policy is set yet.
+[[pages.security.sections]]
+title = "How to report"
+body = '''<ul>
+<li>Describe what you found, how to reproduce it, and which version you tested.</li>
+<li>Please don't open a public issue, and don't test against gateways that aren't yours.</li>
+<li>Give us reasonable time to fix it before you publish.</li>
+<li>The repository's <code>SECURITY.md</code> says the same, in case you found us there first.</li>
+</ul>'''
+[[pages.security.sections]]
+title = "How Loft is built"
+body = '''<ul>
+<li>Apps only talk to a gateway they were paired with. The keys come in the pairing code, so there's no trusting the first connection blindly.</li>
+<li>Your password goes only over a connection pinned to your gateway, and the gateway stores it encrypted with a key that is only on your device.</li>
+<li>The gateway signs in to the NAS as you, so the NAS's own permissions apply. It uses SMB 3 with encryption by default.</li>
+<li>In direct mode, the gateway limits sign-in attempts, because many NAS boxes don't.</li>
+<li>The gateway never updates itself. Every release has a SHA-256 checksum.</li>
+<li>Every change to the code is scanned for secrets before it's accepted.</li>
+</ul>
+<p>What's encrypted on each route, and what we can't protect against: <a href="/how-it-works/#security">How it works</a>.</p>'''
+
+[pages.source]
+title = "Source · Loft by Incremental"
+description = "Loft is open source under the Apache-2.0 licence. The gateway, every app and this website go on GitHub with the first release."
+kicker = "Source"
+h1 = "Read every line."
+lead = "The gateway, all five apps and this website are open source under the Apache-2.0 licence. The repository goes public on GitHub with the first release."
+[[pages.source.sections]]
+title = "What's in the repository"
+body = '''<ul>
+<li><code>gateway/</code>: the Loft gateway (Python)</li>
+<li><code>apple/</code>: the Mac, iPhone and iPad apps (Swift)</li>
+<li><code>android/</code>: the Android app (Kotlin)</li>
+<li><code>windows/</code>: the Windows app (C#)</li>
+<li><code>linux/</code>: the Linux app (Go)</li>
+<li><code>api/openapi.yaml</code>: the API every app speaks to the gateway</li>
+<li><code>conformance/</code>: the tests every app must pass against a real Samba server</li>
+<li><code>website/</code>: this site</li>
+<li><code>docs/</code></li>
+</ul>'''
+[[pages.source.sections]]
+title = "Releases"
+body = '''<p>Every release will have release notes on GitHub, and a SHA-256 checksum for each download.</p>'''
+[[pages.source.sections]]
+title = "The name is not in the licence"
+body = "<p>You're free to use, change and share the code under Apache-2.0. The name “Loft by Incremental” and the Loft icon aren't covered by the licence, so if you publish your own version, give it your own name and icon. <code>TRADEMARKS.md</code> in the repository explains it.</p>"
+[[pages.source.sections]]
+title = "Taking part"
+body = '''<p>Bug reports and compatibility results are welcome as issues. If you've tested Loft with a NAS that isn't on the <a href="/compatibility/">Compatibility</a> list, tell us.</p>'''
+
+# ---------------------------------------------------------------- about the name (about-the-name.md §2, sources §4)
+
+[pages.about-the-name]
+title = "About the name · Loft by Incremental"
+# §1 one-liner
+description = "Loft is Norwegian for the attic, and the name of the old two-storey farm building where a household kept its best things."
+kicker = "About the name"
+h1 = "Why it's called Loft."
+lead = "<em>Loft</em> is a Norwegian word with two homes: the room under the roof, and one of the oldest buildings on the farm."
+figure_alt = "A traditional loft, with the gallery round the upper floor and the outside stair."
+figure_caption = "A traditional loft, with the gallery round the upper floor and the outside stair. Illustration, not a specific building."
+sources_title = "Sources"
+[[pages.about-the-name.sections]]
+title = "The room under the roof"
+body = "<p>In everyday Norwegian, <em>loftet</em> is the attic, “the storey or room under the roof of a house”, as the Bokmål dictionary puts it. It's where things get put away. In Ibsen's <em>Rosmersholm</em> (1886), a travelling trunk is “fetched down from the loft”, and the language even has a word for the storeroom up there: <em>loftbod</em>.</p>"
+[[pages.about-the-name.sections]]
+title = "The house where the farm kept its best things"
+body = "<p>Long before it meant the attic, <em>loft</em> was the name of a building. Store norske leksikon, the Norwegian encyclopedia, describes it as a two-storey building type that existed in Norway already in the early Middle Ages, with a gallery, the <em>svalgang</em>, in front of or around the upper floor, and a stair outside the house up to it.</p><p>The ground floor was a storeroom for food. The upper floor, as a rule, held chests and clothes and was a bedchamber for guests and others. The loft was often the farm's most finely crafted building, “both treasury and best parlour”.</p><p>At Norsk Folkemuseum in Oslo, the loft from Ose in Setesdal (built around 1700) shows the pattern: food on the ground floor, the farm's best clothes and equipment upstairs, and in summer both floors used as guest rooms and sleeping quarters. The encyclopedia adds that the attic meaning of the word comes from this medieval building.</p>"
+figure = true
+[[pages.about-the-name.sections]]
+title = "You can still visit one"
+body = "<p>Several lofts are preserved in Norway's open-air museums:</p><ul><li><strong>Dagsgardsloftet</strong> at Maihaugen in Lillehammer, originally built in 1268 and moved there from Skjåk in 1909.</li><li><strong>Rolstadloftet</strong> at Norsk Folkemuseum, from around 1300. It was a sleeping loft, and slots in the walls suggest at least six sleeping places.</li><li><strong>Oseloftet</strong>, also at Norsk Folkemuseum, from around 1700.</li><li><strong>Vindlausloftet</strong> at Vest-Telemark Museum. Its timber has been dated to just after 1167, which, according to Store norske leksikon, probably makes it Norway's oldest secular wooden building.</li></ul>"
+[[pages.about-the-name.sections]]
+title = "Not quite a stabbur"
+body = "<p>Norwegian farms also have the <em>stabbur</em>, the food store raised on posts to keep mice and rats out, common from the 1700s. The difference is the stair: a loft's stair is outside, up to the gallery, and a <em>bur</em>'s is usually inside. In practice the line blurs. Lofts were later raised on posts too, and in Nore og Uvdal people often call the whole loft a <em>bur</em> or <em>stabbur</em>.</p>"
+[[pages.about-the-name.sections]]
+title = "Air, sky, height"
+body = "<p>The word goes back to Old Norse <em>lopt</em>, related to <em>luft</em>, “air”. Det Norske Akademis ordbok lists the old meanings as air, sky and height, among others. English got its <em>loft</em> from the same Old Norse word, and <em>aloft</em> from <em>ā lopt</em>, “in the air”.</p>"
+[[pages.about-the-name.sections]]
+title = "Why we chose it"
+body = "<p>Loft keeps your files at home, under your own roof, instead of in someone else's cloud. A loft was where a household kept what it valued, and the word itself has the sky in it. We liked a name that could hold both.</p>"
+# §4. All read 2026-10-30. Quote, don't copy (SNL restricts reuse).
+[[pages.about-the-name.sources]]
+text = "Bokmålsordboka, «loft», Språkrådet and Universitetet i Bergen"
+href = "https://ordbokene.no/bm/35641/loft"
+[[pages.about-the-name.sources]]
+text = "Bokmålsordboka, «loftbod»"
+href = "https://ordbokene.no/bm/35643/loftbod"
+[[pages.about-the-name.sources]]
+text = "Store norske leksikon, Ola Storsletten, «loft»"
+href = "https://snl.no/loft"
+[[pages.about-the-name.sources]]
+text = "Store norske leksikon, «loft – bygningstype»"
+href = "https://snl.no/loft_-_bygningstype"
+[[pages.about-the-name.sources]]
+text = "Store norske leksikon, Bjørn Thingsaker, «bur – bygning»"
+href = "https://snl.no/bur_-_bygning"
+[[pages.about-the-name.sources]]
+text = "Store norske leksikon, «Vindlausloftet»"
+href = "https://snl.no/Vindlausloftet"
+[[pages.about-the-name.sources]]
+text = "Norsk Folkemuseum, «Oseloftet»"
+href = "https://norskfolkemuseum.no/oselofte"
+alt_label = "in English"
+alt_href = "https://norskfolkemuseum.no/en/storehouse-from-ose"
+[[pages.about-the-name.sources]]
+text = "Norsk Folkemuseum, «Rolstadloftet»"
+href = "https://norskfolkemuseum.no/rolstadloftet"
+alt_label = "in English"
+alt_href = "https://norskfolkemuseum.no/en/rolstad"
+[[pages.about-the-name.sources]]
+text = "Norsk Folkemuseum, «Raulandsloftet»"
+href = "https://norskfolkemuseum.no/Raulandsloftet"
+[[pages.about-the-name.sources]]
+text = "Maihaugen, «Dagsgardsloftet»"
+href = "https://maihaugen.no/friluftsmuseet/bygda/dagsgardsloftet"
+[[pages.about-the-name.sources]]
+text = "Det Norske Akademis ordbok (NAOB), «loft»"
+href = "https://naob.no/ordbok/loft"
+[[pages.about-the-name.sources]]
+text = "Merriam-Webster, “loft”"
+href = "https://www.merriam-webster.com/dictionary/loft"
+alt_label = "“aloft”"
+alt_href = "https://www.merriam-webster.com/dictionary/aloft"
+
+# ---------------------------------------------------------------- /pair (one page for both languages, see build.py)
+
+[pages.pair]
+title = "Open this on a device with Loft · Loft by Incremental"
+description = "This is a pairing link for a Loft gateway. Install Loft, then open the link again."
+h1 = "Open this on a device with Loft."
+text = "This is a pairing link for a Loft gateway. Install Loft, then open the link again or scan the QR code from the gateway, and the app will connect."
+download = "Download Loft"
+what = "What is Loft?"
+smallprint = "The pairing details stay in the link on your device. This page doesn't read them or send them anywhere."
+
+# ---------------------------------------------------------------- 404
+
+[pages.404]
+title = "Not found · Loft by Incremental"
+description = "Page not found."
+kicker = "404"
+h1 = "Nothing up here."
+lead = "We looked under every rafter. This page doesn't exist, or it has moved."
+home_button = "Home"
+download_button = "Download"

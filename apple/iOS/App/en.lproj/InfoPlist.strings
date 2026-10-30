@@ -1,0 +1,3 @@
+"CFBundleDisplayName" = "Loft";
+"NSCameraUsageDescription" = "Scan your gateway's pairing code, and take photos that are saved straight to a folder in Loft. Photos don't go to your photo library.";
+"NSLocalNetworkUsageDescription" = "Loft connects straight to the NAS when you're at home.";

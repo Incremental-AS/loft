@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Norsk bokmål. Stor bokstav etter kolon når en hel setning følger. -->
+<resources>
+    <!-- Paring -->
+    <string name="welcome_title">Filene dine, hjemme hos deg.</string>
+    <string name="pair_body">Loft kobler seg til Loft-gatewayen på hjemmenettet ditt. Kjør loft-gateway pair på gatewayen, og skann koden eller åpne lenken på denne telefonen.</string>
+    <string name="pair_scan">Skann kode</string>
+    <string name="pair_paste">Lim inn lenke</string>
+    <string name="pair_manual">Sett opp manuelt</string>
+    <string name="pair_paste_title">Lim inn paringslenken</string>
+    <string name="pair_paste_hint">https://loft.incremental.no/pair#…</string>
+    <string name="pair_manual_title">Sett opp manuelt</string>
+    <string name="pair_manual_body">Skriv inn adressen til gatewayen og ett av fingeravtrykkene dens. Du finner begge i det loft-gateway pair viser. Med fingeravtrykket sjekker Loft at det virkelig er din gateway, så uten det kommer du ikke videre.</string>
+    <string name="pair_manual_address">Adresse</string>
+    <string name="pair_manual_address_hint">nas-gateway.local:8443</string>
+    <string name="pair_manual_pin">Fingeravtrykk</string>
+    <string name="pair_manual_name">Navn (valgfritt)</string>
+    <string name="pair_replace_title">Pare med «%1$s»?</string>
+    <string name="pair_replace_body">Denne telefonen er paret med %1$s. Parer du med en annen gateway, blir du logget ut av den du har nå.</string>
+    <string name="pair_replace_confirm">Par</string>
+    <string name="pair_continue">Fortsett</string>
+    <string name="pair_scan_title">Skann paringskoden</string>
+    <string name="pair_scan_body">Rett kameraet mot koden loft-gateway pair viser.</string>
+    <string name="pair_camera_denied">Loft trenger kameraet for å skanne koden. Du kan lime inn lenken i stedet.</string>
+    <string name="pair_err_not_loft">Det er ikke en paringskode for Loft.</string>
+    <string name="pair_err_version">Koden er for en nyere versjon av Loft. Oppdater appen før du prøver igjen.</string>
+    <string name="pair_err_invalid">Paringskoden er ufullstendig eller skadet. Lag en ny på gatewayen.</string>
+    <string name="pair_err_https">Loft kobler seg bare til en gateway over https.</string>
+    <string name="pair_err_pin">Fingeravtrykket ser ikke riktig ut. Kopier det på nytt fra loft-gateway pair.</string>
+    <string name="pair_err_address">Skriv inn adressen til gatewayen.</string>
+    <string name="pair_err_no_pin">Loft trenger fingeravtrykket i tillegg til adressen.</string>
+
+    <!-- Logg inn -->
+    <string name="signin_title">Logg inn på NAS-en</string>
+    <string name="signin_gateway">Gateway: %1$s</string>
+    <string name="signin_body">Bruk brukernavnet og passordet du allerede har på NAS-en. Logg inn hjemme første gang, så passordet ditt aldri går via andres servere. Etter det virker Loft hvor som helst.</string>
+    <string name="signin_user">Brukernavn på NAS-en</string>
+    <string name="signin_password">Passord</string>
+    <string name="signin_button">Logg inn</string>
+    <string name="signin_help">Loft viser alle delte mapper denne kontoen kan åpne. Har du ikke konto ennå? Spør den som drifter NAS-en.</string>
+    <string name="signin_not_home">Du er ikke hjemme nå. Koble til hjemmenettet for den første innloggingen. Etter det virker Loft hvor som helst.</string>
+    <string name="signin_wrong_password">Brukernavnet og passordet virket ikke på NAS-en. Sjekk dem og prøv igjen.</string>
+    <string name="signin_not_allowed">Denne gatewayen tillater ikke den kontoen. Logg inn med din egen konto på NAS-en.</string>
+    <string name="signin_too_many">For mange forsøk. Vent 15 minutter før du prøver igjen.</string>
+    <string name="signin_nas_down">Gatewayen svarte, men den får ikke kontakt med NAS-en. Prøv igjen om litt.</string>
+    <string name="signin_failed">Noe gikk galt. Prøv igjen.</string>
+    <string name="forget_gateway">Glem denne gatewayen</string>
+
+    <!-- Velg mappe -->
+    <string name="pick_title">Velg Loft-mappen din</string>
+    <string name="pick_body">Denne mappen på NAS-en blir Loft på denne telefonen. Du kan endre den senere i Innstillinger.</string>
+    <string name="pick_use_this">Bruk denne mappen</string>
+    <string name="pick_all_shares">Bruk alle delte mapper</string>
+    <string name="pick_no_folders">Ingen mapper her.</string>
+    <string name="back">Tilbake</string>
+
+    <!-- Bla -->
+    <string name="browse_empty">Mappen er tom.</string>
+    <string name="route_home">Hjemme</string>
+    <string name="route_outside">Borte</string>
+    <string name="cant_reach_home">Får ikke kontakt med hjemmenettet. Prøver igjen …</string>
+    <string name="cant_reach_nas">Får ikke kontakt med NAS-en. Prøver igjen …</string>
+    <string name="sign_in_again">Logg inn igjen</string>
+    <string name="sign_in_expired">Innloggingen din har gått ut.</string>
+    <string name="nas_password_changed">Passordet på NAS-en er endret. Logg inn igjen.</string>
+    <string name="device_removed">Denne telefonen er fjernet fra Loft. Logg inn igjen.</string>
+    <string name="no_access">Loft-mappen er ikke tilgjengelig. Spør den som drifter NAS-en, eller velg en annen mappe.</string>
+    <string name="new_folder">Ny mappe</string>
+    <string name="folder_name">Mappenavn</string>
+    <string name="upload">Last opp</string>
+    <string name="open_with">Åpne med …</string>
+    <string name="share">Del</string>
+    <string name="rename">Gi nytt navn</string>
+    <string name="delete">Slett</string>
+    <string name="delete_confirm">Slette «%1$s»? Den havner i papirkurven på gatewayen og blir liggende der i 30 dager.</string>
+    <string name="cancel">Avbryt</string>
+    <string name="create">Opprett</string>
+    <string name="more">Mer</string>
+    <string name="name_exists">Det finnes allerede noe med det navnet.</string>
+    <string name="action_failed">Det gikk ikke. Prøv igjen.</string>
+    <string name="no_app_to_open">Ingen app på telefonen kan åpne denne filen.</string>
+    <plurals name="uploading_n">
+        <item quantity="one">Laster opp %1$d fil</item>
+        <item quantity="other">Laster opp %1$d filer</item>
+    </plurals>
+
+    <!-- Innstillinger -->
+    <string name="settings">Innstillinger</string>
+    <string name="settings_account">Konto</string>
+    <string name="signed_in_as">Logget inn som %1$s</string>
+    <string name="gateway_line">Gateway: %1$s</string>
+    <string name="loft_folder">Loft-mappe: %1$s</string>
+    <string name="all_shares">Alle de delte mappene dine</string>
+    <string name="change">Endre</string>
+    <string name="sign_out">Logg ut</string>
+    <string name="settings_camera">Kameraopplasting</string>
+    <string name="camera_upload">Last opp nye bilder og videoer</string>
+    <string name="camera_upload_body">Nye bilder og videoer på telefonen havner i en mappe i Loft. Bilder som allerede ligger på telefonen, blir der de er.</string>
+    <string name="camera_folder">Mappe: %1$s</string>
+    <string name="camera_choose_folder">Velg mappe</string>
+    <string name="camera_wifi_only">Bare på Wi-Fi</string>
+    <string name="camera_permission_needed">Loft trenger tilgang til bilder og videoer for kameraopplasting.</string>
+    <string name="settings_updates">Oppdateringer</string>
+    <string name="update_check">Se etter oppdateringer</string>
+    <string name="update_check_body">Én gang i døgnet spør Loft loft.incremental.no om det finnes en nyere versjon. Den sender ingenting om deg, denne telefonen eller filene dine.</string>
+    <string name="version_line">Versjon %1$s</string>
+    <string name="save_here">Lagre her</string>
+
+    <!-- Deling -->
+    <string name="share_target_label">Lagre i Loft</string>
+    <plurals name="share_saving">
+        <item quantity="one">Lagrer %1$d fil i Loft.</item>
+        <item quantity="other">Lagrer %1$d filer i Loft.</item>
+    </plurals>
+    <string name="share_not_signed_in">Åpne Loft og logg inn først.</string>
+    <string name="open_loft">Åpne Loft</string>
+
+    <!-- Varsler -->
+    <string name="channel_updates">Oppdateringer</string>
+    <string name="channel_transfers">Opplastinger</string>
+    <string name="update_available_title">Loft %1$s er tilgjengelig</string>
+    <string name="update_available_body">Trykk for å åpne nedlastingssiden.</string>
+    <string name="uploading_file">Laster opp %1$s</string>
+    <string name="upload_failed">Kunne ikke laste opp %1$s</string>
+    <string name="camera_uploading">Laster opp nye bilder</string>
+</resources>

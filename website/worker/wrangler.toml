@@ -1,0 +1,26 @@
+# loft.incremental.no: an assets-only Cloudflare Worker (Workers Static Assets).
+# No Worker script: every request that reaches it is answered
+# from the static build in ../dist. CONFIG ONLY: nothing here has been deployed yet.
+#
+#   cd website && python3 build.py && cd worker && npx wrangler deploy     # with a Workers Scripts:Edit token
+#
+# Routes are NOT set here: they are created separately, and the deploy token has no route permission. The three routes
+# (most specific wins), also in routes.json:
+#   loft.incremental.no/*        -> this Worker (the website)
+#   loft.incremental.no/v1/*     -> no Worker: straight to the gateway tunnel, as today
+#   loft.incremental.no/healthz  -> no Worker
+# Rollback = delete the /* route; the tunnel's catch-all answers again.
+
+name = "loft-website"
+compatibility_date = "2026-10-01"
+workers_dev = false
+preview_urls = false
+
+[assets]
+directory = "../dist"
+# /pair is dist/pair.html and answers 200 itself (no redirect to /pair/, which universal links need);
+# /download/ is dist/download/index.html.
+html_handling = "auto-trailing-slash"
+# Unknown paths get the nearest 404.html (/no/... -> /no/404.html) with status 404.
+not_found_handling = "404-page"
+# Response headers (CSP, caching, application/json for /.well-known/*) come from dist/_headers.

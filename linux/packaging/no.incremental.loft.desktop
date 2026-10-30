@@ -1,0 +1,14 @@
+[Desktop Entry]
+Type=Application
+Name=Loft
+GenericName=NAS folders
+GenericName[nb]=NAS-mapper
+Comment=Your NAS folders in ~/Loft, through your own Loft gateway
+Comment[nb]=NAS-mappene dine i ~/Loft, gjennom din egen Loft-gateway
+Icon=no.incremental.loft
+Exec=loft open
+Terminal=false
+Categories=Network;FileTransfer;Utility;
+Keywords=NAS;SMB;Samba;files;sync;
+Keywords[nb]=NAS;SMB;Samba;filer;synkronisering;
+StartupNotify=false

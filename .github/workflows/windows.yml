@@ -1,0 +1,114 @@
+# Loft for Windows: Loft.Core tests on Linux (cheap), then on Windows the Loft.Sync tests (a real
+# Cloud Files sync root) and unsigned, self-contained x64 and ARM64 builds as zips + SHA-256.
+# ARM64 is cross-built on the x64 runner and not run there (no ARM64 hardware in CI).
+# Lean on purpose: Windows minutes count double. Superseded runs are cancelled; NuGet is cached.
+name: windows
+
+on:
+  push:
+    paths:
+      - "windows/**"
+      - ".github/workflows/windows.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: windows-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  DOTNET_CLI_TELEMETRY_OPTOUT: "1"
+  DOTNET_NOLOGO: "1"
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: "1"
+  NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
+
+jobs:
+  core-linux:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+      - uses: actions/cache@v4
+        with:
+          path: ${{ github.workspace }}/.nuget/packages
+          key: nuget-linux-${{ hashFiles('windows/**/*.csproj', 'windows/Directory.Build.props') }}
+          restore-keys: nuget-linux-
+      - name: Loft.Core tests
+        run: dotnet test windows/tests/Loft.Core.Tests/Loft.Core.Tests.csproj -c Release --logger "console;verbosity=normal"
+      - name: Loft.Sync compiles (Windows targeting from Linux)
+        run: dotnet build windows/src/Loft.Sync/Loft.Sync.csproj -c Release
+
+  windows:
+    needs: core-linux
+    runs-on: windows-2022
+    timeout-minutes: 40
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: x64
+            platform: x64
+          - arch: arm64
+            platform: ARM64
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+      - uses: actions/cache@v4
+        with:
+          path: ${{ github.workspace }}/.nuget/packages
+          key: nuget-win-${{ matrix.arch }}-${{ hashFiles('windows/**/*.csproj', 'windows/Directory.Build.props') }}
+          restore-keys: nuget-win-${{ matrix.arch }}-
+      - name: Cloud Files filter present
+        if: ${{ matrix.arch == 'x64' }}
+        shell: pwsh
+        continue-on-error: true
+        run: |
+          [System.Environment]::OSVersion.VersionString
+          fltmc filters
+          if (-not (fltmc filters | Select-String -Quiet cldflt)) { fltmc load cldflt }
+          # Server images load the Cloud Files filter without attaching it to any volume.
+          fltmc attach CldFlt C:
+          fltmc instances -f CldFlt
+      - name: Build the app (unpackaged, self-contained, ${{ matrix.arch }})
+        shell: pwsh
+        run: |
+          dotnet publish windows/src/Loft.App/Loft.App.csproj -c Release -r win-${{ matrix.arch }} --self-contained -p:Platform=${{ matrix.platform }} -o out/Loft
+          $v = "0.2.0-" + "${{ github.sha }}".Substring(0, 7)
+          $zip = "Loft-windows-${{ matrix.arch }}-$v.zip"
+          Compress-Archive -Path out/Loft/* -DestinationPath $zip
+          $h = (Get-FileHash -Algorithm SHA256 $zip).Hash.ToLower()
+          "$h  $zip" | Out-File -Encoding ascii "$zip.sha256"
+          Get-Content "$zip.sha256"
+          "ZIP=$zip" | Out-File -Append -Encoding utf8 $env:GITHUB_ENV
+          Get-ChildItem out/Loft | Measure-Object -Property Length -Sum | ForEach-Object { "files: $($_.Count), bytes: $($_.Sum)" }
+      - name: Loft.Sync tests (Credential Manager, protocol, Cloud Files sync root)
+        if: ${{ !cancelled() && matrix.arch == 'x64' }}
+        run: dotnet test windows/tests/Loft.Sync.Tests/Loft.Sync.Tests.csproj -c Release --logger "console;verbosity=detailed"
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() && env.ZIP != '' }}
+        with:
+          name: loft-windows-${{ matrix.arch }}
+          path: |
+            ${{ env.ZIP }}
+            ${{ env.ZIP }}.sha256
+          retention-days: 7
+          if-no-files-found: error
+      - name: Smoke - start Loft.exe (first-run window, no network)
+        if: ${{ !cancelled() && env.ZIP != '' && matrix.arch == 'x64' }}
+        shell: pwsh
+        run: |
+          $p = Start-Process -FilePath out/Loft/Loft.exe -ArgumentList "--no-update-check" -PassThru
+          Start-Sleep -Seconds 15
+          $alive = -not $p.HasExited
+          $log = Join-Path $env:LOCALAPPDATA "Loft\loft.log"
+          if (Test-Path $log) { Get-Content $log } else { "no log written" }
+          if ($alive) { Stop-Process -Id $p.Id -Force } else { "exit code: $($p.ExitCode)" }
+          if (-not $alive) { throw "Loft.exe exited during start" }
+          if ((Test-Path $log) -and (Select-String -Quiet -Path $log -Pattern "unhandled")) { throw "unhandled exception at start" }

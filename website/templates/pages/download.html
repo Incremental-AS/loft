@@ -1,0 +1,32 @@
+{{> page-head}}
+<section class="section section-tight">
+  <div class="wrap">
+    <div class="downloads">
+      {{#each platforms}}
+      <article class="card download" id="{{it.id}}">
+        <h2>{{it.name}}</h2>
+        <p>{{it.detail}}</p>
+        {{#if it.list}}{{it.list}}{{/if}}
+        {{#unless it.coming_soon}}
+        {{#if it.downloads}}
+        <p class="actions">{{#each it.downloads}}<a class="btn btn-secondary" href="{{attr:it.href}}">{{it.label}}</a>{{/each}}</p>
+        {{/if}}
+        {{#if it.version}}<p class="dl-version">{{it.version}}</p>{{/if}}
+        {{/unless}}
+        {{#if it.coming_soon}}<p class="dl-soon"><strong>{{ui.coming_soon}}</strong></p>{{/if}}
+        {{#unless it.coming_soon}}
+        {{#if it.after}}<p>{{it.after}}</p>{{/if}}
+        {{#if it.note}}<p class="note">{{it.note}}</p>{{/if}}
+        {{#if it.sha256}}<dl class="meta"><dt>SHA-256</dt><dd><code>{{it.sha256}}</code></dd></dl>{{/if}}
+        {{/unless}}
+      </article>
+      {{/each}}
+    </div>
+  </div>
+</section>
+<section class="section section-soft" aria-labelledby="updates-title">
+  <div class="wrap prose-block">
+    <h2 id="updates-title">{{page.updates.title}}</h2>
+    {{page.updates.body}}
+  </div>
+</section>

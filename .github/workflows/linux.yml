@@ -1,0 +1,72 @@
+# Loft for Linux: build, unit tests, integration test against the gateway's dev server
+# (FUSE), and the packages (.deb, .rpm, AppImage, tarball; amd64 + arm64) as artifacts.
+# Building is not releasing: nothing here publishes anything.
+name: linux
+
+on:
+  push:
+    paths: ["linux/**", "gateway/**", ".github/workflows/linux.yml"]
+  pull_request:
+    paths: ["linux/**", "gateway/**", ".github/workflows/linux.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  CGO_ENABLED: "0"
+  LOFT_NO_UPDATE_CHECK: "1"
+
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        working-directory: linux
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: linux/go.mod
+          cache-dependency-path: linux/go.sum
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: FUSE 3 and a D-Bus daemon (tray test)
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq fuse3 dbus
+      - name: gofmt and vet
+        run: |
+          test -z "$(gofmt -l .)" || { gofmt -l .; exit 1; }
+          go vet ./...
+          go vet -tags integration ./itest
+      - name: Unit tests
+        run: go test -count=1 ./...
+      - name: Integration test (dev_server.py, FUSE mount)
+        run: scripts/it.sh "$RUNNER_TEMP/gateway-venv"
+
+  package:
+    needs: test
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        working-directory: linux
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: linux/go.mod
+          cache-dependency-path: linux/go.sum
+      - name: nfpm
+        run: GOBIN="$HOME/tools/bin" go install github.com/goreleaser/nfpm/v2/cmd/nfpm@v2.48.0
+      - name: Packages
+        run: VERSION=0.2.0 scripts/package.sh
+      - uses: actions/upload-artifact@v4
+        with:
+          name: loft-linux-0.2.0
+          path: |
+            linux/dist/*.deb
+            linux/dist/*.rpm
+            linux/dist/*.AppImage
+            linux/dist/*.tar.gz
+            linux/dist/SHA256SUMS
+          if-no-files-found: error

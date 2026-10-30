@@ -1,0 +1,46 @@
+[Unit]
+Description=Loft thumbnail worker (decodes one file, sandboxed)
+# Image/PDF/video decoders run on files anyone with write access to a share controls.
+# This process gets the bytes of one file over its socket and nothing else: no
+# network, no NAS, no master key, no index, no writable files, no state across files.
+
+[Service]
+ExecStart=/opt/loft/venv/bin/python -I -m loft_gateway.thumbworker
+StandardInput=socket
+StandardOutput=socket
+StandardError=journal
+DynamicUser=yes
+RuntimeMaxSec=40
+MemoryMax=512M
+MemorySwapMax=0
+CPUQuota=100%
+TasksMax=16
+LimitNOFILE=256
+UMask=0077
+PrivateNetwork=yes
+IPAddressDeny=any
+RestrictAddressFamilies=none
+PrivateTmp=yes
+PrivateDevices=yes
+PrivateIPC=yes
+ProtectSystem=strict
+ProtectHome=yes
+InaccessiblePaths=/etc/loft /var/lib/loft /var/tmp
+ProtectProc=invisible
+ProcSubset=pid
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectKernelLogs=yes
+ProtectControlGroups=yes
+ProtectClock=yes
+ProtectHostname=yes
+RestrictNamespaces=yes
+RestrictRealtime=yes
+RestrictSUIDSGID=yes
+LockPersonality=yes
+NoNewPrivileges=yes
+CapabilityBoundingSet=
+SystemCallArchitectures=native
+SystemCallFilter=@system-service
+SystemCallFilter=~@privileged @resources @mount @debug @module @reboot @swap @clock @cpu-emulation @obsolete @raw-io
+SystemCallErrorNumber=EPERM

@@ -1,0 +1,51 @@
+{{> page-head}}
+<section class="section section-tight" aria-label="{{attr:page.diagram_label}}">
+  <div class="wrap">
+    {{> diagram}}
+  </div>
+</section>
+
+<section class="section section-soft" aria-labelledby="parts-title">
+  <div class="wrap">
+    <div class="section-head">
+      <h2 id="parts-title">{{page.parts.title}}</h2>
+    </div>
+    <div class="grid grid-3">
+      {{#each page.parts.items}}
+      <article class="card">
+        <h3>{{it.title}}</h3>
+        <p>{{it.body}}</p>
+      </article>
+      {{/each}}
+    </div>
+  </div>
+</section>
+
+<section class="section" aria-labelledby="pairing-title">
+  <div class="wrap prose-block">
+    <h2 id="pairing-title">{{page.pairing.title}}</h2>
+    {{page.pairing.body}}
+  </div>
+</section>
+
+<section class="section section-soft" id="{{attr:page.security.id}}" aria-labelledby="security-title">
+  <div class="wrap">
+    <div class="section-head">
+      <h2 id="security-title">{{page.security.title}}</h2>
+    </div>
+    <div class="table-wrap">
+      <table class="table table-routes table-stack">
+        <thead><tr><td></td><th scope="col">{{page.security.col_home}}</th><th scope="col">{{page.security.col_tunnel}}</th><th scope="col">{{page.security.col_direct}}</th></tr></thead>
+        <tbody>
+          {{#each page.security.rows}}
+          <tr><th scope="row">{{it.leg}}</th><td data-label="{{attr:page.security.col_home}}">{{it.home}}</td><td data-label="{{attr:page.security.col_tunnel}}">{{it.tunnel}}</td><td data-label="{{attr:page.security.col_direct}}">{{it.direct}}</td></tr>
+          {{/each}}
+        </tbody>
+      </table>
+    </div>
+    <div class="prose-block security-notes">
+      {{page.security.body}}
+      <p class="more">{{page.security.report}}</p>
+    </div>
+  </div>
+</section>

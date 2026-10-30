@@ -1,0 +1,43 @@
+{{> page-head}}
+<section class="section section-tight" aria-labelledby="need-title">
+  <div class="wrap prose-block">
+    <h2 id="need-title">{{page.need.title}}</h2>
+    <ul>{{#each page.need.items}}<li>{{it}}</li>{{/each}}</ul>
+  </div>
+</section>
+<section class="section section-soft" aria-labelledby="tested-title">
+  <div class="wrap">
+    <div class="section-head"><h2 id="tested-title">{{page.tested.title}}</h2></div>
+    <div class="table-wrap">
+      <table class="table table-stack">
+        <thead><tr><th scope="col">{{page.tested.col_server}}</th><th scope="col">{{page.tested.col_status}}</th><th scope="col">{{page.tested.col_notes}}</th></tr></thead>
+        <tbody>
+          {{#each page.tested.rows}}
+          <tr><th scope="row">{{it.server}}</th><td data-label="{{attr:page.tested.col_status}}"><span class="chip chip-{{attr:it.status}}">{{it.status_label}}</span></td><td data-label="{{attr:page.tested.col_notes}}">{{it.notes}}</td></tr>
+          {{/each}}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+<section class="section" aria-labelledby="apps-title">
+  <div class="wrap">
+    <div class="section-head"><h2 id="apps-title">{{page.apps.title}}</h2></div>
+    <div class="table-wrap">
+      <table class="table table-stack">
+        <thead><tr><th scope="col">{{page.apps.col_app}}</th><th scope="col">{{page.apps.col_needs}}</th></tr></thead>
+        <tbody>
+          {{#each page.apps.rows}}
+          <tr><th scope="row">{{it.app}}</th><td data-label="{{attr:page.apps.col_needs}}">{{it.needs}}</td></tr>
+          {{/each}}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+<section class="section section-soft" aria-labelledby="tell-title">
+  <div class="wrap prose-block">
+    <h2 id="tell-title">{{page.tell.title}}</h2>
+    {{page.tell.body}}
+  </div>
+</section>

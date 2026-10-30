@@ -1,0 +1,119 @@
+<section class="hero" aria-labelledby="hero-title">
+  <picture class="hero-art">
+    <source data-scheme="dark" data-mq="(min-width: 760px)" media="(prefers-color-scheme: dark) and (min-width: 760px)" type="image/webp"
+            sizes="100vw" srcset="/img/hero/hero-dark-wide-960.webp 960w, /img/hero/hero-dark-wide-1536.webp 1536w">
+    <source data-scheme="dark" media="(prefers-color-scheme: dark)" type="image/webp"
+            sizes="100vw" srcset="/img/hero/hero-dark-mobile-640.webp 640w, /img/hero/hero-dark-mobile-1024.webp 1024w">
+    <source media="(min-width: 760px)" type="image/webp"
+            sizes="100vw" srcset="/img/hero/hero-light-wide-960.webp 960w, /img/hero/hero-light-wide-1536.webp 1536w">
+    <source type="image/webp" sizes="100vw"
+            srcset="/img/hero/hero-light-mobile-640.webp 640w, /img/hero/hero-light-mobile-1024.webp 1024w">
+    <img src="/img/hero/hero-light-wide-1536.jpg" alt="{{attr:home.hero.alt}}" width="1536" height="768" fetchpriority="high">
+  </picture>
+  <div class="wrap hero-row">
+    <div class="hero-copy">
+      <p class="kicker">{{home.hero.kicker}}</p>
+      <h1 id="hero-title" class="display">{{home.hero.title}}</h1>
+      <p class="lead">{{home.hero.lead}}</p>
+      <p class="actions">
+        <a class="btn btn-primary" href="{{link:download}}">{{cta.download}}</a>
+        <a class="btn btn-secondary" href="{{link:gateway}}">{{cta.gateway}}</a>
+      </p>
+    </div>
+  </div>
+</section>
+
+<section class="section" aria-labelledby="what-title">
+  <div class="wrap">
+    <div class="section-head">
+      <h2 id="what-title">{{home.what.title}}</h2>
+    </div>
+    <div class="grid grid-3">
+      {{#each home.what.points}}
+      <article class="card">
+        <h3>{{it.title}}</h3>
+        <p>{{it.body}}</p>
+      </article>
+      {{/each}}
+    </div>
+  </div>
+</section>
+
+<section class="section section-soft" aria-labelledby="home-title">
+  <div class="wrap prose-block">
+    <h2 id="home-title">{{home.home.title}}</h2>
+    {{home.home.body}}
+  </div>
+</section>
+
+<section class="section" aria-labelledby="how-title">
+  <div class="wrap">
+    <div class="section-head">
+      <h2 id="how-title">{{home.how.title}}</h2>
+    </div>
+    <ol class="steps">
+      {{#each home.how.steps}}
+      <li class="step">
+        <span class="step-n" aria-hidden="true">{{it.n}}</span>
+        <h3>{{it.title}}</h3>
+        <p>{{it.body}}</p>
+      </li>
+      {{/each}}
+    </ol>
+    {{> diagram}}
+    <p class="more">{{#each home.how.links}}<a href="{{it.href}}">{{it.label}}</a>{{/each}}</p>
+  </div>
+</section>
+
+<section class="section section-soft" aria-labelledby="platforms-title">
+  <div class="wrap">
+    <div class="section-head">
+      <h2 id="platforms-title">{{home.platforms.title}}</h2>
+    </div>
+    {{> platform-tiles}}
+    <p class="after-tiles">{{home.platforms.after}}</p>
+  </div>
+</section>
+
+<section class="section" aria-labelledby="honest-title">
+  <div class="wrap">
+    <div class="honest honest-wide">
+      <h2 id="honest-title" class="honest-title">{{home.honest.title}}</h2>
+      {{home.honest.body}}
+      <p class="more">{{home.honest.more}}</p>
+    </div>
+  </div>
+</section>
+
+<section class="section section-soft" aria-labelledby="open-title">
+  <div class="wrap prose-block">
+    <h2 id="open-title">{{home.open.title}}</h2>
+    {{home.open.body}}
+    <p class="smallprint">{{home.open.smallprint}}</p>
+  </div>
+</section>
+
+<section class="section" aria-labelledby="name-title">
+  <div class="wrap name-row">
+    <div>
+      <h2 id="name-title">{{home.name.title}}</h2>
+      <p>{{home.name.body}}</p>
+      <p class="more">{{home.name.more}}</p>
+    </div>
+    <figure class="pull">
+      <blockquote>{{home.name.quote}}</blockquote>
+      <figcaption>{{home.name.quote_cite}}</figcaption>
+    </figure>
+  </div>
+</section>
+
+<section class="section cta-band" aria-labelledby="cta-title">
+  <div class="wrap narrow center">
+    <h2 id="cta-title">{{home.cta.title}}</h2>
+    <p class="lead">{{home.cta.lead}}</p>
+    <p class="actions center">
+      <a class="btn btn-primary" href="{{link:download}}">{{cta.download}}</a>
+      <a class="btn btn-secondary" href="{{link:gateway}}">{{cta.gateway}}</a>
+    </p>
+  </div>
+</section>

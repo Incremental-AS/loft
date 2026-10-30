@@ -1,0 +1,38 @@
+[Unit]
+Description=Loft gateway (serves your SMB shares to the Loft apps)
+Documentation=https://loft.incremental.no
+After=network-online.target
+Wants=network-online.target
+# Not before `loft-gateway init` has written the settings.
+ConditionPathExists=/etc/loft/gateway.toml
+
+[Service]
+User=loft
+Group=loft
+ExecStart=/opt/loft/venv/bin/loft-gateway --config /etc/loft/gateway.toml
+# Master key: made by `loft-gateway init` as an encrypted credential (systemd-creds; bound to
+# the TPM when there is one). Never a plain file on disk on a systemd host.
+LoadCredentialEncrypted=master.key:/etc/loft/master.key.cred
+StateDirectory=loft
+# The index holds device rows, wrapped credentials and the audit log: owner only.
+StateDirectoryMode=0700
+UMask=0077
+Restart=on-failure
+RestartSec=3
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+PrivateDevices=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+RestrictNamespaces=yes
+LockPersonality=yes
+SystemCallArchitectures=native
+CapabilityBoundingSet=
+ReadWritePaths=/var/lib/loft
+
+[Install]
+WantedBy=multi-user.target

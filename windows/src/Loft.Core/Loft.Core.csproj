@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Platform-neutral: pairing, routes, pinning, the gateway protocol and the sync decisions.
+       Builds and tests on Linux, macOS and Windows. -->
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <RootNamespace>Loft.Core</RootNamespace>
+    <AssemblyName>Loft.Core</AssemblyName>
+  </PropertyGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="Loft.Core.Tests" />
+  </ItemGroup>
+</Project>

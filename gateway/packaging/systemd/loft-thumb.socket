@@ -1,0 +1,14 @@
+[Unit]
+Description=Loft thumbnail worker socket (one sandboxed process per file)
+
+[Socket]
+ListenStream=/run/loft-thumb.sock
+# Only the gateway (user loft) may connect.
+SocketUser=loft
+SocketGroup=loft
+SocketMode=0600
+Accept=yes
+MaxConnections=4
+
+[Install]
+WantedBy=sockets.target

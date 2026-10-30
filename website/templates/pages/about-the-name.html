@@ -1,0 +1,31 @@
+{{> page-head}}
+<div class="section section-tight">
+  <div class="wrap prose name-page">
+    {{#each page.sections}}
+    <section>
+      <h2>{{it.title}}</h2>
+      {{it.body}}
+      {{#if it.figure}}
+      <figure class="illustration">
+        <picture>
+          <source type="image/webp" sizes="(min-width: 1000px) 920px, 100vw"
+                  srcset="/img/illustration/loft-traditional-640.webp 640w, /img/illustration/loft-traditional-960.webp 960w, /img/illustration/loft-traditional-1536.webp 1536w">
+          <img src="/img/illustration/loft-traditional-960.jpg" alt="{{attr:page.figure_alt}}" width="960" height="640" loading="lazy"
+               sizes="(min-width: 1000px) 920px, 100vw"
+               srcset="/img/illustration/loft-traditional-640.jpg 640w, /img/illustration/loft-traditional-960.jpg 960w, /img/illustration/loft-traditional-1536.jpg 1536w">
+        </picture>
+        <figcaption>{{page.figure_caption}}</figcaption>
+      </figure>
+      {{/if}}
+    </section>
+    {{/each}}
+    <section class="sources" aria-labelledby="sources-title">
+      <h2 id="sources-title">{{page.sources_title}}</h2>
+      <ol>
+        {{#each page.sources}}
+        <li><a href="{{attr:it.href}}">{{it.text}}</a>{{#if it.alt_href}} · <a href="{{attr:it.alt_href}}">{{it.alt_label}}</a>{{/if}}</li>
+        {{/each}}
+      </ol>
+    </section>
+  </div>
+</div>

@@ -1,0 +1,11 @@
+# A throwaway Samba server for CI: two test accounts, three shares.
+FROM debian:bookworm-slim
+RUN apt-get update \
+ && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends samba \
+ && rm -rf /var/lib/apt/lists/*
+COPY samba-entry.sh /usr/local/bin/samba-entry.sh
+RUN chmod 755 /usr/local/bin/samba-entry.sh
+EXPOSE 445
+HEALTHCHECK --interval=2s --timeout=3s --retries=30 \
+  CMD bash -c 'exec 3<>/dev/tcp/127.0.0.1/445' || exit 1
+ENTRYPOINT ["/usr/local/bin/samba-entry.sh"]

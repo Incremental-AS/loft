@@ -1,0 +1,68 @@
+// Cloud Files API (cfapi.h)
+CfRegisterSyncRoot
+CfUnregisterSyncRoot
+CfConnectSyncRoot
+CfDisconnectSyncRoot
+CfExecute
+CfCreatePlaceholders
+CfConvertToPlaceholder
+CfUpdatePlaceholder
+CfSetInSyncState
+CfDehydratePlaceholder
+CfHydratePlaceholder
+CfGetPlaceholderInfo
+CfSetPinState
+CfRevertPlaceholder
+CfGetPlaceholderStateFromAttributeTag
+CF_PLACEHOLDER_STANDARD_INFO
+CF_PLACEHOLDER_BASIC_INFO
+CF_CALLBACK_REGISTRATION
+// Files
+CreateFile
+CloseHandle
+GetFileInformationByHandleEx
+FILE_ATTRIBUTE_TAG_INFO
+// Credential Manager
+CredWrite
+CredRead
+CredDelete
+CredFree
+// Notification-area icon
+Shell_NotifyIcon
+RegisterClassEx
+UnregisterClass
+CreateWindowEx
+DefWindowProc
+DestroyWindow
+RegisterWindowMessage
+LoadImage
+DestroyIcon
+CreatePopupMenu
+AppendMenu
+TrackPopupMenuEx
+DestroyMenu
+SetForegroundWindow
+GetCursorPos
+PostMessage
+GetModuleHandle
+GetSystemMetrics
+WM_APP
+WM_CONTEXTMENU
+WM_LBUTTONUP
+WM_NULL
+WM_SETTINGCHANGE
+WM_ENDSESSION
+NIN_SELECT
+// Explorer refresh
+SHChangeNotify
+// Status codes
+STATUS_SUCCESS
+STATUS_UNSUCCESSFUL
+STATUS_CLOUD_FILE_NETWORK_UNAVAILABLE
+STATUS_CLOUD_FILE_UNSUCCESSFUL
+STATUS_CLOUD_FILE_IN_USE
+STATUS_CLOUD_FILE_NOT_IN_SYNC
+STATUS_CLOUD_FILE_ACCESS_DENIED
+STATUS_CLOUD_FILE_AUTHENTICATION_FAILED
+STATUS_CLOUD_FILE_REQUEST_ABORTED
+WIN32_ERROR

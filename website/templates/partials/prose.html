@@ -1,0 +1,8 @@
+<div class="wrap prose">
+  {{#each page.sections}}
+  <section{{#if it.id}} id="{{attr:it.id}}"{{/if}}>
+    <h2>{{it.title}}</h2>
+    {{it.body}}
+  </section>
+  {{/each}}
+</div>

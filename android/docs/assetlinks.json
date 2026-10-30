@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "no.incremental.loft",
+      "sha256_cert_fingerprints": [
+        "31:CD:4C:48:8E:1A:27:CC:11:8A:59:4C:2E:C0:0A:02:8C:53:08:31:C6:CF:9E:D9:8E:DA:6F:B4:8C:C5:D0:02"
+      ]
+    }
+  }
+]

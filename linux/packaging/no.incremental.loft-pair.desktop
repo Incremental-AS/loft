@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=Loft pairing
+Name[nb]=Loft-paring
+Comment=Pair this computer with a Loft gateway
+Comment[nb]=Koble denne datamaskinen til en Loft-gateway
+Icon=no.incremental.loft
+Exec=loft pair --login %u
+Terminal=true
+NoDisplay=true
+MimeType=x-scheme-handler/loft;

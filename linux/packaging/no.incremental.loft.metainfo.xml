@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>no.incremental.loft</id>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>Apache-2.0</project_license>
+  <name>Loft</name>
+  <summary>Your NAS folders in ~/Loft, through your own Loft gateway</summary>
+  <summary xml:lang="nb">NAS-mappene dine i ~/Loft, gjennom din egen Loft-gateway</summary>
+  <description>
+    <p>
+      Loft shows the folders on your NAS in ~/Loft. Files are fetched when you open them and
+      uploaded when you save them, at home and away, through a small Loft gateway you run
+      yourself. Nothing is stored anywhere else.
+    </p>
+    <p xml:lang="nb">
+      Loft viser mappene på NAS-en din i ~/Loft. Filene hentes når du åpner dem og lastes opp
+      når du lagrer, hjemme og borte, gjennom en liten Loft-gateway du kjører selv. Ingenting
+      lagres noe annet sted.
+    </p>
+  </description>
+  <launchable type="desktop-id">no.incremental.loft.desktop</launchable>
+  <url type="homepage">https://loft.incremental.no/</url>
+  <developer id="no.incremental">
+    <name>Incremental AS</name>
+  </developer>
+  <content_rating type="oars-1.1"/>
+  <!-- <releases> is added when a version is released, not when it is built. -->
+</component>

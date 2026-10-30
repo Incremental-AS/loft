@@ -1,0 +1,5 @@
+#!/bin/sh
+# AppImage entry: `Loft.AppImage <command>` is `loft <command>`; without one it opens ~/Loft.
+HERE="$(dirname "$(readlink -f "$0")")"
+[ $# -eq 0 ] && set -- open
+exec "$HERE/usr/bin/loft" "$@"

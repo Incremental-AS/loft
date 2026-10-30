@@ -1,0 +1,74 @@
+# Conformance against a real SMB server: Samba + the gateway image + the suite, on a
+# network with no way out (internal: true) and no published ports. Run it with run.sh.
+#
+#   GW_SMB_ENCRYPTION  gateway smb_encryption: required (default) | server
+#   SAMBA_ENCRYPT      Samba "server smb encrypt": desired (default) | required | off
+#   PUBLIC_MODE        tunnel (default) | direct
+name: loft-conformance
+
+x-test-accounts: &accounts
+  # Test-only accounts of the throwaway Samba container.
+  SMB_USER: alice
+  SMB_PASSWORD: alice-conformance-pw
+  SMB_USER2: bob
+  SMB_PASSWORD2: bob-conformance-pw
+
+networks:
+  lan:
+    internal: true
+
+volumes:
+  gw-etc:
+  gw-state:
+  pair:
+
+services:
+  samba:
+    build: {context: ., dockerfile: Dockerfile.samba}
+    image: loft-ci-samba:latest
+    environment:
+      <<: *accounts
+      SAMBA_ENCRYPT: ${SAMBA_ENCRYPT:-desired}
+    networks: [lan]
+    tmpfs: [/srv]
+
+  gateway:
+    build: {context: ../../gateway, dockerfile: packaging/docker/Dockerfile}
+    image: ${GATEWAY_IMAGE:-loft-gateway:ci}
+    depends_on:
+      samba: {condition: service_healthy}
+    environment:
+      LOFT_SMB_SERVER: samba
+      LOFT_SMB_ENCRYPTION: ${GW_SMB_ENCRYPTION:-required}
+      LOFT_LAN_URL: https://gateway:8443
+      LOFT_NAME: Conformance
+      LOFT_PUBLIC_MODE: ${PUBLIC_MODE:-tunnel}
+      # tunnel: an outside name that is never contacted (the suite talks to :8080 directly)
+      LOFT_PUBLIC_URL: ${GW_PUBLIC_URL:-https://loft.example.invalid}
+    volumes: [gw-etc:/etc/loft, gw-state:/var/lib/loft]
+    networks: [lan]
+
+  # The pairing code, the way a user gets it: `loft-gateway pair`.
+  pair:
+    image: ${GATEWAY_IMAGE:-loft-gateway:ci}
+    depends_on:
+      gateway: {condition: service_healthy}
+    entrypoint: ["sh", "-c", "loft-gateway pair --no-qr --config /etc/loft/gateway.toml | grep '^https://' > /pair/link && test -s /pair/link"]
+    volumes: [gw-etc:/etc/loft:ro, pair:/pair]
+    networks: [lan]
+    profiles: [run]
+
+  runner:
+    build: {context: .., dockerfile: samba/Dockerfile.runner}
+    image: loft-ci-runner:latest
+    environment:
+      LOFT_USER: alice
+      LOFT_PASSWORD: alice-conformance-pw
+      LOFT_SHARE: files
+      LOFT_PUBLIC_MODE: ${PUBLIC_MODE:-tunnel}
+      LOFT_PUBLIC_URL: ${RUNNER_PUBLIC_URL:-http://gateway:8080}
+    entrypoint: ["sh", "-c", "export LOFT_PAIRING=$$(cat /pair/link) && exec python -m pytest -p no:cacheprovider \"$$@\"", "pytest"]
+    command: ["-q"]
+    volumes: [../..:/suite:ro, pair:/pair:ro]
+    networks: [lan]
+    profiles: [run]

@@ -1,0 +1,9 @@
+{
+  "_readme": "Workers routes for zone incremental.no, created separately (not by wrangler deploy). script null = no Worker runs on that path, so it goes straight to the origin (the gateway tunnel). Most specific pattern wins.",
+  "zone": "incremental.no",
+  "routes": [
+    {"pattern": "loft.incremental.no/*", "script": "loft-website"},
+    {"pattern": "loft.incremental.no/v1/*", "script": null},
+    {"pattern": "loft.incremental.no/healthz", "script": null}
+  ]
+}

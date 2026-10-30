@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- No plain HTTP anywhere. The gateway's self-signed key is trusted by its pin in code
+     (PinnedTrustManager), not here, so no user or self-signed CAs are trusted either. -->
+<network-security-config>
+    <base-config cleartextTrafficPermitted="false">
+        <trust-anchors>
+            <certificates src="system" />
+        </trust-anchors>
+    </base-config>
+</network-security-config>

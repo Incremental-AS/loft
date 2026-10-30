@@ -1,0 +1,11 @@
+# A clean Debian with the loft-gateway .deb installed by apt, as a user would.
+# run-deb.sh copies the package into .deb/ first.
+ARG BASE=debian:trixie
+FROM ${BASE}
+COPY .deb/ /tmp/deb/
+RUN apt-get update \
+ && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends /tmp/deb/*.deb \
+ && rm -rf /var/lib/apt/lists/* /tmp/deb
+COPY debtest-entry.sh /usr/local/bin/debtest-entry.sh
+RUN chmod 755 /usr/local/bin/debtest-entry.sh
+ENTRYPOINT ["/usr/local/bin/debtest-entry.sh"]

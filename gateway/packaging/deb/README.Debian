@@ -1,0 +1,29 @@
+Loft gateway (.deb)
+===================
+
+  sudo loft-gateway init                       asks for the SMB server and addresses, writes
+                                               /etc/loft/gateway.toml, makes the keys, prints
+                                               the pairing code
+  sudo loft-gateway doctor --user <account>    checks the setup, the SMB server and the clock
+  sudo systemctl enable --now loft-gateway
+  sudo loft-gateway pair                       the pairing code again, any time
+
+Files
+  /opt/loft/venv              the gateway and its Python libraries (bundled, no pip needed)
+  /etc/loft/gateway.toml      settings (no secrets)
+  /etc/loft/direct.{key,crt}  the direct listener's key (root:loft 0640) and certificate
+  /etc/loft/standby/          the standby key: move it off this machine and keep it safe
+  /etc/loft/master.key.cred   the master key, encrypted with systemd-creds (TPM-bound if the
+                              machine has one); loaded by the unit as a credential
+  /var/lib/loft/index.db      the index, devices and audit log (loft 0700)
+
+Units
+  loft-gateway.service        the gateway (user loft, hardened; starts once gateway.toml exists)
+  loft-thumb.socket           thumbnail decoding: one sandboxed loft-thumb@.service process per
+                              file (no network, no files, 512 MB, 40 s)
+
+`loft-gateway init --master-key file` writes a 0600 file instead of a credential; the unit
+loads the credential, so then add a drop-in that replaces LoadCredentialEncrypted= with
+LoadCredential=master.key:/etc/loft/master.key.
+
+`apt remove` keeps /etc/loft and /var/lib/loft; `apt purge` deletes them.

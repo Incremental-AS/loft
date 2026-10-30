@@ -1,0 +1,4 @@
+dist/
+screenshots/
+__pycache__/
+.wrangler/

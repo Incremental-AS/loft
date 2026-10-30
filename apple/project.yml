@@ -1,0 +1,277 @@
+# XcodeGen spec — the .xcodeproj is GENERATED (xcodegen generate), never committed.
+# Product name: Loft. The code uses it too: targets Loft / LoftFileProvider, package LoftCore.
+# A rename touches PRODUCT_NAME, the display names, the bundle ids and the entitlements.
+name: Loft
+options:
+  bundleIdPrefix: no.incremental
+  developmentLanguage: en
+  deploymentTarget:
+    macOS: "14.0"
+    iOS: "17.0"
+settings:
+  configs:
+    # Debug: this Mac's arch only, for every target and the LoftCore package alike (mixing a
+    # universal extension with a one-arch package fails). Release stays universal.
+    Debug:
+      ONLY_ACTIVE_ARCH: YES
+  base:
+    DEVELOPMENT_TEAM: 5A3JX4D37B
+    MARKETING_VERSION: 0.2.0
+    CURRENT_PROJECT_VERSION: 11         # Mac and iPhone share the build counter
+    ARCHS: "arm64 x86_64"          # one universal dmg
+    ONLY_ACTIVE_ARCH: NO
+    ENABLE_HARDENED_RUNTIME: YES
+    # The Mac only COMPILES here: signing and notarizing are the publisher's own step
+    # (Developer ID), so Xcode must not sign, and the entitlements below are handed to
+    # the signing tool explicitly — Xcode never reads them.
+    CODE_SIGNING_ALLOWED: NO
+    CODE_SIGN_IDENTITY: ""
+    SWIFT_VERSION: "5.10"
+    # The Mac app's id and URL scheme. scripts/mac-ui-test.sh builds a copy under other ones,
+    # so the test app never stands in for an installed Loft (its extension, loft:// links).
+    LOFT_MAC_BUNDLE_ID: no.incremental.loft
+    LOFT_URL_SCHEME: loft
+packages:
+  LoftCore:
+    path: Packages/LoftCore
+targets:
+  Loft:
+    type: application
+    platform: macOS
+    sources: [App]                        # includes App/Assets.xcassets
+    info:
+      path: App/Info.plist
+      properties:
+        # XcodeGen's generated plist hardcodes 1.0 / 1; point both at the build
+        # settings above so MARKETING_VERSION is what the app (and the dmg name) report.
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        CFBundleDisplayName: Loft
+        LSUIElement: true                 # menu bar app, no Dock icon
+        # macOS 15 Local Network privacy: without it the direct route (LAN IP) is silently
+        # blocked, and the first sign-in only works on direct.
+        NSLocalNetworkUsageDescription: Loft connects straight to the NAS when you're at home.
+        NSAppTransportSecurity: {}        # no ATS exceptions: direct route is pinned TLS
+        # loft://stream?items=… — the extension's "Stream in VLC" hands off here (StreamLink).
+        # loft://pair#… — a pairing link (docs/pairing.md). The universal link
+        # https://loft.incremental.no/pair#… also needs applinks: in the signed entitlements
+        # and the Developer ID profile (apple/README.md); not added yet.
+        CFBundleURLTypes:
+          - CFBundleURLName: $(LOFT_MAC_BUNDLE_ID)
+            CFBundleURLSchemes: [$(LOFT_URL_SCHEME)]
+        # The same "Stream in VLC" as a Service, for its shortcut ⌘⇧V (StreamService).
+        # NSRequiredContext present = on by default. Users can change the key under
+        # System Settings › Keyboard › Keyboard Shortcuts › Services.
+        NSServices:
+          - NSMenuItem: {default: Stream in VLC}
+            NSMessage: streamInVLC
+            NSPortName: Loft
+            NSSendFileTypes: [public.movie]
+            NSRequiredContext: {}
+            NSKeyEquivalent: {default: V}
+    dependencies:
+      - package: LoftCore
+      - target: LoftFileProvider
+        embed: true
+        codeSign: false
+    scheme:
+      testTargets: [LoftMacUITests]     # scripts/mac-ui-test.sh
+    settings:
+      base:
+        PRODUCT_NAME: Loft                # Loft.app; the dmg layout puts it at (170, 205)
+        PRODUCT_BUNDLE_IDENTIFIER: $(LOFT_MAC_BUNDLE_ID)
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+  LoftFileProvider:
+    type: app-extension
+    platform: macOS
+    sources: [FileProvider]
+    info:
+      path: FileProvider/Info.plist
+      properties:
+        CFBundleShortVersionString: $(MARKETING_VERSION)    # must match the app's
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        CFBundleDisplayName: Loft         # shown in System Settings > Login Items & Extensions
+        NSLocalNetworkUsageDescription: Loft connects straight to the NAS when you're at home.
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.fileprovider-nonui
+          NSExtensionPrincipalClass: $(PRODUCT_MODULE_NAME).FileProviderExtension
+          # Team-prefixed app group (the macOS form), not group.no.incremental.loft: a
+          # group.* id on macOS needs the provisioning profile to authorise it as well.
+          NSExtensionFileProviderDocumentGroup: 5A3JX4D37B.no.incremental.loft
+          NSExtensionFileProviderSupportsEnumeration: true
+          # Finder right-click item (performAction, StreamLink). Shown only when every
+          # selected item is a video by file name; the app opens them in VLC.
+          NSExtensionFileProviderActions:
+            - NSExtensionFileProviderActionIdentifier: no.incremental.loft.stream-in-vlc
+              NSExtensionFileProviderActionName: Stream in VLC
+              NSExtensionFileProviderActionActivationRule: >-
+                fileproviderItems.@count > 0 AND
+                SUBQUERY(fileproviderItems, $item, $item.filename MATCHES[c]
+                '.+[.](mp4|m4v|mov|mkv|avi|webm|wmv|flv|mpg|mpeg|m2ts|mts|ts|3gp|ogv|vob|divx)').@count
+                == fileproviderItems.@count
+    dependencies:
+      - package: LoftCore
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: $(LOFT_MAC_BUNDLE_ID).fileprovider
+
+  # ── iPhone: App Store app ─────────────────────────────────────────────────────────
+  # Same bundle ids as the Mac (the Mac app is Developer ID, outside the App Store),
+  # iOS-form app group group.no.incremental.loft (LoftConfig.appGroup), the team keychain
+  # group shared with the Mac form. App Store signing is automatic with the team's ASC
+  # key; simulator builds don't sign.
+  LoftPhone:
+    type: application
+    platform: iOS
+    sources:
+      - path: iOS/App
+      - path: iOS/Shared
+      - path: iOS/Assets.xcassets
+    info:
+      path: iOS/App/Info.plist
+      properties:
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        CFBundleDisplayName: Loft
+        ITSAppUsesNonExemptEncryption: false     # HTTPS/TLS only (export compliance memory)
+        LSRequiresIPhoneOS: true
+        UILaunchScreen: {}
+        UIApplicationSceneManifest: {UIApplicationSupportsMultipleScenes: false}
+        UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait, UIInterfaceOrientationLandscapeLeft, UIInterfaceOrientationLandscapeRight]
+        UISupportedInterfaceOrientations~ipad: [UIInterfaceOrientationPortrait, UIInterfaceOrientationPortraitUpsideDown, UIInterfaceOrientationLandscapeLeft, UIInterfaceOrientationLandscapeRight]
+        NSCameraUsageDescription: Scan your gateway's pairing code, and take photos that are saved straight to a folder in Loft. Photos don't go to your photo library.
+        NSLocalNetworkUsageDescription: Loft connects straight to the NAS when you're at home.
+        NSAppTransportSecurity: {}
+    entitlements:
+      path: iOS/LoftPhone.entitlements
+      # xcodegen REWRITES the file from `properties` on every generate; without them it
+      # leaves an empty <dict/> and the build ships without the app group.
+      properties:
+        com.apple.security.application-groups: [group.no.incremental.loft]
+        keychain-access-groups: [5A3JX4D37B.no.incremental.loft]
+        # Universal link https://loft.incremental.no/pair#… (pairing). The site serves
+        # /.well-known/apple-app-site-association (content: docs/aasa.json).
+        com.apple.developer.associated-domains: [applinks:loft.incremental.no]
+    dependencies:
+      - package: LoftCore
+      - target: LoftPhoneFileProvider
+      - target: LoftShare
+    scheme:
+      testTargets: [LoftPhoneUITests]
+    settings:
+      base: &phoneSigning
+        PRODUCT_NAME: Loft
+        PRODUCT_BUNDLE_IDENTIFIER: no.incremental.loft
+        TARGETED_DEVICE_FAMILY: "1,2"
+        ARCHS: arm64
+        ONLY_ACTIVE_ARCH: YES
+        ENABLE_HARDENED_RUNTIME: NO
+        CODE_SIGNING_ALLOWED: YES
+        CODE_SIGN_STYLE: Automatic
+        SUPPORTS_MACCATALYST: NO
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+  LoftPhoneFileProvider:
+    type: app-extension
+    platform: iOS
+    sources:
+      - path: FileProvider
+        excludes: ["Info.plist", "*.entitlements"]   # the Mac extension's
+      - path: iOS/FileProviderStrings                # en/nb InfoPlist.strings
+    info:
+      path: iOS/FileProviderInfo.plist
+      properties:
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        CFBundleDisplayName: Loft
+        NSLocalNetworkUsageDescription: Loft connects straight to the NAS when you're at home.
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.fileprovider-nonui
+          NSExtensionPrincipalClass: $(PRODUCT_MODULE_NAME).FileProviderExtension
+          NSExtensionFileProviderDocumentGroup: group.no.incremental.loft
+          NSExtensionFileProviderSupportsEnumeration: true
+    entitlements:
+      path: iOS/LoftPhoneFileProvider.entitlements
+      # xcodegen REWRITES the file from `properties` on every generate; without them it
+      # leaves an empty <dict/> and the build ships without the app group.
+      properties:
+        com.apple.security.application-groups: [group.no.incremental.loft]
+        keychain-access-groups: [5A3JX4D37B.no.incremental.loft]
+    dependencies:
+      - package: LoftCore
+    settings:
+      base:
+        <<: *phoneSigning
+        PRODUCT_NAME: LoftFileProvider
+        PRODUCT_BUNDLE_IDENTIFIER: no.incremental.loft.fileprovider
+  LoftShare:
+    type: app-extension
+    platform: iOS
+    sources:
+      - path: iOS/Share
+        excludes: ["*.entitlements"]
+      - path: iOS/Shared
+    info:
+      path: iOS/Share/Info.plist
+      properties:
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        CFBundleDisplayName: Loft   # app-row label truncates; the sheet's title says Save to Loft
+        NSLocalNetworkUsageDescription: Loft connects straight to the NAS when you're at home.
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.share-services
+          NSExtensionPrincipalClass: $(PRODUCT_MODULE_NAME).ShareViewController
+          NSExtensionAttributes:
+            NSExtensionActivationRule:
+              NSExtensionActivationSupportsFileWithMaxCount: 100
+              NSExtensionActivationSupportsImageWithMaxCount: 100
+              NSExtensionActivationSupportsMovieWithMaxCount: 100
+              NSExtensionActivationSupportsAttachmentsWithMaxCount: 100
+              NSExtensionActivationSupportsWebURLWithMaxCount: 1
+              NSExtensionActivationSupportsText: true
+    entitlements:
+      path: iOS/Share/LoftShare.entitlements
+      # xcodegen REWRITES the file from `properties` on every generate; without them it
+      # leaves an empty <dict/> and the build ships without the app group.
+      properties:
+        com.apple.security.application-groups: [group.no.incremental.loft]
+        keychain-access-groups: [5A3JX4D37B.no.incremental.loft]
+    dependencies:
+      - package: LoftCore
+    settings:
+      base:
+        <<: *phoneSigning
+        PRODUCT_NAME: LoftShare
+        PRODUCT_BUNDLE_IDENTIFIER: no.incremental.loft.share
+  LoftPhoneUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources: [iOS/UITests]
+    dependencies:
+      - target: LoftPhone
+    settings:
+      base:
+        TEST_TARGET_NAME: LoftPhone
+        PRODUCT_BUNDLE_IDENTIFIER: no.incremental.loft.uitests
+        GENERATE_INFOPLIST_FILE: YES
+        CODE_SIGNING_ALLOWED: NO
+  # Mac UI tests (scripts/mac-ui-test.sh): pairing by pasted link and by manual setup, then
+  # sign-in, against gateway/scripts/dev_server.py. The runner is signed ad hoc ("-") to run
+  # on the build Mac; nothing is installed, and the app runs with -LoftUITest (UITestMode).
+  LoftMacUITests:
+    type: bundle.ui-testing
+    platform: macOS
+    sources: [MacUITests]
+    dependencies:
+      - target: Loft
+    settings:
+      base:
+        TEST_TARGET_NAME: Loft
+        PRODUCT_BUNDLE_IDENTIFIER: no.incremental.loft.macuitests
+        GENERATE_INFOPLIST_FILE: YES
+        CODE_SIGNING_ALLOWED: YES
+        CODE_SIGN_STYLE: Manual
+        CODE_SIGN_IDENTITY: "-"
+        DEVELOPMENT_TEAM: ""
+        ENABLE_HARDENED_RUNTIME: NO

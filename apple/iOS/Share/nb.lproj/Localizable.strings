@@ -1,0 +1,22 @@
+/* "Save to Loft" share sheet, Norwegian (bokmål). Keys are the English text in ShareViewController.swift
+   and the Shared/ sources it uses; the same words as iOS/App/nb.lproj/Localizable.strings.
+   Capital letter after every colon (not in times or URLs). */
+
+"Save to Loft" = "Lagre i Loft";
+"Save here" = "Lagre her";
+"Cancel" = "Avbryt";
+"Not signed in" = "Ikke logget inn";
+"Open Loft and sign in first." = "Åpne Loft og logg inn først.";
+"Couldn't save" = "Kunne ikke lagre";
+"Preparing…" = "Gjør klar …";
+"Saving “%@” to %@" = "Lagrer «%@» i %@";
+"Saving %lld of %lld to %@" = "Lagrer %lld av %lld i %@";
+"There was nothing Loft could save." = "Det var ingenting Loft kunne lagre.";
+"Check your connection and try again." = "Sjekk tilkoblingen og prøv igjen.";
+
+/* Folder picker (Shared/FolderPicker.swift) */
+"Last used" = "Sist brukt";
+"Shares" = "Delte mapper";
+"No shares." = "Ingen delte mapper.";
+"No folders inside." = "Ingen mapper her.";
+"Can't reach Loft." = "Får ikke kontakt med Loft.";

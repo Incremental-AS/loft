@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.Loft" parent="android:Theme.Material.NoActionBar">
+        <item name="android:windowBackground">@color/md_theme_dark_surface</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:colorAccent">@color/md_theme_dark_primary</item>
+    </style>
+
+</resources>

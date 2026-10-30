@@ -1,0 +1,29 @@
+name: gitleaks
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  scan:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0          # every commit of the push, not just the tip
+      - name: Install gitleaks (pinned, checksum verified)
+        env:
+          VERSION: 8.30.1
+          SHA256: 551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb
+        run: |
+          curl -sSLo gl.tgz "https://github.com/gitleaks/gitleaks/releases/download/v${VERSION}/gitleaks_${VERSION}_linux_x64.tar.gz"
+          echo "${SHA256}  gl.tgz" | sha256sum -c -
+          tar xzf gl.tgz gitleaks && sudo install -m 755 gitleaks /usr/local/bin/gitleaks
+      - name: Scan the history
+        run: gitleaks git --no-banner --config .gitleaks.toml --redact --verbose .
+      - name: Scan the working tree
+        run: gitleaks dir --no-banner --config .gitleaks.toml --redact .

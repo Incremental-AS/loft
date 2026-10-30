@@ -1,0 +1,15 @@
+{
+  "applinks": {
+    "details": [
+      {
+        "appIDs": ["5A3JX4D37B.no.incremental.loft"],
+        "components": [
+          {
+            "/": "/pair",
+            "comment": "Pairing link https://loft.incremental.no/pair#<payload> (docs/pairing.md). The payload is in the fragment, which never reaches the server."
+          }
+        ]
+      }
+    ]
+  }
+}
