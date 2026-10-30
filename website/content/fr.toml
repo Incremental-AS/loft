@@ -213,7 +213,7 @@ lead = "Loft est gratuit sur toutes les plateformes. Il vous faut aussi une pass
 
 [pages.download.updates]
 title = "Recherche de mises à jour"
-body = "<p>Les apps Mac, Windows et Linux, ainsi que l’APK Android de ce site, consultent <code>loft.incremental.no/releases.json</code> pour savoir s’il existe une nouvelle version, au plus une fois par jour. C’est la seule requête qu’une app Loft nous adresse. Il s’agit d’un simple téléchargement de ce fichier : pas de compte, pas d’identifiant d’appareil, rien sur votre passerelle ni sur vos fichiers. Tout au plus indique-t-elle quelle app pose la question. Vous pouvez la désactiver dans les paramètres de l’app. L’app iPhone et iPad se met à jour via l’App Store, et Loft installé depuis Google Play se met à jour via Google Play.</p><p>Code source et sommes de contrôle de chaque version : → <a href=\"/source/\">Code source</a></p>"
+body = "<p>Les apps Mac, Windows et Linux, ainsi que l’APK Android de ce site, vérifient sur ce site s’il existe une nouvelle version, au plus une fois par jour. L’app Mac lit <code>loft.incremental.no/appcast.xml</code>, les autres <code>loft.incremental.no/releases.json</code>. C’est la seule requête qu’une app Loft nous adresse. Il s’agit d’un simple téléchargement d’un seul fichier : pas de compte, pas d’identifiant d’appareil, rien sur votre passerelle ni sur vos fichiers. Tout au plus indique-t-elle quelle app pose la question, et dans quelle version. Vous pouvez la désactiver dans les paramètres de l’app.</p><p>Lorsque l’app Mac trouve une nouvelle version, elle vous pose d’abord la question, et rien n’est téléchargé tant que vous n’avez pas choisi de l’installer. Elle télécharge alors la mise à jour depuis GitHub, vérifie qu’elle est signée par nous, l’installe et se relance. Comme pour tout téléchargement, GitHub voit votre adresse IP et le fichier demandé.</p><p>L’app iPhone et iPad se met à jour via l’App Store, et Loft installé depuis Google Play se met à jour via Google Play.</p><p>Code source et sommes de contrôle de chaque version : → <a href=\"/source/\">Code source</a></p>"
 
 [pages.gateway]
 title = "Installer une passerelle · Loft by Incremental"
@@ -360,11 +360,11 @@ body = "<p>Le mot de passe de votre NAS ne va qu’à votre propre passerelle, p
 
 [[pages.privacy.sections]]
 title = "Les apps"
-body = "<p>Les apps Mac, Windows et Linux, ainsi que l’APK Android de ce site, consultent <code>loft.incremental.no/releases.json</code> pour savoir s’il existe une nouvelle version, au plus une fois par jour. C’est la seule requête qu’une app Loft nous adresse. Il s’agit d’un simple téléchargement de ce fichier : pas de compte, pas d’identifiant d’appareil, rien sur votre passerelle ni sur vos fichiers. Tout au plus indique-t-elle quelle app pose la question. Vous pouvez la désactiver dans les paramètres de l’app. L’app iPhone et iPad se met à jour via l’App Store, où s’appliquent les conditions de confidentialité d’Apple, et Loft installé depuis Google Play se met à jour via Google Play, où s’appliquent celles de Google.</p>"
+body = "<p>Les apps Mac, Windows et Linux, ainsi que l’APK Android de ce site, vérifient sur ce site s’il existe une nouvelle version, au plus une fois par jour. L’app Mac lit <code>loft.incremental.no/appcast.xml</code>, les autres <code>loft.incremental.no/releases.json</code>. C’est la seule requête qu’une app Loft nous adresse. Il s’agit d’un simple téléchargement d’un seul fichier : pas de compte, pas d’identifiant d’appareil, rien sur votre passerelle ni sur vos fichiers. Tout au plus indique-t-elle quelle app pose la question, et dans quelle version. Vous pouvez la désactiver dans les paramètres de l’app.</p><p>Lorsque l’app Mac trouve une nouvelle version, elle vous pose d’abord la question, et rien n’est téléchargé tant que vous n’avez pas choisi de l’installer. Elle télécharge alors la mise à jour depuis GitHub, vérifie qu’elle est signée par nous, l’installe et se relance. Comme pour tout téléchargement, GitHub voit votre adresse IP et le fichier demandé.</p><p>L’app iPhone et iPad se met à jour via l’App Store, où s’appliquent les conditions de confidentialité d’Apple, et Loft installé depuis Google Play se met à jour via Google Play, où s’appliquent celles de Google.</p>"
 
 [[pages.privacy.sections]]
 title = "Ce site"
-body = "<p>Aucun cookie, aucun outil d’analyse, aucun pistage, aucune police ni aucun script de tiers. Le réglage clair/sombre est enregistré dans votre propre navigateur et n’est jamais envoyé nulle part. Le site est servi par Cloudflare, et les téléchargements des apps proviendront de GitHub. Comme tout hébergeur, ils voient votre adresse IP et le fichier demandé. Nous n’y ajoutons rien.</p>"
+body = "<p>Aucun cookie, aucun outil d’analyse, aucun pistage, aucune police ni aucun script de tiers. Le réglage clair/sombre est enregistré dans votre propre navigateur et n’est jamais envoyé nulle part. Le site est servi par Cloudflare, et les téléchargements des apps proviennent de GitHub. Comme tout hébergeur, ils voient votre adresse IP et le fichier demandé. Nous n’y ajoutons rien.</p>"
 
 [[pages.privacy.sections]]
 title = "Liens d’association"
@@ -423,7 +423,7 @@ body = "<ul>\n<li><code>gateway/</code> : la passerelle Loft (Python)</li>\n<l
 
 [[pages.source.sections]]
 title = "Versions"
-body = "<p>Chaque version aura ses notes de version sur GitHub, et une somme de contrôle SHA-256 pour chaque téléchargement.</p>"
+body = "<p>Chaque version a ses notes de version sur GitHub, et une somme de contrôle SHA-256 pour chaque téléchargement. → <a href=\"https://github.com/Incremental-AS/loft/releases\">Versions sur GitHub</a></p>"
 
 [[pages.source.sections]]
 title = "Le nom ne fait pas partie de la licence"

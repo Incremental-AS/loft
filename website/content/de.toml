@@ -213,7 +213,7 @@ lead = "Loft ist auf jeder Plattform kostenlos. Du brauchst außerdem ein Loft-G
 
 [pages.download.updates]
 title = "Suche nach Updates"
-body = "<p>Die Apps für Mac, Windows und Linux sowie die Android-APK von dieser Website fragen <code>loft.incremental.no/releases.json</code> nach einer neuen Version ab, höchstens einmal am Tag. Diese Anfrage ist die einzige, die eine Loft-App an uns stellt. Es ist ein schlichter Download dieser einen Datei: kein Konto, keine Geräte-ID, nichts über dein Gateway oder deine Dateien. Höchstens verrät sie, welche App fragt. Du kannst das in den Einstellungen der App ausschalten. Die App für iPhone und iPad wird über den App Store aktualisiert, Loft aus Google Play über Google Play.</p><p>Quellcode und Prüfsummen für jede Version: → <a href=\"/source/\">Quellcode</a></p>"
+body = "<p>Die Apps für Mac, Windows und Linux sowie die Android-APK von dieser Website suchen auf dieser Website nach einer neuen Version, höchstens einmal am Tag. Die Mac-App liest <code>loft.incremental.no/appcast.xml</code>, die anderen <code>loft.incremental.no/releases.json</code>. Diese Anfrage ist die einzige, die eine Loft-App an uns stellt. Es ist ein schlichter Download einer einzigen Datei: kein Konto, keine Geräte-ID, nichts über dein Gateway oder deine Dateien. Höchstens verrät sie, welche App in welcher Version fragt. Du kannst das in den Einstellungen der App ausschalten.</p><p>Findet die Mac-App eine neue Version, fragt sie dich zuerst, und nichts wird heruntergeladen, bevor du dich für die Installation entscheidest. Dann lädt sie das Update von GitHub herunter, prüft, ob es von uns signiert ist, installiert es und öffnet sich wieder. Wie bei jedem Download sieht GitHub deine IP-Adresse und welche Datei du angefordert hast.</p><p>Die App für iPhone und iPad wird über den App Store aktualisiert, Loft aus Google Play über Google Play.</p><p>Quellcode und Prüfsummen für jede Version: → <a href=\"/source/\">Quellcode</a></p>"
 
 [pages.gateway]
 title = "Gateway einrichten · Loft by Incremental"
@@ -360,11 +360,11 @@ body = "<p>Dein NAS-Passwort geht nur an dein eigenes Gateway, über eine Verbin
 
 [[pages.privacy.sections]]
 title = "Die Apps"
-body = "<p>Die Apps für Mac, Windows und Linux sowie die Android-APK von dieser Website fragen <code>loft.incremental.no/releases.json</code> nach einer neuen Version ab, höchstens einmal am Tag. Diese Anfrage ist die einzige, die eine Loft-App an uns stellt. Es ist ein schlichter Download dieser einen Datei: kein Konto, keine Geräte-ID, nichts über dein Gateway oder deine Dateien. Höchstens verrät sie, welche App fragt. Du kannst das in den Einstellungen der App ausschalten. Die App für iPhone und iPad wird über den App Store aktualisiert, wo die Datenschutzbestimmungen von Apple gelten, und Loft aus Google Play über Google Play, wo die von Google gelten.</p>"
+body = "<p>Die Apps für Mac, Windows und Linux sowie die Android-APK von dieser Website suchen auf dieser Website nach einer neuen Version, höchstens einmal am Tag. Die Mac-App liest <code>loft.incremental.no/appcast.xml</code>, die anderen <code>loft.incremental.no/releases.json</code>. Diese Anfrage ist die einzige, die eine Loft-App an uns stellt. Es ist ein schlichter Download einer einzigen Datei: kein Konto, keine Geräte-ID, nichts über dein Gateway oder deine Dateien. Höchstens verrät sie, welche App in welcher Version fragt. Du kannst das in den Einstellungen der App ausschalten.</p><p>Findet die Mac-App eine neue Version, fragt sie dich zuerst, und nichts wird heruntergeladen, bevor du dich für die Installation entscheidest. Dann lädt sie das Update von GitHub herunter, prüft, ob es von uns signiert ist, installiert es und öffnet sich wieder. Wie bei jedem Download sieht GitHub deine IP-Adresse und welche Datei du angefordert hast.</p><p>Die App für iPhone und iPad wird über den App Store aktualisiert, wo die Datenschutzbestimmungen von Apple gelten, und Loft aus Google Play über Google Play, wo die von Google gelten.</p>"
 
 [[pages.privacy.sections]]
 title = "Diese Website"
-body = "<p>Keine Cookies, keine Analyse, kein Tracking, keine Schriften oder Skripte von anderen. Die Einstellung hell/dunkel wird in deinem eigenen Browser gespeichert und nirgendwohin gesendet. Die Website wird über Cloudflare ausgeliefert, und die App-Downloads werden von GitHub kommen. Wie jeder Hoster sehen sie deine IP-Adresse und welche Datei du angefordert hast. Wir fügen nichts hinzu.</p>"
+body = "<p>Keine Cookies, keine Analyse, kein Tracking, keine Schriften oder Skripte von anderen. Die Einstellung hell/dunkel wird in deinem eigenen Browser gespeichert und nirgendwohin gesendet. Die Website wird über Cloudflare ausgeliefert, und die App-Downloads kommen von GitHub. Wie jeder Hoster sehen sie deine IP-Adresse und welche Datei du angefordert hast. Wir fügen nichts hinzu.</p>"
 
 [[pages.privacy.sections]]
 title = "Kopplungslinks"
@@ -423,7 +423,7 @@ body = "<ul>\n<li><code>gateway/</code>: das Loft-Gateway (Python)</li>\n<li><co
 
 [[pages.source.sections]]
 title = "Versionen"
-body = "<p>Zu jeder Version wird es Versionshinweise auf GitHub geben und eine SHA-256-Prüfsumme für jeden Download.</p>"
+body = "<p>Zu jeder Version gibt es Versionshinweise auf GitHub und eine SHA-256-Prüfsumme für jeden Download. → <a href=\"https://github.com/Incremental-AS/loft/releases\">Versionen auf GitHub</a></p>"
 
 [[pages.source.sections]]
 title = "Der Name gehört nicht zur Lizenz"

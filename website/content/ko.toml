@@ -213,7 +213,7 @@ lead = "Loft는 모든 플랫폼에서 무료예요. 집에는 Loft 게이트웨
 
 [pages.download.updates]
 title = "업데이트 확인"
-body = "<p>Mac, Windows, Linux 앱과 이 사이트에서 받은 Android APK는 <code>loft.incremental.no/releases.json</code>을 확인해 새 버전이 있는지 알아봐요. 많아야 하루에 한 번이에요. Loft 앱이 저희에게 보내는 요청은 이것 하나뿐이에요. 이 파일 하나를 그냥 다운로드할 뿐이라서, 계정도, 기기 ID도, 게이트웨이나 파일에 관한 정보도 전혀 없어요. 담기는 정보는 기껏해야 어떤 앱이 요청하는지 정도예요. 앱 설정에서 끌 수 있어요. iPhone 및 iPad 앱은 App Store를 통해, Google Play에서 받은 Loft는 Google Play를 통해 업데이트돼요.</p><p>모든 릴리스의 소스 코드와 체크섬: → <a href=\"/source/\">소스 코드</a></p>"
+body = "<p>Mac, Windows, Linux 앱과 이 사이트에서 받은 Android APK는 이 사이트에서 새 버전이 있는지 확인해요. 많아야 하루에 한 번이에요. Mac 앱은 <code>loft.incremental.no/appcast.xml</code>을, 나머지 앱은 <code>loft.incremental.no/releases.json</code>을 읽어요. Loft 앱이 저희에게 보내는 요청은 이것 하나뿐이에요. 이 파일 하나를 그냥 다운로드할 뿐이라서, 계정도, 기기 ID도, 게이트웨이나 파일에 관한 정보도 전혀 없어요. 담기는 정보는 기껏해야 어떤 앱의 어떤 버전이 요청하는지 정도예요. 앱 설정에서 끌 수 있어요.</p><p>Mac 앱은 새 버전을 찾으면 먼저 물어보고, 설치하기로 선택하기 전까지는 아무것도 다운로드하지 않아요. 그런 다음 GitHub에서 업데이트를 다운로드해 저희가 서명한 것인지 확인하고, 설치한 뒤 앱을 다시 열어요. 다른 다운로드와 마찬가지로 GitHub은 IP 주소와 요청한 파일을 볼 수 있어요.</p><p>iPhone 및 iPad 앱은 App Store를 통해, Google Play에서 받은 Loft는 Google Play를 통해 업데이트돼요.</p><p>모든 릴리스의 소스 코드와 체크섬: → <a href=\"/source/\">소스 코드</a></p>"
 
 [pages.gateway]
 title = "게이트웨이 설정 · Loft by Incremental"
@@ -360,11 +360,11 @@ body = "<p>NAS 비밀번호는 내 게이트웨이의 키에 고정된 연결로
 
 [[pages.privacy.sections]]
 title = "앱"
-body = "<p>Mac, Windows, Linux 앱과 이 사이트에서 받은 Android APK는 <code>loft.incremental.no/releases.json</code>을 확인해 새 버전이 있는지 알아봐요. 많아야 하루에 한 번이에요. Loft 앱이 저희에게 보내는 요청은 이것 하나뿐이에요. 이 파일 하나를 그냥 다운로드할 뿐이라서, 계정도, 기기 ID도, 게이트웨이나 파일에 관한 정보도 전혀 없어요. 담기는 정보는 기껏해야 어떤 앱이 요청하는지 정도예요. 앱 설정에서 끌 수 있어요. iPhone 및 iPad 앱은 App Store를 통해 업데이트되며 여기에는 Apple의 개인정보 보호 약관이 적용되고, Google Play에서 받은 Loft는 Google Play를 통해 업데이트되며 여기에는 Google의 약관이 적용돼요.</p>"
+body = "<p>Mac, Windows, Linux 앱과 이 사이트에서 받은 Android APK는 이 사이트에서 새 버전이 있는지 확인해요. 많아야 하루에 한 번이에요. Mac 앱은 <code>loft.incremental.no/appcast.xml</code>을, 나머지 앱은 <code>loft.incremental.no/releases.json</code>을 읽어요. Loft 앱이 저희에게 보내는 요청은 이것 하나뿐이에요. 이 파일 하나를 그냥 다운로드할 뿐이라서, 계정도, 기기 ID도, 게이트웨이나 파일에 관한 정보도 전혀 없어요. 담기는 정보는 기껏해야 어떤 앱의 어떤 버전이 요청하는지 정도예요. 앱 설정에서 끌 수 있어요.</p><p>Mac 앱은 새 버전을 찾으면 먼저 물어보고, 설치하기로 선택하기 전까지는 아무것도 다운로드하지 않아요. 그런 다음 GitHub에서 업데이트를 다운로드해 저희가 서명한 것인지 확인하고, 설치한 뒤 앱을 다시 열어요. 다른 다운로드와 마찬가지로 GitHub은 IP 주소와 요청한 파일을 볼 수 있어요.</p><p>iPhone 및 iPad 앱은 App Store를 통해 업데이트되며 여기에는 Apple의 개인정보 보호 약관이 적용되고, Google Play에서 받은 Loft는 Google Play를 통해 업데이트되며 여기에는 Google의 약관이 적용돼요.</p>"
 
 [[pages.privacy.sections]]
 title = "이 웹사이트"
-body = "<p>쿠키, 분석 도구, 추적이 없고, 다른 곳에서 불러오는 글꼴이나 스크립트도 없어요. 라이트/다크 설정은 사용자의 브라우저에 저장되며 어디에도 전송되지 않아요. 이 사이트는 Cloudflare를 통해 제공되고, 앱 다운로드는 GitHub에서 제공될 예정이에요. 다른 호스팅 업체와 마찬가지로 이들도 IP 주소와 요청한 파일을 볼 수 있어요. 저희는 여기에 아무것도 더하지 않아요.</p>"
+body = "<p>쿠키, 분석 도구, 추적이 없고, 다른 곳에서 불러오는 글꼴이나 스크립트도 없어요. 라이트/다크 설정은 사용자의 브라우저에 저장되며 어디에도 전송되지 않아요. 이 사이트는 Cloudflare를 통해 제공되고, 앱 다운로드는 GitHub에서 제공돼요. 다른 호스팅 업체와 마찬가지로 이들도 IP 주소와 요청한 파일을 볼 수 있어요. 저희는 여기에 아무것도 더하지 않아요.</p>"
 
 [[pages.privacy.sections]]
 title = "페어링 링크"
@@ -423,7 +423,7 @@ body = "<ul>\n<li><code>gateway/</code>: Loft 게이트웨이(Python)</li>\n<li>
 
 [[pages.source.sections]]
 title = "릴리스"
-body = "<p>모든 릴리스에는 GitHub에 릴리스 노트가 있고, 다운로드 파일마다 SHA-256 체크섬이 제공될 예정이에요.</p>"
+body = "<p>모든 릴리스에는 GitHub에 릴리스 노트가 있고, 다운로드 파일마다 SHA-256 체크섬이 제공돼요. → <a href=\"https://github.com/Incremental-AS/loft/releases\">GitHub의 릴리스</a></p>"
 
 [[pages.source.sections]]
 title = "이름은 라이선스에 포함되지 않아요"

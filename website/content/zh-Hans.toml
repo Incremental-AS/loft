@@ -213,7 +213,7 @@ lead = "Loft 在所有平台上都免费。你还需要在家里运行一个 Lof
 
 [pages.download.updates]
 title = "检查更新"
-body = "<p>Mac、Windows 和 Linux 应用，以及本网站提供的 Android APK，会向 <code>loft.incremental.no/releases.json</code> 查询是否有新版本，每天最多一次。这是 Loft 应用向我们发出的唯一请求。它只是单纯下载这一个文件：没有账户，没有设备 ID，也不含任何关于你的网关或文件的信息。它最多只会透露是哪个应用在查询。你可以在应用的设置中关闭它。iPhone 和 iPad 应用通过 App Store 更新，从 Google Play 安装的 Loft 则通过 Google Play 更新。</p><p>每个版本的源代码和校验和：→ <a href=\"/source/\">源代码</a></p>"
+body = "<p>Mac、Windows 和 Linux 应用，以及本网站提供的 Android APK，会在本网站上查询是否有新版本，每天最多一次。Mac 应用读取 <code>loft.incremental.no/appcast.xml</code>，其他应用读取 <code>loft.incremental.no/releases.json</code>。这是 Loft 应用向我们发出的唯一请求。它只是单纯下载这一个文件：没有账户，没有设备 ID，也不含任何关于你的网关或文件的信息。它最多只会透露是哪个应用、哪个版本在查询。你可以在应用的设置中关闭它。</p><p>Mac 应用发现新版本时，会先询问你，在你选择安装之前不会下载任何内容。之后它会从 GitHub 下载更新，检查更新是否由我们签名，然后安装并重新打开。和任何下载一样，GitHub 能看到你的 IP 地址以及你请求了哪个文件。</p><p>iPhone 和 iPad 应用通过 App Store 更新，从 Google Play 安装的 Loft 则通过 Google Play 更新。</p><p>每个版本的源代码和校验和：→ <a href=\"/source/\">源代码</a></p>"
 
 [pages.gateway]
 title = "设置网关 · Loft by Incremental"
@@ -360,11 +360,11 @@ body = "<p>你的 NAS 密码只会发送到你自己的网关，而且只通过�
 
 [[pages.privacy.sections]]
 title = "应用"
-body = "<p>Mac、Windows 和 Linux 应用，以及本网站提供的 Android APK，会向 <code>loft.incremental.no/releases.json</code> 查询是否有新版本，每天最多一次。这是 Loft 应用向我们发出的唯一请求。它只是单纯下载这一个文件：没有账户，没有设备 ID，也不含任何关于你的网关或文件的信息。它最多只会透露是哪个应用在查询。你可以在应用的设置中关闭它。iPhone 和 iPad 应用通过 App Store 更新，适用 Apple 的隐私条款；从 Google Play 安装的 Loft 通过 Google Play 更新，适用 Google 的隐私条款。</p>"
+body = "<p>Mac、Windows 和 Linux 应用，以及本网站提供的 Android APK，会在本网站上查询是否有新版本，每天最多一次。Mac 应用读取 <code>loft.incremental.no/appcast.xml</code>，其他应用读取 <code>loft.incremental.no/releases.json</code>。这是 Loft 应用向我们发出的唯一请求。它只是单纯下载这一个文件：没有账户，没有设备 ID，也不含任何关于你的网关或文件的信息。它最多只会透露是哪个应用、哪个版本在查询。你可以在应用的设置中关闭它。</p><p>Mac 应用发现新版本时，会先询问你，在你选择安装之前不会下载任何内容。之后它会从 GitHub 下载更新，检查更新是否由我们签名，然后安装并重新打开。和任何下载一样，GitHub 能看到你的 IP 地址以及你请求了哪个文件。</p><p>iPhone 和 iPad 应用通过 App Store 更新，适用 Apple 的隐私条款；从 Google Play 安装的 Loft 通过 Google Play 更新，适用 Google 的隐私条款。</p>"
 
 [[pages.privacy.sections]]
 title = "本网站"
-body = "<p>没有 Cookie，没有统计分析，没有跟踪，也不加载任何第三方的字体或脚本。浅色/深色设置保存在你自己的浏览器中，从不发送到任何地方。本网站由 Cloudflare 提供服务，应用将从 GitHub 下载。和任何托管服务一样，它们能看到你的 IP 地址以及你请求了哪个文件。我们不会在此之外再添加任何东西。</p>"
+body = "<p>没有 Cookie，没有统计分析，没有跟踪，也不加载任何第三方的字体或脚本。浅色/深色设置保存在你自己的浏览器中，从不发送到任何地方。本网站由 Cloudflare 提供服务，应用从 GitHub 下载。和任何托管服务一样，它们能看到你的 IP 地址以及你请求了哪个文件。我们不会在此之外再添加任何东西。</p>"
 
 [[pages.privacy.sections]]
 title = "配对链接"
@@ -423,7 +423,7 @@ body = "<ul>\n<li><code>gateway/</code>：Loft 网关（Python）</li>\n<li><cod
 
 [[pages.source.sections]]
 title = "版本发布"
-body = "<p>每个版本都会在 GitHub 上提供版本说明，并为每个下载文件提供 SHA-256 校验和。</p>"
+body = "<p>每个版本都在 GitHub 上提供版本说明，并为每个下载文件提供 SHA-256 校验和。→ <a href=\"https://github.com/Incremental-AS/loft/releases\">GitHub 上的发行版</a></p>"
 
 [[pages.source.sections]]
 title = "名称不在许可证范围内"

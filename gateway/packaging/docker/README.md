@@ -6,7 +6,7 @@ docker run -d --name loft --restart unless-stopped \
   -e LOFT_SMB_SERVER=nas.example.org \
   -e LOFT_LAN_URL=https://10.0.0.5:8443 \
   -v loft-etc:/etc/loft -v loft-state:/var/lib/loft \
-  loft-gateway:0.2.0
+  ghcr.io/incremental-as/loft-gateway:0.2.0
 docker logs loft                                          # the pairing code from the first start
 docker exec -it loft loft-container loft-gateway doctor --user alice
 docker exec loft loft-container loft-gateway pair         # the pairing code again

@@ -213,7 +213,7 @@ lead = "Loftはどのプラットフォームでも無料です。自宅にLoft�
 
 [pages.download.updates]
 title = "アップデートの確認"
-body = "<p>Mac、Windows、Linuxのアプリと、このサイトのAndroid APKは、新しいバージョンがあるかを<code>loft.incremental.no/releases.json</code>で確認します。頻度は多くても1日に1回です。Loftのアプリが私たちに送るリクエストはこれだけです。このファイル1つを普通にダウンロードするだけで、アカウントもデバイスIDも、ゲートウェイやファイルに関する情報も含まれません。分かるのはせいぜい、どのアプリからのリクエストかということだけです。この確認はアプリの設定でオフにできます。iPhone・iPad版はApp Storeで、Google Play版LoftはGoogle Playでアップデートされます。</p><p>各リリースのソースコードとチェックサム：→ <a href=\"/source/\">ソースコード</a></p>"
+body = "<p>Mac、Windows、Linuxのアプリと、このサイトのAndroid APKは、新しいバージョンがあるかをこのサイトで確認します。頻度は多くても1日に1回です。Macアプリは<code>loft.incremental.no/appcast.xml</code>を、それ以外は<code>loft.incremental.no/releases.json</code>を読み込みます。Loftのアプリが私たちに送るリクエストはこれだけです。このファイル1つを普通にダウンロードするだけで、アカウントもデバイスIDも、ゲートウェイやファイルに関する情報も含まれません。分かるのはせいぜい、どのアプリのどのバージョンからのリクエストかということだけです。この確認はアプリの設定でオフにできます。</p><p>Macアプリは新しいバージョンを見つけると、まず確認を求めます。インストールすることを選ぶまで、何もダウンロードされません。その後、アップデートをGitHubからダウンロードし、私たちの署名があることを確認してからインストールし、もう一度起動します。ほかのダウンロードと同じく、GitHubにはあなたのIPアドレスと、どのファイルをリクエストしたかが見えます。</p><p>iPhone・iPad版はApp Storeで、Google Play版LoftはGoogle Playでアップデートされます。</p><p>各リリースのソースコードとチェックサム：→ <a href=\"/source/\">ソースコード</a></p>"
 
 [pages.gateway]
 title = "ゲートウェイの設定 · Loft by Incremental"
@@ -360,11 +360,11 @@ body = "<p>NASのパスワードは、ゲートウェイの鍵に固定された
 
 [[pages.privacy.sections]]
 title = "アプリ"
-body = "<p>Mac、Windows、Linuxのアプリと、このサイトのAndroid APKは、新しいバージョンがあるかを<code>loft.incremental.no/releases.json</code>で確認します。頻度は多くても1日に1回です。Loftのアプリが私たちに送るリクエストはこれだけです。このファイル1つを普通にダウンロードするだけで、アカウントもデバイスIDも、ゲートウェイやファイルに関する情報も含まれません。分かるのはせいぜい、どのアプリからのリクエストかということだけです。この確認はアプリの設定でオフにできます。iPhone・iPad版はApp Storeでアップデートされ、そこではAppleのプライバシー規約が適用されます。Google Play版LoftはGoogle Playでアップデートされ、そこではGoogleの規約が適用されます。</p>"
+body = "<p>Mac、Windows、Linuxのアプリと、このサイトのAndroid APKは、新しいバージョンがあるかをこのサイトで確認します。頻度は多くても1日に1回です。Macアプリは<code>loft.incremental.no/appcast.xml</code>を、それ以外は<code>loft.incremental.no/releases.json</code>を読み込みます。Loftのアプリが私たちに送るリクエストはこれだけです。このファイル1つを普通にダウンロードするだけで、アカウントもデバイスIDも、ゲートウェイやファイルに関する情報も含まれません。分かるのはせいぜい、どのアプリのどのバージョンからのリクエストかということだけです。この確認はアプリの設定でオフにできます。</p><p>Macアプリは新しいバージョンを見つけると、まず確認を求めます。インストールすることを選ぶまで、何もダウンロードされません。その後、アップデートをGitHubからダウンロードし、私たちの署名があることを確認してからインストールし、もう一度起動します。ほかのダウンロードと同じく、GitHubにはあなたのIPアドレスと、どのファイルをリクエストしたかが見えます。</p><p>iPhone・iPad版はApp Storeでアップデートされ、そこではAppleのプライバシー規約が適用されます。Google Play版LoftはGoogle Playでアップデートされ、そこではGoogleの規約が適用されます。</p>"
 
 [[pages.privacy.sections]]
 title = "このウェブサイト"
-body = "<p>Cookieなし、アクセス解析なし、トラッキングなし、外部のフォントやスクリプトもなし。ライト／ダークの設定はお使いのブラウザに保存され、どこにも送信されません。サイトはCloudflareから配信され、アプリのダウンロードはGitHubから提供される予定です。ほかのホスティング事業者と同じく、彼らにはあなたのIPアドレスと、どのファイルをリクエストしたかが見えます。私たちがそれ以上の情報を加えることはありません。</p>"
+body = "<p>Cookieなし、アクセス解析なし、トラッキングなし、外部のフォントやスクリプトもなし。ライト／ダークの設定はお使いのブラウザに保存され、どこにも送信されません。サイトはCloudflareから配信され、アプリのダウンロードはGitHubから提供されます。ほかのホスティング事業者と同じく、彼らにはあなたのIPアドレスと、どのファイルをリクエストしたかが見えます。私たちがそれ以上の情報を加えることはありません。</p>"
 
 [[pages.privacy.sections]]
 title = "ペアリングリンク"
@@ -423,7 +423,7 @@ body = "<ul>\n<li><code>gateway/</code>：Loftゲートウェイ（Python）</li
 
 [[pages.source.sections]]
 title = "リリース"
-body = "<p>各リリースには、GitHub上のリリースノートと、ダウンロードごとのSHA-256チェックサムが付きます。</p>"
+body = "<p>各リリースには、GitHub上のリリースノートと、ダウンロードごとのSHA-256チェックサムが付いています。→ <a href=\"https://github.com/Incremental-AS/loft/releases\">GitHubのリリース</a></p>"
 
 [[pages.source.sections]]
 title = "名前はライセンスの対象外"

@@ -7,7 +7,7 @@
 # build.py --release refuses while this list has entries. Each is copy that reads finished but isn't true yet.
 [release]
 # Pre-launch (2026-10-30): every download is coming_soon. The repo is public (since 2026-10-30), so the GitHub
-# links are back; the Releases link on Source comes back with the first release.
+# links are back. The first release (Mac 0.2.0, 2026-10-31) is on GitHub; its card stays coming_soon until the gateway ships.
 hold = []
 
 [site]
@@ -295,7 +295,9 @@ title = "Checking for updates"
 # app store has the check: the Android APK (the Google Play build, -PloftDistribution=play, has none), Windows and Linux (confirmed against the code 2026-10-30) and Mac (since
 # 2026-10-30, LoftCore UpdateCheck.swift). Each is a plain GET of releases.json with only a User-Agent naming the app,
 # at most once a day, with a switch in the app's settings ("Check for updates" on the Mac). The iPhone app and Loft from Google Play never check.
-body = "<p>The Mac, Windows and Linux apps, and the Android APK from this site, check <code>loft.incremental.no/releases.json</code> for a new version, at most once a day. That request is the only one any Loft app makes to us. It's a plain download of that one file: no account, no device ID, nothing about your gateway or your files. At most, it says which app is asking. You can turn it off in the app's settings. The iPhone and iPad app updates through the App Store, and Loft from Google Play updates through Google Play.</p><p>Source code and checksums for every release: → <a href=\"/source/\">Source</a></p>"
+# From build 14 the Mac reads appcast.xml instead (Sparkle; captured on a Mac 2026-10-31: only "User-Agent: Loft/0.2.0
+# Sparkle/2.10.1" and "Accept-Language: *"), asks before installing, and downloads the DMG from GitHub Releases.
+body = "<p>The Mac, Windows and Linux apps, and the Android APK from this site, look for a new version on this site, at most once a day. The Mac app reads <code>loft.incremental.no/appcast.xml</code>, the others <code>loft.incremental.no/releases.json</code>. That request is the only one any Loft app makes to us. It's a plain download of one file: no account, no device ID, nothing about your gateway or your files. At most, it says which app and which version is asking. You can turn it off in the app's settings.</p><p>When the Mac app finds a new version, it asks you first, and nothing downloads until you choose to install it. Then it downloads the update from GitHub, checks that it's signed by us, installs it and reopens. Like any download, GitHub sees your IP address and which file you asked for.</p><p>The iPhone and iPad app updates through the App Store, and Loft from Google Play updates through Google Play.</p><p>Source code and checksums for every release: → <a href=\"/source/\">Source</a></p>"
 
 # ---------------------------------------------------------------- set up a gateway
 
@@ -461,11 +463,11 @@ body = "<p>Your NAS password goes only to your own gateway, over a connection pi
 title = "The apps"
 # Same as the update-check paragraph on Download, plus Apple's privacy terms. Mac, Windows, Linux and the Android APK have
 # the check (see the comment on Download); keep the two paragraphs identical.
-body = "<p>The Mac, Windows and Linux apps, and the Android APK from this site, check <code>loft.incremental.no/releases.json</code> for a new version, at most once a day. That request is the only one any Loft app makes to us. It's a plain download of that one file: no account, no device ID, nothing about your gateway or your files. At most, it says which app is asking. You can turn it off in the app's settings. The iPhone and iPad app updates through the App Store, where Apple's privacy terms apply, and Loft from Google Play updates through Google Play, where Google's do.</p>"
+body = "<p>The Mac, Windows and Linux apps, and the Android APK from this site, look for a new version on this site, at most once a day. The Mac app reads <code>loft.incremental.no/appcast.xml</code>, the others <code>loft.incremental.no/releases.json</code>. That request is the only one any Loft app makes to us. It's a plain download of one file: no account, no device ID, nothing about your gateway or your files. At most, it says which app and which version is asking. You can turn it off in the app's settings.</p><p>When the Mac app finds a new version, it asks you first, and nothing downloads until you choose to install it. Then it downloads the update from GitHub, checks that it's signed by us, installs it and reopens. Like any download, GitHub sees your IP address and which file you asked for.</p><p>The iPhone and iPad app updates through the App Store, where Apple's privacy terms apply, and Loft from Google Play updates through Google Play, where Google's do.</p>"
 [[pages.privacy.sections]]
 title = "This website"
 # Assumes the hosting plan: a Cloudflare Worker, downloads from GitHub Releases. Update this if that changes.
-body = "<p>No cookies, no analytics, no tracking, no fonts or scripts from anyone else. The light/dark setting is stored in your own browser and never sent anywhere. The site is served by Cloudflare, and app downloads will come from GitHub. Like any host, they see your IP address and which file you asked for. We add nothing on top.</p>"
+body = "<p>No cookies, no analytics, no tracking, no fonts or scripts from anyone else. The light/dark setting is stored in your own browser and never sent anywhere. The site is served by Cloudflare, and app downloads come from GitHub. Like any host, they see your IP address and which file you asked for. We add nothing on top.</p>"
 [[pages.privacy.sections]]
 title = "Pairing links"
 body = "<p>The pairing details in a link stay after the <code>#</code>, and browsers never send that part to a server. The <code>/pair</code> page doesn't read it either.</p>"
@@ -548,7 +550,7 @@ body = '''<ul>
 </ul>'''
 [[pages.source.sections]]
 title = "Releases"
-body = '''<p>Every release will have release notes on GitHub, and a SHA-256 checksum for each download.</p>'''
+body = '''<p>Every release has release notes on GitHub, and a SHA-256 checksum for each download. → <a href="https://github.com/Incremental-AS/loft/releases">Releases on GitHub</a></p>'''
 [[pages.source.sections]]
 title = "The name is not in the licence"
 body = "<p>You're free to use, change and share the code under Apache-2.0. The name “Loft by Incremental” and the Loft icon aren't covered by the licence, so if you publish your own version, give it your own name and icon. <code>TRADEMARKS.md</code> in the repository explains it.</p>"

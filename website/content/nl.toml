@@ -213,7 +213,7 @@ lead = "Loft is gratis op elk platform. Je hebt thuis ook een Loft-gateway nodig
 
 [pages.download.updates]
 title = "Controleren op updates"
-body = "<p>De apps voor Mac, Windows en Linux, en de Android-APK van deze website, kijken hoogstens één keer per dag op <code>loft.incremental.no/releases.json</code> of er een nieuwe versie is. Dat verzoek is het enige dat een Loft-app ooit naar ons stuurt. Het is gewoon een download van dat ene bestand: geen account, geen apparaat-ID, niets over je gateway of je bestanden. Hooguit blijkt eruit welke app het vraagt. Je kunt het uitzetten in de instellingen van de app. De app voor iPhone en iPad wordt bijgewerkt via de App Store, en Loft uit Google Play via Google Play.</p><p>Broncode en controlegetallen voor elke release: → <a href=\"/source/\">Broncode</a></p>"
+body = "<p>De apps voor Mac, Windows en Linux, en de Android-APK van deze website, kijken hoogstens één keer per dag op deze website of er een nieuwe versie is. De Mac-app leest <code>loft.incremental.no/appcast.xml</code>, de andere <code>loft.incremental.no/releases.json</code>. Dat verzoek is het enige dat een Loft-app ooit naar ons stuurt. Het is gewoon een download van één bestand: geen account, geen apparaat-ID, niets over je gateway of je bestanden. Hooguit blijkt eruit welke app en welke versie het vraagt. Je kunt het uitzetten in de instellingen van de app.</p><p>Als de Mac-app een nieuwe versie vindt, vraagt hij het je eerst, en er wordt niets gedownload totdat je ervoor kiest die te installeren. Daarna downloadt hij de update van GitHub, controleert hij of die door ons is ondertekend, installeert hij hem en start hij opnieuw op. Zoals bij elke download ziet GitHub je IP-adres en welk bestand je opvroeg.</p><p>De app voor iPhone en iPad wordt bijgewerkt via de App Store, en Loft uit Google Play via Google Play.</p><p>Broncode en controlegetallen voor elke release: → <a href=\"/source/\">Broncode</a></p>"
 
 [pages.gateway]
 title = "Gateway instellen · Loft by Incremental"
@@ -360,7 +360,7 @@ body = "<p>Je NAS-wachtwoord gaat alleen naar je eigen gateway, via een verbindi
 
 [[pages.privacy.sections]]
 title = "De apps"
-body = "<p>De apps voor Mac, Windows en Linux, en de Android-APK van deze website, kijken hoogstens één keer per dag op <code>loft.incremental.no/releases.json</code> of er een nieuwe versie is. Dat verzoek is het enige dat een Loft-app ooit naar ons stuurt. Het is gewoon een download van dat ene bestand: geen account, geen apparaat-ID, niets over je gateway of je bestanden. Hooguit blijkt eruit welke app het vraagt. Je kunt het uitzetten in de instellingen van de app. De app voor iPhone en iPad wordt bijgewerkt via de App Store, waar de privacyvoorwaarden van Apple gelden, en Loft uit Google Play via Google Play, waar die van Google gelden.</p>"
+body = "<p>De apps voor Mac, Windows en Linux, en de Android-APK van deze website, kijken hoogstens één keer per dag op deze website of er een nieuwe versie is. De Mac-app leest <code>loft.incremental.no/appcast.xml</code>, de andere <code>loft.incremental.no/releases.json</code>. Dat verzoek is het enige dat een Loft-app ooit naar ons stuurt. Het is gewoon een download van één bestand: geen account, geen apparaat-ID, niets over je gateway of je bestanden. Hooguit blijkt eruit welke app en welke versie het vraagt. Je kunt het uitzetten in de instellingen van de app.</p><p>Als de Mac-app een nieuwe versie vindt, vraagt hij het je eerst, en er wordt niets gedownload totdat je ervoor kiest die te installeren. Daarna downloadt hij de update van GitHub, controleert hij of die door ons is ondertekend, installeert hij hem en start hij opnieuw op. Zoals bij elke download ziet GitHub je IP-adres en welk bestand je opvroeg.</p><p>De app voor iPhone en iPad wordt bijgewerkt via de App Store, waar de privacyvoorwaarden van Apple gelden, en Loft uit Google Play via Google Play, waar die van Google gelden.</p>"
 
 [[pages.privacy.sections]]
 title = "Deze website"
@@ -423,7 +423,7 @@ body = "<ul>\n<li><code>gateway/</code>: de Loft-gateway (Python)</li>\n<li><cod
 
 [[pages.source.sections]]
 title = "Releases"
-body = "<p>Elke release krijgt releaseopmerkingen op GitHub en een SHA-256-controlegetal voor elke download.</p>"
+body = "<p>Elke release heeft releaseopmerkingen op GitHub en een SHA-256-controlegetal voor elke download. → <a href=\"https://github.com/Incremental-AS/loft/releases\">Releases op GitHub</a></p>"
 
 [[pages.source.sections]]
 title = "De naam valt niet onder de licentie"

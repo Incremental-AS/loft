@@ -286,7 +286,8 @@ title = "Sjekk etter oppdateringer"
 # som ikke kommer fra en appbutikk, har sjekken: Android-APK-en (Google Play-versjonen, -PloftDistribution=play, har den ikke), Windows og Linux (sjekket mot koden 2026-10-30) og Mac (fra
 # 2026-10-30, LoftCore UpdateCheck.swift). Hver av dem er en vanlig GET av releases.json med bare en User-Agent som
 # navngir appen, høyst én gang i døgnet, med en bryter i appens innstillinger («Check for updates» på Mac). iPhone-appen og Loft fra Google Play sjekker aldri.
-body = "<p>Appene for Mac, Windows og Linux, og Android-APK-en fra dette nettstedet, sjekker <code>loft.incremental.no/releases.json</code> etter ny versjon, høyst én gang i døgnet. Det er den eneste forespørselen noen Loft-app sender til oss. Den henter bare den ene filen: Ingen konto, ingen enhets-ID, ingenting om gatewayen eller filene dine. Den sier høyst hvilken app som spør. Du kan slå den av i appens innstillinger. Appen for iPhone og iPad oppdateres gjennom App Store, og Loft fra Google Play oppdateres gjennom Google Play.</p><p>Kildekode og sjekksummer for hver versjon: → <a href=\"/no/source/\">Kildekode</a></p>"
+# Fra bygg 14 leser Mac-appen appcast.xml i stedet (Sparkle; se merknaden i en.toml), spør før den installerer, og henter DMG-en fra GitHub Releases.
+body = "<p>Appene for Mac, Windows og Linux, og Android-APK-en fra dette nettstedet, ser etter ny versjon her på nettstedet, høyst én gang i døgnet. Mac-appen leser <code>loft.incremental.no/appcast.xml</code>, de andre <code>loft.incremental.no/releases.json</code>. Det er den eneste forespørselen noen Loft-app sender til oss. Den henter bare den ene filen: Ingen konto, ingen enhets-ID, ingenting om gatewayen eller filene dine. Den sier høyst hvilken app og hvilken versjon som spør. Du kan slå den av i appens innstillinger.</p><p>Finner Mac-appen en ny versjon, spør den deg først, og ingenting lastes ned før du velger å installere. Da henter den oppdateringen fra GitHub, sjekker at den er signert av oss, installerer den og åpner seg igjen. Som ved alle nedlastinger ser GitHub IP-adressen din og hvilken fil du ba om.</p><p>Appen for iPhone og iPad oppdateres gjennom App Store, og Loft fra Google Play oppdateres gjennom Google Play.</p><p>Kildekode og sjekksummer for hver versjon: → <a href=\"/no/source/\">Kildekode</a></p>"
 
 # ---------------------------------------------------------------- sett opp en gateway
 
@@ -451,11 +452,11 @@ body = "<p>NAS-passordet ditt går bare til din egen gateway, over en forbindels
 title = "Appene"
 # Samme som avsnittet om oppdateringssjekk på Last ned, pluss Apples personvernvilkår. Mac, Windows, Linux og Android-APK-en har
 # sjekken (se merknaden på Last ned); hold de to avsnittene like.
-body = "<p>Appene for Mac, Windows og Linux, og Android-APK-en fra dette nettstedet, sjekker <code>loft.incremental.no/releases.json</code> etter ny versjon, høyst én gang i døgnet. Det er den eneste forespørselen noen Loft-app sender til oss. Den henter bare den ene filen: Ingen konto, ingen enhets-ID, ingenting om gatewayen eller filene dine. Den sier høyst hvilken app som spør. Du kan slå den av i appens innstillinger. Appen for iPhone og iPad oppdateres gjennom App Store, der Apples personvernvilkår gjelder, og Loft fra Google Play oppdateres gjennom Google Play, der Googles gjelder.</p>"
+body = "<p>Appene for Mac, Windows og Linux, og Android-APK-en fra dette nettstedet, ser etter ny versjon her på nettstedet, høyst én gang i døgnet. Mac-appen leser <code>loft.incremental.no/appcast.xml</code>, de andre <code>loft.incremental.no/releases.json</code>. Det er den eneste forespørselen noen Loft-app sender til oss. Den henter bare den ene filen: Ingen konto, ingen enhets-ID, ingenting om gatewayen eller filene dine. Den sier høyst hvilken app og hvilken versjon som spør. Du kan slå den av i appens innstillinger.</p><p>Finner Mac-appen en ny versjon, spør den deg først, og ingenting lastes ned før du velger å installere. Da henter den oppdateringen fra GitHub, sjekker at den er signert av oss, installerer den og åpner seg igjen. Som ved alle nedlastinger ser GitHub IP-adressen din og hvilken fil du ba om.</p><p>Appen for iPhone og iPad oppdateres gjennom App Store, der Apples personvernvilkår gjelder, og Loft fra Google Play oppdateres gjennom Google Play, der Googles gjelder.</p>"
 [[pages.privacy.sections]]
 title = "Dette nettstedet"
 # Forutsetter driftsplanen: en Cloudflare Worker, nedlastinger fra GitHub Releases. Oppdater dette om det endres.
-body = "<p>Ingen informasjonskapsler, ingen analyse, ingen sporing, ingen fonter eller skript fra andre. Valget mellom lyst og mørkt lagres i din egen nettleser og sendes ingen steder. Nettstedet leveres av Cloudflare, og nedlastingene skal komme fra GitHub. Som alle vertstjenester ser de IP-adressen din og hvilken fil du ba om. Vi legger ingenting til.</p>"
+body = "<p>Ingen informasjonskapsler, ingen analyse, ingen sporing, ingen fonter eller skript fra andre. Valget mellom lyst og mørkt lagres i din egen nettleser og sendes ingen steder. Nettstedet leveres av Cloudflare, og nedlastingene kommer fra GitHub. Som alle vertstjenester ser de IP-adressen din og hvilken fil du ba om. Vi legger ingenting til.</p>"
 [[pages.privacy.sections]]
 title = "Paringslenker"
 body = "<p>Paringsdetaljene i en lenke står etter <code>#</code>, og den delen sender nettlesere aldri til en server. Siden <code>/pair</code> leser den heller ikke.</p>"
@@ -538,7 +539,7 @@ body = '''<ul>
 </ul>'''
 [[pages.source.sections]]
 title = "Utgivelser"
-body = '''<p>Hver utgivelse får endringsnotater på GitHub og en SHA-256-sjekksum for hver nedlasting.</p>'''
+body = '''<p>Hver utgivelse har endringsnotater på GitHub og en SHA-256-sjekksum for hver nedlasting. → <a href="https://github.com/Incremental-AS/loft/releases">Utgivelser på GitHub</a></p>'''
 [[pages.source.sections]]
 title = "Navnet er ikke med i lisensen"
 body = "<p>Du kan fritt bruke, endre og dele koden under Apache-2.0. Navnet «Loft by Incremental» og Loft-ikonet omfattes ikke av lisensen, så lager du din egen versjon, gir du den ditt eget navn og ikon. <code>TRADEMARKS.md</code> i kodelageret forklarer det.</p>"
