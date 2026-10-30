@@ -1,4 +1,4 @@
-// Full-page screenshots of the built site: pages x en/no x light/dark x desktop/mobile, plus a log of every
+// Full-page screenshots of the built site: pages x languages x light/dark x desktop/mobile, plus a log of every
 // console error, CSP violation, failed request and any request to another origin (there must be none).
 //
 //   node tools/screenshots.js http://127.0.0.1:18741 out-dir [chrome-path]
@@ -12,7 +12,8 @@ const base = process.argv[2] || "http://127.0.0.1:18741";
 const out = process.argv[3] || "screenshots";
 const exe = process.argv[4] || process.env.CHROME_PATH || undefined;
 const PAGES = (process.env.PAGES || "home:/,how-it-works:/how-it-works/,download:/download/").split(",").map((s) => s.split(":"));
-const LANGS = [["en", ""], ["no", "/no"]];
+// LANGS="en:,no:/no,de:/de" (code:prefix): the languages to shoot; default English and Norwegian.
+const LANGS = (process.env.LANGS || "en:,no:/no").split(",").map((s) => s.split(":"));
 const SCHEMES = ["light", "dark"];
 const VIEWPORTS = [
   ["desktop", { width: 1440, height: 900 }, 1, false],

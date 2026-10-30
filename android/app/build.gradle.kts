@@ -7,6 +7,12 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
 }
 
+// Distribution: -PloftDistribution=play builds the Google Play version, which never checks
+// loft.incremental.no/releases.json for updates (Play updates the app; it does not allow updates from elsewhere).
+// The default, direct, is the APK from the website, which keeps the daily check and its off switch.
+val loftDistribution = (findProperty("loftDistribution") as String?)?.takeIf { it.isNotBlank() } ?: "direct"
+if (loftDistribution !in setOf("direct", "play")) throw GradleException("loftDistribution must be direct or play, not $loftDistribution")
+
 // Release signing, from either
 //  - LOFT_SIGNING_PROPERTIES: path of a properties file with storeFile, storePassword, keyAlias, keyPassword, or
 //  - Gradle properties LOFT_RELEASE_STORE_FILE, LOFT_RELEASE_STORE_PASSWORD, LOFT_RELEASE_KEY_ALIAS,
@@ -34,9 +40,11 @@ android {
         applicationId = "no.incremental.loft"
         minSdk = 26
         targetSdk = 36
-        versionCode = 1
+        versionCode = 2
         versionName = "0.2.0"
         testInstrumentationRunner = "no.incremental.loft.LoftTestRunner"
+        buildConfigField("String", "DISTRIBUTION", "\"$loftDistribution\"")
+        manifestPlaceholders["loftDistribution"] = loftDistribution
         // Instrumented tests talk to gateway/scripts/dev_server.py on the host; the runner
         // arguments (loftLan, loftPin) come from the command line, never from the code.
     }
@@ -70,6 +78,12 @@ android {
     buildFeatures {
         compose = true
         buildConfig = true
+    }
+
+    // Android 13+ lists Loft's languages under Settings > Apps > Loft > Language, from the values-* folders
+    // (tools/i18n/loft_i18n.py writes them). The default values/ are English (res/resources.properties).
+    androidResources {
+        generateLocaleConfig = true
     }
 
     packaging {

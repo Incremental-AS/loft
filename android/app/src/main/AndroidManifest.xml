@@ -31,6 +31,8 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Loft"
         tools:targetApi="36">
+        <!-- direct or play (-PloftDistribution); readable with aapt2 dump to check which build this is -->
+        <meta-data android:name="no.incremental.loft.distribution" android:value="${loftDistribution}" />
 
         <activity
             android:name=".ui.MainActivity"

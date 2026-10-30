@@ -1,0 +1,2 @@
+/* Loft for Mac, Info.plist (English). The permission prompt macOS shows. */
+"NSLocalNetworkUsageDescription" = "Loft connects straight to the NAS when you're at home.";

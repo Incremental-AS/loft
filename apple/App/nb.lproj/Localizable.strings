@@ -21,7 +21,7 @@
 "Away from home: %@, through a tunnel. Sign in at home first." = "Borte: %@, gjennom en tunnel. Logg inn hjemme først.";
 "Away from home: %@, straight to the gateway." = "Borte: %@, rett til gatewayen.";
 "Away from home: not set up. Loft works on the home network only." = "Borte: Ikke satt opp. Loft virker bare på hjemmenettet.";
-"This Mac is paired with %@. Pairing with another gateway signs you out of that one." = "Denne Macen er paret med %@. Parer du med en annen gateway, blir du logget ut av den du har nå.";
+"This Mac is paired with %@. If you pair with another gateway, you'll be signed out of %@." = "Denne Macen er paret med %@. Parer du med en annen gateway, blir du logget ut av %@.";
 "Pair" = "Par";
 "Pair with your gateway…" = "Par med gatewayen din …";
 "Pair with another gateway…" = "Par med en annen gateway …";
@@ -40,7 +40,7 @@
 /* Sign-in errors */
 "You're not at home right now. Connect to the home network for the first sign-in. After that, Loft works from anywhere." = "Du er ikke hjemme nå. Koble til hjemmenettet for den første innloggingen. Etter det virker Loft hvor som helst.";
 "That username and password didn't work on the NAS. Check them and try again." = "Brukernavnet og passordet virket ikke på NAS-en. Sjekk dem og prøv igjen.";
-"Loft can't use the NAS's built-in accounts, like admin. Sign in with your own NAS account." = "Loft kan ikke bruke de innebygde kontoene på NAS-en, som admin. Logg inn med din egen konto på NAS-en.";
+"This gateway doesn't allow that account. Sign in with your own NAS account." = "Denne gatewayen tillater ikke den kontoen. Logg inn med din egen konto på NAS-en.";
 "Too many tries. Wait 15 minutes, then try again." = "For mange forsøk. Vent 15 minutter før du prøver igjen.";
 "Something went wrong. Try again." = "Noe gikk galt. Prøv igjen.";
 

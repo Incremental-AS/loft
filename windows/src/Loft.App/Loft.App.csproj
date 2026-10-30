@@ -36,4 +36,11 @@
   <ItemGroup>
     <Content Include="Assets\**\*.*" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
+  <!-- UI text: every Strings/<language>.json, embedded as "Loft.Strings.<language>.json". A new
+       language is a new file; no change here. WithCulture=false keeps MSBuild from treating a name
+       like nb.json as a satellite-assembly culture. tests/Loft.Core.Tests embeds the same files. -->
+  <ItemGroup>
+    <None Remove="Strings\*.json" />
+    <EmbeddedResource Include="Strings\*.json" LogicalName="Loft.Strings.%(Filename)%(Extension)" WithCulture="false" />
+  </ItemGroup>
 </Project>

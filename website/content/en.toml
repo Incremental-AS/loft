@@ -11,7 +11,7 @@
 hold = []
 
 [site]
-og_alt = "Loft by Incremental: Your files, kept at home."
+og_alt = "Loft by Incremental: your files, kept at home."
 
 [ui]
 skip = "Skip to content"
@@ -19,8 +19,8 @@ home_label = "Loft by Incremental, home"
 nav_label = "Main"
 footer_nav_label = "Site"
 menu = "Menu"
-other_lang = "Norsk"
-other_hreflang = "nb"
+# The language picker: "Language: English" for screen readers. The language names are in build.py.
+language = "Language"
 theme_system = "Theme: follow the system"
 theme_light = "Theme: light"
 theme_dark = "Theme: dark"
@@ -76,7 +76,7 @@ href = "{APP_STORE_URL}"
 id = "mac"
 name = "Mac"
 shows = "Finder, in the sidebar"
-get = "Download (DMG) (coming soon)"
+get = "DMG download (coming soon)"
 coming_soon = true
 detail = "Loft puts your NAS in the Finder sidebar. Files download when you open them and go back home when you save."
 version = "version {VERSION}"
@@ -89,14 +89,18 @@ href = "{DOWNLOAD_URL}"
 [[platforms]]
 id = "android"
 name = "Android"
-shows = "the Files app and the system file picker, plus a share target"
+shows = "the Files app and the system file picker, plus “Save to Loft” in the share menu"
 get = "Google Play, or an APK from this site (coming soon)"
 coming_soon = true
 detail = "Loft puts your NAS in the Files app and the system file picker, adds Loft to the share menu, and can upload photos straight to a folder on the NAS."
 version = "version {VERSION}"
-note = "<em>Google Play or APK?</em> Loft for Android is on Google Play, and here as an APK for phones without Google Play. Both are the same app, signed by Incremental. The first time you install the APK, Android asks you to allow installs from your browser, and the APK checks this site for updates."
+# Once both are live. While only the APK is out, use instead: "<em>Google Play or APK?</em> For now, Loft for Android is here as an APK,
+# signed by Incremental. It will be on Google Play too. The first time you install it, Android asks you to allow installs from your
+# browser, and the app checks this site for updates." "Signed by Incremental" holds because Play App Signing uses our own
+# uploaded release key; if that ever changes, cut it for Play and add "To switch from one to the other, uninstall Loft first."
+note = "<em>Google Play or APK?</em> If your phone has Google Play, use that: it keeps Loft up to date for you. The APK is for phones without Google Play, or for anyone who'd rather not use it. It's the same app, signed by Incremental. The first time you install the APK, Android asks you to allow installs from your browser, and the APK checks this site for updates."
 # Shown instead of note while coming_soon: Home's Android line links to this card.
-soon_note = "<em>Google Play or APK?</em> Loft for Android will be on Google Play, and here as an APK for phones without Google Play. Both are the same app, signed by Incremental. The APK checks this site for updates."
+soon_note = "<em>Google Play or APK?</em> Loft for Android will be on Google Play, and here as an APK for phones without Google Play, or for anyone who'd rather not use it. It's the same app either way, signed by Incremental. If your phone has Google Play, pick that one: it will keep Loft up to date for you. The APK checks this site for updates."
 sha256 = "{SHA256}"
 [[platforms.downloads]]
 label = "Download for Android (.apk)"
@@ -106,7 +110,7 @@ href = "{DOWNLOAD_URL}"
 id = "windows"
 name = "Windows 10 and 11"
 shows = "File Explorer, with files that download when you open them"
-get = "Download (zip) (coming soon)"
+get = "Zip download (coming soon)"
 coming_soon = true
 detail = "Loft puts your NAS in File Explorer. Files show up right away and download when you open them."
 version = "Windows 10 and 11 · version {VERSION}"
@@ -123,7 +127,7 @@ href = "{DOWNLOAD_URL}"
 id = "linux"
 name = "Linux"
 shows = "a <code>~/Loft</code> folder, with a tray icon where your desktop has one"
-get = "Download (.deb, .rpm, AppImage, tarball) (coming soon)"
+get = ".deb, .rpm, AppImage or tarball (coming soon)"
 coming_soon = true
 detail = "Loft mounts your NAS at <code>~/Loft</code>. Files are read when you open them, and changes are uploaded in the background. A tray icon shows the status where your desktop supports one."
 version = "version {VERSION}"
@@ -180,7 +184,7 @@ body = "Loft signs in to the NAS as you, with the username and password you alre
 
 [home.home]
 title = "Not the cloud. The loft."
-body = "<p>Loft doesn't copy your files to a server somewhere. They stay on your NAS, in your home, and they travel only between the NAS and your own devices, through a gateway you run yourself. There is no Loft account and no Loft server, and Incremental never sees your files, your file names or your password.</p><p>The Mac, Android, Windows and Linux apps check for a new version at most once a day. That's the only request any Loft app makes to us, and you can switch it off. → <a href=\"/privacy/\">Privacy</a></p>"
+body = "<p>Loft doesn't copy your files to a server somewhere. They stay on your NAS, in your home, and they travel only between the NAS and your own devices, through a gateway you run yourself. There is no Loft account and no Loft server, and Incremental never sees your files, your file names or your password.</p><p>The Mac, Windows and Linux apps and the Android APK check for a new version at most once a day. That's the only request any Loft app makes to us, and you can switch it off. → <a href=\"/privacy/\">Privacy</a></p>"
 
 [home.open]
 title = "Free, and the code is public"
@@ -251,7 +255,7 @@ body = "Loft for iPhone and iPad, Mac, Android, Windows and Linux. They put the 
 
 [pages.how-it-works.pairing]
 title = "Pairing"
-body = "<p><code>loft-gateway pair</code> prints a QR code and a link. Both carry the gateway's name, its addresses and the fingerprints of its keys. Your app checks those fingerprints on every connection, so it can't be tricked into talking to another machine. That's also why there's no “type the server address” box. A typed address is how a fake gateway would collect passwords. (If you need it anyway, <em>Set up manually</em> is in the app's advanced settings.)</p><p>The link looks like <code>https://loft.incremental.no/pair#…</code>. Everything after the <code>#</code> stays on your device. Browsers never send that part to our website.</p><p>Each device pairs with one gateway at a time.</p>"
+body = "<p><code>loft-gateway pair</code> prints a QR code and a link. Both carry the gateway's name, its addresses and the fingerprints of its keys. Your app checks those fingerprints on every connection, so it can't be tricked into talking to another machine. That's also why there's no “type the server address” box. A typed address is how a fake gateway would collect passwords. (If you need it anyway, <em>Set up manually</em> is on the app's pairing screen.)</p><p>The link looks like <code>https://loft.incremental.no/pair#…</code>. Everything after the <code>#</code> stays on your device. Browsers never send that part to our website.</p><p>Each device pairs with one gateway at a time.</p>"
 
 [pages.how-it-works.security]
 id = "security"
@@ -259,7 +263,7 @@ title = "What's encrypted on each route"
 col_home = "At home"
 col_tunnel = "Away, through a tunnel"
 col_direct = "Away, direct"
-body = "<p><strong>Which should I choose?</strong> A tunnel is the easy option. Nothing is opened on your router, but you trust the tunnel provider with your traffic. Direct mode means forwarding a port to the gateway. Nobody in between can read anything, but the gateway is reachable from the internet, so it limits sign-in attempts. Many NAS boxes don't lock an account after failed passwords, so the gateway does it for them. You can also use neither and reach Loft only at home.</p><p><strong>Your password.</strong> It is sent only over a pinned connection to your gateway. The gateway stores it encrypted with two keys, one held by the gateway and one held only by your device, so a copy of the gateway's database is not enough to read it. Removing a device deletes its copy.</p><p><strong>What we can't protect against, said plainly.</strong> While the gateway is running and you're using it, it has to use your password to talk to the NAS. Someone who takes control of the running gateway could capture the passwords of the people using it at that moment. That's true of any gateway that signs in to SMB as you. So run the gateway on a machine that does nothing else, and keep it updated.</p><p><strong>Updates.</strong> The gateway never updates itself. You install the new <code>.deb</code> or pull a new container image, after reading the release notes.</p>"
+body = "<p><strong>Which should I choose?</strong> A tunnel is the easy option. Nothing is opened on your router, but you trust the tunnel provider with your traffic. Direct mode means forwarding a port to the gateway. Nobody in between can read anything, but the gateway is reachable from the internet, so it limits sign-in attempts. Many NAS boxes don't lock an account after failed passwords, so the gateway does it for them. You can also use neither and reach Loft only at home.</p><p><strong>Your password.</strong> It is sent only over a pinned connection to your gateway. The gateway stores it encrypted with two keys, one held by the gateway and one held only by your device, so a copy of the gateway's database is not enough to read it. Each signed-in device has its own encrypted copy, and removing the device from the gateway deletes it.</p><p><strong>What we can't protect against, said plainly.</strong> While the gateway is running and you're using it, it has to use your password to talk to the NAS. Someone who takes control of the running gateway could capture the passwords of the people using it at that moment. That's true of any gateway that signs in to SMB as you. So run the gateway on a machine that does nothing else, and keep it updated.</p><p><strong>Updates.</strong> The gateway never updates itself. You install the new <code>.deb</code> or pull a new container image, after reading the release notes.</p>"
 report = "→ Found a security problem? <a href=\"/security/\">Security</a> (hello@incremental.no)"
 [[pages.how-it-works.security.rows]]
 leg = "App ↔ gateway"
@@ -287,11 +291,11 @@ h1 = "Get Loft."
 lead = "Loft is free on every platform. You also need a Loft gateway at home. If you don't have one yet, <a href=\"/gateway/\">set it up first</a>: it takes one command and one QR code."
 [pages.download.updates]
 title = "Checking for updates"
-# Same as the update-check paragraph on Privacy (which adds Apple's privacy terms). All four apps that don't come from
-# the App Store have the check: Android, Windows and Linux (confirmed against the code 2026-10-30) and Mac (since
+# Same as the update-check paragraph on Privacy (which adds Apple's privacy terms). Every app that doesn't come from an
+# app store has the check: the Android APK (the Google Play build, -PloftDistribution=play, has none), Windows and Linux (confirmed against the code 2026-10-30) and Mac (since
 # 2026-10-30, LoftCore UpdateCheck.swift). Each is a plain GET of releases.json with only a User-Agent naming the app,
-# at most once a day, with a switch in the app's settings ("Check for updates" on the Mac). The iPhone app never checks.
-body = "<p>The Mac, Android, Windows and Linux apps check <code>loft.incremental.no/releases.json</code> for a new version, at most once a day. That request is the only one any Loft app makes to us. It's a plain download of that one file: no account, no device ID, nothing about your gateway or your files. At most, it says which app is asking. You can turn it off in the app's settings. The iPhone and iPad app updates through the App Store.</p><p>Source code and checksums for every release: → <a href=\"/source/\">Source</a></p>"
+# at most once a day, with a switch in the app's settings ("Check for updates" on the Mac). The iPhone app and Loft from Google Play never check.
+body = "<p>The Mac, Windows and Linux apps, and the Android APK from this site, check <code>loft.incremental.no/releases.json</code> for a new version, at most once a day. That request is the only one any Loft app makes to us. It's a plain download of that one file: no account, no device ID, nothing about your gateway or your files. At most, it says which app is asking. You can turn it off in the app's settings. The iPhone and iPad app updates through the App Store, and Loft from Google Play updates through Google Play.</p><p>Source code and checksums for every release: → <a href=\"/source/\">Source</a></p>"
 
 # ---------------------------------------------------------------- set up a gateway
 
@@ -347,7 +351,7 @@ body = '''<p>Run <code>loft-gateway init</code>. It asks for your NAS address, w
 [[pages.gateway.steps]]
 title = "Pair your apps"
 body = '''<p>Run <code>loft-gateway pair</code> and scan the QR code with the Loft app, or open the link on the device. The code carries the gateway's address and its keys, so the app knows it's talking to <em>your</em> gateway from the very first connection. Then sign in with your NAS username and password.</p>
-<p>There's no field for typing in a gateway address, on purpose: a typed address could lead you to a fake gateway that collects passwords. If you really need it, the app has <em>Set up manually</em> under advanced settings.</p>'''
+<p>There's no field for typing in a gateway address, on purpose: a typed address could lead you to a fake gateway that collects passwords. If you really need it, <em>Set up manually</em> is on the app's pairing screen.</p>'''
 
 [[pages.gateway.steps]]
 id = "outside"
@@ -455,9 +459,9 @@ title = "Your password"
 body = "<p>Your NAS password goes only to your own gateway, over a connection pinned to its key. The gateway stores it encrypted, and it's useless without your signed-in device. We never see it.</p>"
 [[pages.privacy.sections]]
 title = "The apps"
-# Same as the update-check paragraph on Download, plus Apple's privacy terms. Mac, Android, Windows and Linux all have
+# Same as the update-check paragraph on Download, plus Apple's privacy terms. Mac, Windows, Linux and the Android APK have
 # the check (see the comment on Download); keep the two paragraphs identical.
-body = "<p>The Mac, Android, Windows and Linux apps check <code>loft.incremental.no/releases.json</code> for a new version, at most once a day. That request is the only one any Loft app makes to us. It's a plain download of that one file: no account, no device ID, nothing about your gateway or your files. At most, it says which app is asking. You can turn it off in the app's settings. The iPhone and iPad app updates through the App Store, where Apple's privacy terms apply.</p>"
+body = "<p>The Mac, Windows and Linux apps, and the Android APK from this site, check <code>loft.incremental.no/releases.json</code> for a new version, at most once a day. That request is the only one any Loft app makes to us. It's a plain download of that one file: no account, no device ID, nothing about your gateway or your files. At most, it says which app is asking. You can turn it off in the app's settings. The iPhone and iPad app updates through the App Store, where Apple's privacy terms apply, and Loft from Google Play updates through Google Play, where Google's do.</p>"
 [[pages.privacy.sections]]
 title = "This website"
 # Assumes the hosting plan: a Cloudflare Worker, downloads from GitHub Releases. Update this if that changes.
@@ -576,7 +580,7 @@ title = "You can still visit one"
 body = "<p>Several lofts are preserved in Norway's open-air museums:</p><ul><li><strong>Dagsgardsloftet</strong> at Maihaugen in Lillehammer, originally built in 1268 and moved there from Skjåk in 1909.</li><li><strong>Rolstadloftet</strong> at Norsk Folkemuseum, from around 1300. It was a sleeping loft, and slots in the walls suggest at least six sleeping places.</li><li><strong>Oseloftet</strong>, also at Norsk Folkemuseum, from around 1700.</li><li><strong>Vindlausloftet</strong> at Vest-Telemark Museum. Its timber has been dated to just after 1167, which, according to Store norske leksikon, probably makes it Norway's oldest secular wooden building.</li></ul>"
 [[pages.about-the-name.sections]]
 title = "Not quite a stabbur"
-body = "<p>Norwegian farms also have the <em>stabbur</em>, the food store raised on posts to keep mice and rats out, common from the 1700s. The difference is the stair: a loft's stair is outside, up to the gallery, and a <em>bur</em>'s is usually inside. In practice the line blurs. Lofts were later raised on posts too, and in Nore og Uvdal people often call the whole loft a <em>bur</em> or <em>stabbur</em>.</p>"
+body = "<p>Norwegian farms also have the <em>stabbur</em>, the food store raised on posts to keep mice and rats out, common from the 1700s. The difference is the stair: a loft's stair is outside, up to the gallery, and a <em>bur</em>'s is usually inside. In practice the line blurs. Lofts were later raised on posts too: Raulandsloftet from Numedal, now at Norsk Folkemuseum, was lifted onto blocks in the 1700s, and in Nore og Uvdal, where it comes from, people often call the whole building a <em>bur</em> or <em>stabbur</em>.</p>"
 [[pages.about-the-name.sections]]
 title = "Air, sky, height"
 body = "<p>The word goes back to Old Norse <em>lopt</em>, related to <em>luft</em>, “air”. Det Norske Akademis ordbok lists the old meanings as air, sky and height, among others. English got its <em>loft</em> from the same Old Norse word, and <em>aloft</em> from <em>ā lopt</em>, “in the air”.</p>"

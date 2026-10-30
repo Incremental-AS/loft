@@ -9,7 +9,7 @@ this device" and "Free up space" work, and saves go back to your gateway.
 | `src/Loft.Core` | net8.0 (any OS) | Pairing (`docs/pairing.md`), SPKI-pinned routes, the gateway API client (token rotation, change feed, chunked resumable uploads, Range downloads), sync decisions, cache and offline-delete rules, update check |
 | `src/Loft.Sync` | net8.0-windows | Cloud Files API (via CsWin32), the sync engine, Credential Manager token store, tray icon, `loft:` protocol |
 | `src/Loft.App` | net8.0-windows, WinUI 3 | Onboarding (pair, sign in, choose folder), settings, tray menu |
-| `tests/Loft.Core.Tests` | net8.0 | xUnit; runs on Linux. Set `LOFT_DEV_LAN`, `LOFT_DEV_PUBLIC`, `LOFT_DEV_PIN` to also run against `gateway/scripts/dev_server.py` |
+| `tests/Loft.Core.Tests` | net8.0 | xUnit; runs on Linux. Also checks the app's UI strings (`src/Loft.App/Strings/`, see its README). Set `LOFT_DEV_LAN`, `LOFT_DEV_PUBLIC`, `LOFT_DEV_PIN` to also run against `gateway/scripts/dev_server.py` |
 | `tests/Loft.Sync.Tests` | net8.0-windows | xUnit; Windows only: a real sync root driven by an in-memory gateway. Run it from a desktop session: Credential Manager has no store in a key-based SSH session (win32 error 1312) |
 
 ## Security

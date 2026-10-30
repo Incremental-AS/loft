@@ -5,7 +5,7 @@ import LoftCore
 enum PhoneCopy {
     static let notAtHome = String(localized: "You're not at home right now. Connect to the home network for the first sign-in. After that, Loft works from anywhere.")
     static let wrongPassword = String(localized: "That username and password didn't work on the NAS. Check them and try again.")
-    static let accountNotAllowed = String(localized: "This account can't use Loft.")
+    static let accountNotAllowed = String(localized: "This gateway doesn't allow that account. Sign in with your own NAS account.")
     static let tooManyAttempts = String(localized: "Too many tries. Wait 15 minutes, then try again.")
     static let cantReachNAS = String(localized: "Loft can't reach the NAS right now. Try again in a moment.")
     static let signInFailed = String(localized: "Sign-in didn't work. Try again.")

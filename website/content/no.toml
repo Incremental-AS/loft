@@ -13,8 +13,7 @@ home_label = "Loft by Incremental, forsiden"
 nav_label = "Hovedmeny"
 footer_nav_label = "Nettstedet"
 menu = "Meny"
-other_lang = "English"
-other_hreflang = "en"
+language = "Språk"
 theme_system = "Tema: Følg systemet"
 theme_light = "Tema: Lyst"
 theme_dark = "Tema: Mørkt"
@@ -55,10 +54,10 @@ nas = "NAS-en din"
 [[platforms]]
 id = "iphone"
 name = "iPhone og iPad"
-shows = "Filer-appen, og «Save to Loft» i delingsmenyen"
+shows = "Filer-appen, og «Lagre i Loft» i delingsmenyen"
 get = "App Store (kommer snart)"
 coming_soon = true
-detail = "Loft legger NAS-en i Filer-appen, så <em>Save to Files › Loft</em> virker fra alle apper, og legger til <em>Save to Loft</em> i delingsmenyen."
+detail = "Loft legger NAS-en i Filer-appen, så <em>Lagre i Filer › Loft</em> virker fra alle apper, og legger til <em>Lagre i Loft</em> i delingsmenyen."
 # Offisielt App Store-merke (norsk versjon) her når appen er ute.
 [[platforms.downloads]]
 label = "Last ned i App Store"
@@ -68,7 +67,7 @@ href = "{APP_STORE_URL}"
 id = "mac"
 name = "Mac"
 shows = "Finder, i sidepanelet"
-get = "Last ned (DMG) (kommer snart)"
+get = "DMG-nedlasting (kommer snart)"
 coming_soon = true
 detail = "Loft legger NAS-en i sidepanelet i Finder. Filene lastes ned når du åpner dem, og går hjem igjen når du lagrer."
 version = "versjon {VERSION}"
@@ -81,14 +80,18 @@ href = "{DOWNLOAD_URL}"
 [[platforms]]
 id = "android"
 name = "Android"
-shows = "Filer-appen og systemets filvelger, og i delingsmenyen"
+shows = "Filer-appen og systemets filvelger, og «Lagre i Loft» i delingsmenyen"
 get = "Google Play, eller APK fra dette nettstedet (kommer snart)"
 coming_soon = true
 detail = "Loft legger NAS-en i Filer-appen og systemets filvelger, legger Loft til i delingsmenyen og kan laste opp bilder rett til en mappe på NAS-en."
 version = "versjon {VERSION}"
 # Vises i stedet for note mens kortet er «Kommer snart»: Forsidens Android-linje lenker hit.
-soon_note = "<em>Google Play eller APK?</em> Loft for Android kommer på Google Play, og her som en APK for telefoner uten Google Play. Begge er samme app, signert av Incremental. APK-en sjekker dette nettstedet for oppdateringer."
-note = "<em>Google Play eller APK?</em> Loft for Android ligger på Google Play, og her som en APK for telefoner uten Google Play. Begge er samme app, signert av Incremental. Første gang du installerer APK-en, ber Android deg tillate installering fra nettleseren, og APK-en sjekker dette nettstedet for oppdateringer."
+soon_note = "<em>Google Play eller APK?</em> Loft for Android kommer på Google Play, og her som en APK for telefoner uten Google Play, eller for deg som helst vil klare deg uten. Det er samme app uansett, signert av Incremental. Har telefonen Google Play, velger du den: Da får du oppdateringene automatisk. APK-en sjekker dette nettstedet for oppdateringer."
+# Når begge er ute. Mens bare APK-en er ute: «<em>Google Play eller APK?</em> Foreløpig ligger Loft for Android her som en APK,
+# signert av Incremental. Den kommer på Google Play også. Første gang du installerer den, ber Android deg tillate installering fra
+# nettleseren, og appen sjekker dette nettstedet for oppdateringer.» «Signert av Incremental» stemmer fordi Play App Signing bruker
+# vår egen opplastede nøkkel (loft-regelboken §14); endres det, kuttes det for Play og vi legger til «Vil du bytte fra den ene til den andre, avinstallerer du Loft først.»
+note = "<em>Google Play eller APK?</em> Har telefonen Google Play, velger du den: Da får du oppdateringene automatisk. APK-en er for telefoner uten Google Play, eller for deg som helst vil klare deg uten. Det er samme app, signert av Incremental. Første gang du installerer APK-en, ber Android deg tillate installering fra nettleseren, og APK-en sjekker dette nettstedet for oppdateringer."
 sha256 = "{SHA256}"
 [[platforms.downloads]]
 label = "Last ned for Android (.apk)"
@@ -98,7 +101,7 @@ href = "{DOWNLOAD_URL}"
 id = "windows"
 name = "Windows 10 og 11"
 shows = "Filutforsker, med filer som lastes ned når du åpner dem"
-get = "Last ned (zip) (kommer snart)"
+get = "Zip-nedlasting (kommer snart)"
 coming_soon = true
 detail = "Loft legger NAS-en i Filutforsker. Filene vises med en gang og lastes ned når du åpner dem."
 version = "Windows 10 og 11 · versjon {VERSION}"
@@ -115,7 +118,7 @@ href = "{DOWNLOAD_URL}"
 id = "linux"
 name = "Linux"
 shows = "en <code>~/Loft</code>-mappe, med statusikon der skrivebordet har det"
-get = "Last ned (.deb, .rpm, AppImage, tarball) (kommer snart)"
+get = ".deb, .rpm, AppImage eller tarball (kommer snart)"
 coming_soon = true
 detail = "Loft monterer NAS-en på <code>~/Loft</code>. Filene leses når du åpner dem, og endringer lastes opp i bakgrunnen. Et statusikon viser hvordan det går, der skrivebordsmiljøet støtter det."
 version = "versjon {VERSION}"
@@ -172,7 +175,7 @@ body = "Loft logger inn på NAS-en som deg, med brukernavnet og passordet du all
 
 [home.home]
 title = "Ikke skyen. Loftet."
-body = "<p>Loft kopierer ikke filene dine til en server et annet sted. De ligger på NAS-en, hjemme hos deg, og går bare mellom NAS-en og dine egne enheter, gjennom en gateway du drifter selv. Det finnes ingen Loft-konto og ingen Loft-server, og Incremental ser aldri filene dine, filnavnene eller passordet ditt.</p><p>Appene for Mac, Android, Windows og Linux sjekker høyst én gang i døgnet om det finnes en ny versjon. Det er det eneste en Loft-app noen gang spør oss om, og du kan slå det av. → <a href=\"/no/privacy/\">Personvern</a></p>"
+body = "<p>Loft kopierer ikke filene dine til en server et annet sted. De ligger på NAS-en, hjemme hos deg, og går bare mellom NAS-en og dine egne enheter, gjennom en gateway du drifter selv. Det finnes ingen Loft-konto og ingen Loft-server, og Incremental ser aldri filene dine, filnavnene eller passordet ditt.</p><p>Appene for Mac, Windows og Linux, og Android-APK-en, sjekker høyst én gang i døgnet om det finnes en ny versjon. Det er det eneste en Loft-app noen gang spør oss om, og du kan slå det av. → <a href=\"/no/privacy/\">Personvern</a></p>"
 
 [home.open]
 title = "Gratis, og koden er åpen"
@@ -243,7 +246,7 @@ body = "Loft for iPhone og iPad, Mac, Android, Windows og Linux. De legger de de
 
 [pages.how-it-works.pairing]
 title = "Paring"
-body = "<p><code>loft-gateway pair</code> skriver ut en QR-kode og en lenke. Begge inneholder gatewayens navn, adresser og fingeravtrykkene til nøklene. Appen sjekker fingeravtrykkene ved hver tilkobling, så den kan ikke lures til å snakke med en annen maskin. Det er også derfor det ikke finnes noe felt for å skrive inn en serveradresse: En innskrevet adresse er akkurat slik en falsk gateway ville samlet inn passord. (Trenger du det likevel, ligger <em>Set up manually</em> under avanserte innstillinger i appen.)</p><p>Lenken ser slik ut: <code>https://loft.incremental.no/pair#…</code>. Alt etter <code>#</code> blir på enheten din. Nettlesere sender aldri den delen til nettstedet vårt.</p><p>Hver enhet pares med én gateway om gangen.</p>"
+body = "<p><code>loft-gateway pair</code> skriver ut en QR-kode og en lenke. Begge inneholder gatewayens navn, adresser og fingeravtrykkene til nøklene. Appen sjekker fingeravtrykkene ved hver tilkobling, så den kan ikke lures til å snakke med en annen maskin. Det er også derfor det ikke finnes noe felt for å skrive inn en serveradresse: En innskrevet adresse er akkurat slik en falsk gateway ville samlet inn passord. (Trenger du det likevel, ligger <em>Sett opp manuelt</em> på skjermen der du parer appen.)</p><p>Lenken ser slik ut: <code>https://loft.incremental.no/pair#…</code>. Alt etter <code>#</code> blir på enheten din. Nettlesere sender aldri den delen til nettstedet vårt.</p><p>Hver enhet pares med én gateway om gangen.</p>"
 
 [pages.how-it-works.security]
 id = "sikkerhet"
@@ -251,7 +254,7 @@ title = "Hva som er kryptert på hver vei"
 col_home = "Hjemme"
 col_tunnel = "Borte, gjennom tunnel"
 col_direct = "Borte, direkte"
-body = "<p><strong>Hva bør jeg velge?</strong> Tunnel er det enkle valget. Ingenting åpnes på ruteren, men du stoler på at tunnelleverandøren behandler trafikken din ordentlig. Direkte betyr å åpne en port til gatewayen. Ingen underveis kan lese noe, men gatewayen kan nås fra internett, så den begrenser antall innloggingsforsøk. Mange NAS-er sperrer ikke en konto etter feil passord, så gatewayen gjør det for dem. Du kan også la være å bruke noen av dem og bare bruke Loft hjemme.</p><p><strong>Passordet ditt.</strong> Det sendes bare over en låst forbindelse til gatewayen din. Gatewayen lagrer det kryptert med to nøkler, én som gatewayen har og én som bare enheten din har, så en kopi av gatewayens database er ikke nok til å lese det. Fjerner du en enhet, slettes kopien som hører til den.</p><p><strong>Det vi ikke kan beskytte mot, sagt rett ut.</strong> Mens gatewayen kjører og du bruker den, må den bruke passordet ditt mot NAS-en. Den som tar kontroll over gatewayen mens den kjører, kan fange opp passordene til dem som bruker den akkurat da. Det gjelder alle gatewayer som logger inn på SMB som deg. Kjør derfor gatewayen på en maskin som ikke gjør noe annet, og hold den oppdatert.</p><p><strong>Oppdateringer.</strong> Gatewayen oppdaterer seg aldri selv. Du installerer den nye <code>.deb</code>-filen eller henter et nytt containerbilde, etter at du har lest endringsnotatene.</p>"
+body = "<p><strong>Hva bør jeg velge?</strong> Tunnel er det enkle valget. Ingenting åpnes på ruteren, men du stoler på at tunnelleverandøren behandler trafikken din ordentlig. Direkte betyr å åpne en port til gatewayen. Ingen underveis kan lese noe, men gatewayen kan nås fra internett, så den begrenser antall innloggingsforsøk. Mange NAS-er sperrer ikke en konto etter feil passord, så gatewayen gjør det for dem. Du kan også la være å bruke noen av dem og bare bruke Loft hjemme.</p><p><strong>Passordet ditt.</strong> Det sendes bare over en låst forbindelse til gatewayen din. Gatewayen lagrer det kryptert med to nøkler, én som gatewayen har og én som bare enheten din har, så en kopi av gatewayens database er ikke nok til å lese det. Hver innlogget enhet har sin egen krypterte kopi, og fjerner du enheten fra gatewayen, slettes den.</p><p><strong>Det vi ikke kan beskytte mot, sagt rett ut.</strong> Mens gatewayen kjører og du bruker den, må den bruke passordet ditt mot NAS-en. Den som tar kontroll over gatewayen mens den kjører, kan fange opp passordene til dem som bruker den akkurat da. Det gjelder alle gatewayer som logger inn på SMB som deg. Kjør derfor gatewayen på en maskin som ikke gjør noe annet, og hold den oppdatert.</p><p><strong>Oppdateringer.</strong> Gatewayen oppdaterer seg aldri selv. Du installerer den nye <code>.deb</code>-filen eller henter et nytt containerbilde, etter at du har lest endringsnotatene.</p>"
 report = "→ Funnet et sikkerhetsproblem? <a href=\"/no/security/\">Sikkerhet</a> (hello@incremental.no)"
 [[pages.how-it-works.security.rows]]
 leg = "App ↔ gateway"
@@ -279,11 +282,11 @@ h1 = "Hent Loft."
 lead = "Loft er gratis på alle plattformer. Du trenger også en Loft-gateway hjemme. Har du ikke det ennå, <a href=\"/no/gateway/\">sett den opp først</a>: Det tar én kommando og én QR-kode."
 [pages.download.updates]
 title = "Sjekk etter oppdateringer"
-# Samme som avsnittet om oppdateringssjekk på Personvern (som i tillegg nevner Apples personvernvilkår). Alle fire appene
-# som ikke kommer fra App Store, har sjekken: Android, Windows og Linux (sjekket mot koden 2026-10-30) og Mac (fra
+# Samme som avsnittet om oppdateringssjekk på Personvern (som i tillegg nevner Apples personvernvilkår). Alle appene
+# som ikke kommer fra en appbutikk, har sjekken: Android-APK-en (Google Play-versjonen, -PloftDistribution=play, har den ikke), Windows og Linux (sjekket mot koden 2026-10-30) og Mac (fra
 # 2026-10-30, LoftCore UpdateCheck.swift). Hver av dem er en vanlig GET av releases.json med bare en User-Agent som
-# navngir appen, høyst én gang i døgnet, med en bryter i appens innstillinger («Check for updates» på Mac). iPhone-appen sjekker aldri.
-body = "<p>Appene for Mac, Android, Windows og Linux sjekker <code>loft.incremental.no/releases.json</code> etter ny versjon, høyst én gang i døgnet. Det er den eneste forespørselen noen Loft-app sender til oss. Den henter bare den ene filen: Ingen konto, ingen enhets-ID, ingenting om gatewayen eller filene dine. Den sier høyst hvilken app som spør. Du kan slå den av i appens innstillinger. Appen for iPhone og iPad oppdateres gjennom App Store.</p><p>Kildekode og sjekksummer for hver versjon: → <a href=\"/no/source/\">Kildekode</a></p>"
+# navngir appen, høyst én gang i døgnet, med en bryter i appens innstillinger («Check for updates» på Mac). iPhone-appen og Loft fra Google Play sjekker aldri.
+body = "<p>Appene for Mac, Windows og Linux, og Android-APK-en fra dette nettstedet, sjekker <code>loft.incremental.no/releases.json</code> etter ny versjon, høyst én gang i døgnet. Det er den eneste forespørselen noen Loft-app sender til oss. Den henter bare den ene filen: Ingen konto, ingen enhets-ID, ingenting om gatewayen eller filene dine. Den sier høyst hvilken app som spør. Du kan slå den av i appens innstillinger. Appen for iPhone og iPad oppdateres gjennom App Store, og Loft fra Google Play oppdateres gjennom Google Play.</p><p>Kildekode og sjekksummer for hver versjon: → <a href=\"/no/source/\">Kildekode</a></p>"
 
 # ---------------------------------------------------------------- sett opp en gateway
 
@@ -338,7 +341,7 @@ body = '''<p>Kjør <code>loft-gateway init</code>. Den spør etter adressen til 
 [[pages.gateway.steps]]
 title = "Koble til appene"
 body = '''<p>Kjør <code>loft-gateway pair</code> og skann QR-koden med Loft-appen, eller åpne lenken på enheten. Koden inneholder gatewayens adresse og nøkler, så appen vet at den snakker med <em>din</em> gateway fra aller første tilkobling. Logg så inn med brukernavnet og passordet ditt på NAS-en.</p>
-<p>Det finnes ikke noe felt for å skrive inn en gateway-adresse, og det er med vilje: En adresse du skriver selv, kan lede deg til en falsk gateway som samler inn passord. Trenger du det likevel, har appen <em>Sett opp manuelt</em> under avanserte innstillinger.</p>'''
+<p>Det finnes ikke noe felt for å skrive inn en gateway-adresse, og det er med vilje: En adresse du skriver selv, kan lede deg til en falsk gateway som samler inn passord. Trenger du det likevel, ligger <em>Sett opp manuelt</em> på skjermen der du parer appen.</p>'''
 
 [[pages.gateway.steps]]
 id = "utenfra"
@@ -446,9 +449,9 @@ title = "Passordet ditt"
 body = "<p>NAS-passordet ditt går bare til din egen gateway, over en forbindelse som er låst til gatewayens nøkkel. Gatewayen lagrer det kryptert, og det er ubrukelig uten den innloggede enheten din. Vi ser det aldri.</p>"
 [[pages.privacy.sections]]
 title = "Appene"
-# Samme som avsnittet om oppdateringssjekk på Last ned, pluss Apples personvernvilkår. Mac, Android, Windows og Linux har
-# alle sjekken (se merknaden på Last ned); hold de to avsnittene like.
-body = "<p>Appene for Mac, Android, Windows og Linux sjekker <code>loft.incremental.no/releases.json</code> etter ny versjon, høyst én gang i døgnet. Det er den eneste forespørselen noen Loft-app sender til oss. Den henter bare den ene filen: Ingen konto, ingen enhets-ID, ingenting om gatewayen eller filene dine. Den sier høyst hvilken app som spør. Du kan slå den av i appens innstillinger. Appen for iPhone og iPad oppdateres gjennom App Store, der Apples personvernvilkår gjelder.</p>"
+# Samme som avsnittet om oppdateringssjekk på Last ned, pluss Apples personvernvilkår. Mac, Windows, Linux og Android-APK-en har
+# sjekken (se merknaden på Last ned); hold de to avsnittene like.
+body = "<p>Appene for Mac, Windows og Linux, og Android-APK-en fra dette nettstedet, sjekker <code>loft.incremental.no/releases.json</code> etter ny versjon, høyst én gang i døgnet. Det er den eneste forespørselen noen Loft-app sender til oss. Den henter bare den ene filen: Ingen konto, ingen enhets-ID, ingenting om gatewayen eller filene dine. Den sier høyst hvilken app som spør. Du kan slå den av i appens innstillinger. Appen for iPhone og iPad oppdateres gjennom App Store, der Apples personvernvilkår gjelder, og Loft fra Google Play oppdateres gjennom Google Play, der Googles gjelder.</p>"
 [[pages.privacy.sections]]
 title = "Dette nettstedet"
 # Forutsetter driftsplanen: en Cloudflare Worker, nedlastinger fra GitHub Releases. Oppdater dette om det endres.
@@ -567,7 +570,7 @@ title = "Du kan fortsatt besøke dem"
 body = "<p>Flere loft er bevart på norske friluftsmuseer:</p><ul><li><strong>Dagsgardsloftet</strong> på Maihaugen, opprinnelig bygd i 1268 og flyttet dit fra Skjåk i 1909.</li><li><strong>Rolstadloftet</strong> på Norsk Folkemuseum, fra rundt 1300. Det var et soveloft, og slisser i veggene viser at det kan ha vært minst seks soveplasser.</li><li><strong>Oseloftet</strong>, også på Norsk Folkemuseum, fra rundt 1700.</li><li><strong>Vindlausloftet</strong> på Vest-Telemark Museum. Tømmeret er datert til like etter 1167, og ifølge Store norske leksikon er det trolig Norges eldste profane bygning i tre.</li></ul>"
 [[pages.about-the-name.sections]]
 title = "Ikke helt et stabbur"
-body = "<p>Stabburet er matlageret som står på stolper så mus og rotter ikke kommer inn, og det ble vanlig fra 1700-tallet. Forskjellen sitter i trappen: Loftet har trappen ute, opp til svalen, mens buret som regel har den inne. I praksis er grensen uskarp. Loft ble også satt på stabber etter hvert, og i Nore og Uvdal kalles hele loftet gjerne «bur» eller «stabbur».</p>"
+body = "<p>Stabburet er matlageret som står på stolper så mus og rotter ikke kommer inn, og det ble vanlig fra 1700-tallet. Forskjellen sitter i trappen: Loftet har trappen ute, opp til svalen, mens buret som regel har den inne. I praksis er grensen uskarp. Loft ble også satt på stabber etter hvert: Raulandsloftet fra Numedal, som nå står på Norsk Folkemuseum, ble løftet opp på stabber på 1700-tallet, og i Nore og Uvdal, der det kommer fra, kalles hele huset gjerne «bur» eller «stabbur».</p>"
 [[pages.about-the-name.sections]]
 title = "Luft, himmel, høyde"
 body = "<p>Ordet kommer av norrønt <em>lopt</em>, i slekt med <em>luft</em>. Det Norske Akademis ordbok oppgir de gamle betydningene som blant annet «luft, himmel, høyde». Engelsk har <em>loft</em> fra det samme norrøne ordet, og <em>aloft</em>, «oppe i lufta», fra <em>ā lopt</em>.</p>"

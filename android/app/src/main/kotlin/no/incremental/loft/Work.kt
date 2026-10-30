@@ -31,12 +31,15 @@ object Work {
 
     private val online = Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build()
 
+    /** False in the Google Play build: Play updates the app, so it never asks our website. */
+    val updateCheckAvailable: Boolean get() = BuildConfig.DISTRIBUTION == "direct"
+
     /** Called from Application.onCreate and when a setting changes. */
     fun schedulePeriodic(ctx: Context) {
         if (disabledForTests) return
         val wm = WorkManager.getInstance(ctx)
         val loft = Loft.get(ctx)
-        if (loft.prefs.updateCheck) {
+        if (updateCheckAvailable && loft.prefs.updateCheck) {
             wm.enqueueUniquePeriodicWork(UPDATE, ExistingPeriodicWorkPolicy.KEEP,
                 PeriodicWorkRequestBuilder<UpdateCheckWorker>(1, TimeUnit.DAYS).setConstraints(online)
                     .setInitialDelay(1, TimeUnit.HOURS).build())

@@ -122,15 +122,17 @@ fun SettingsScreen(vm: MainViewModel) {
                 }
             }
 
-            HorizontalDivider()
-            Section(stringResource(R.string.settings_updates))
-            Toggle(stringResource(R.string.update_check), updates) {
-                p.updateCheck = it
-                updates = it
-                Work.schedulePeriodic(ctx)
-                if (it && Build.VERSION.SDK_INT >= 33) askNotify.launch(Manifest.permission.POST_NOTIFICATIONS)
+            if (Work.updateCheckAvailable) {
+                HorizontalDivider()
+                Section(stringResource(R.string.settings_updates))
+                Toggle(stringResource(R.string.update_check), updates) {
+                    p.updateCheck = it
+                    updates = it
+                    Work.schedulePeriodic(ctx)
+                    if (it && Build.VERSION.SDK_INT >= 33) askNotify.launch(Manifest.permission.POST_NOTIFICATIONS)
+                }
+                Text(stringResource(R.string.update_check_body), style = MaterialTheme.typography.bodySmall)
             }
-            Text(stringResource(R.string.update_check_body), style = MaterialTheme.typography.bodySmall)
 
             HorizontalDivider()
             Button(onClick = { vm.signOut() }, Modifier.fillMaxWidth()) { Text(stringResource(R.string.sign_out)) }

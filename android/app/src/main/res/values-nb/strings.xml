@@ -16,7 +16,7 @@
     <string name="pair_manual_pin">Fingeravtrykk</string>
     <string name="pair_manual_name">Navn (valgfritt)</string>
     <string name="pair_replace_title">Pare med «%1$s»?</string>
-    <string name="pair_replace_body">Denne telefonen er paret med %1$s. Parer du med en annen gateway, blir du logget ut av den du har nå.</string>
+    <string name="pair_replace_body">Denne telefonen er paret med %1$s. Parer du med en annen gateway, blir du logget ut av %1$s.</string>
     <string name="pair_replace_confirm">Par</string>
     <string name="pair_continue">Fortsett</string>
     <string name="pair_scan_title">Skann paringskoden</string>

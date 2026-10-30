@@ -3,9 +3,12 @@
     python3 -m unittest discover -s tests -v      (from website/)
 
 Builds dist/ once, then checks: every internal link and asset resolves (including #fragments), nothing loads
-from another origin (HTML, CSS, JS), /pair never touches the pairing fragment, language and hreflang pairs,
+from another origin (HTML, CSS, JS), /pair never touches the pairing fragment, language and hreflang sets,
 landmarks and alt text, the release build refuses placeholders and holds, and no private addresses leak into dist/.
+MultiLanguageTest builds a second site into a temporary folder, with English copies standing in for German and
+Simplified Chinese, to check the picker, hreflang, link prefixing and /pair with more than two languages.
 """
+import shutil
 import html.parser
 import json
 import re
@@ -46,8 +49,12 @@ class Page(html.parser.HTMLParser):
 
 
 def parse(path):
+    return parse_text(path.read_text())
+
+
+def parse_text(text):
     p = Page()
-    p.feed(path.read_text())
+    p.feed(text)
     return p
 
 
@@ -76,6 +83,21 @@ def js_code(path):
 
 def html_files():
     return sorted(DIST.rglob("*.html"))
+
+
+def built():
+    return build.built_languages(ROOT / "content")
+
+
+def prefix_dir(lang):
+    """dist/ subfolder of a language, with a trailing slash ("" for English)."""
+    p = build.LANGUAGES[lang]["prefix"].lstrip("/")
+    return p + "/" if p else ""
+
+
+def alternates(page):
+    return {a["hreflang"]: a["href"] for t, a in page.tags
+            if t == "link" and a.get("rel") == "alternate" and "hreflang" in a}
 
 
 class SiteTest(unittest.TestCase):
@@ -205,30 +227,123 @@ class SiteTest(unittest.TestCase):
             for pat in ("location", "hash", "URL(", "href.split", "document.URL", "history"):
                 self.assertNotIn(pat, t, f"{s.name} mentions {pat}")
         text = page.read_text()
-        self.assertIn('lang="en"', text)
-        self.assertIn('lang="nb"', text)
+        for lang in built():
+            self.assertIn(f'lang="{build.LANGUAGES[lang]["html_lang"]}"', text, lang)
+
+    def test_pair_page_shows_english_without_javascript(self):
+        # No JavaScript: the English block is open, every other language is a closed <details> named in its own
+        # language, and only the English footer shows. site.js picks one language when it runs.
+        page = self.pages[DIST / "pair.html"]
+        html_tag = next(a for t, a in page.tags if t == "html")
+        tags = [build.LANGUAGES[l]["html_lang"] for l in built()]
+        self.assertEqual(html_tag.get("lang"), "en")
+        self.assertEqual(html_tag.get("data-langs", "").split(), tags)
+        blocks = [(t, a) for t, a in page.tags if "pair-copy" in (a.get("class") or "").split()]
+        self.assertEqual([a["data-lang"] for _, a in blocks], tags)
+        self.assertEqual(blocks[0][0], "div")
+        for t, a in blocks[1:]:
+            self.assertEqual(t, "details", a["data-lang"])
+            self.assertNotIn("open", a)
+        text = (DIST / "pair.html").read_text()
+        for lang in built()[1:]:
+            name = build.LANGUAGES[lang]["name"]
+            self.assertIn(f"<summary>{name}</summary>", text)
+        footer = [a for t, a in page.tags if t == "span" and "data-lang" in a]
+        self.assertEqual([("hidden" in a) for a in footer], [False] + [True] * (len(tags) - 1))
+        body = next(a for t, a in page.tags if t == "body")
+        for tag in tags:
+            self.assertTrue(body.get(f"data-title-{tag.lower()}"), tag)
+        # The header picker on /pair is buttons for site.js; CSS hides it without JavaScript.
+        css = (DIST / "css/site.css").read_text()
+        self.assertIn(":root:not(.js) .pair-tools .lang-picker { display: none; }", css)
+
+    def test_site_js_picks_from_navigator_languages(self):
+        js = js_code(DIST / "js/site.js")
+        self.assertIn("navigator.languages", js)
+        self.assertIn('return "en"', js)
 
     # ------------------------------------------------------------ language, landmarks, alt text
 
     def test_lang_and_hreflang_pairs(self):
+        tags = {build.LANGUAGES[l]["html_lang"] for l in built()}
         for f, page in self.pages.items():
             if f.name == "pair.html":
                 continue
             rel = f.relative_to(DIST)
-            want = "nb" if rel.parts[0] == "no" else "en"
+            want = build.LANGUAGES[build.lang_of(DIST, f)]["html_lang"]
             html_tag = next(a for t, a in page.tags if t == "html")
             self.assertEqual(html_tag.get("lang"), want, str(rel))
             if f.name == "404.html":
                 continue
-            alts = {a["hreflang"]: a["href"] for t, a in page.tags
-                    if t == "link" and a.get("rel") == "alternate" and "hreflang" in a}
-            self.assertEqual(set(alts), {"en", "nb", "x-default"}, str(rel))
+            alts = alternates(page)
+            self.assertEqual(set(alts), tags | {"x-default"}, str(rel))
+            self.assertEqual(alts["x-default"], alts["en"], str(rel))
             for lang, href in alts.items():
                 other = resolve(href[len(SITE):])
                 self.assertTrue(other.is_file(), f"{rel}: hreflang {lang} -> {href}")
-                back = {a["hreflang"]: a["href"] for t, a in self.pages[other].tags
-                        if t == "link" and a.get("rel") == "alternate" and "hreflang" in a}
-                self.assertEqual(back, alts, f"{rel}: hreflang not reciprocal with {other.relative_to(DIST)}")
+                self.assertEqual(alternates(self.pages[other]), alts,
+                                 f"{rel}: hreflang not reciprocal with {other.relative_to(DIST)}")
+
+    def test_language_picker(self):
+        # A <details> of links: every built language, named in its own language, to the same page in that language.
+        langs = built()
+        for f, page in self.pages.items():
+            if f.name == "pair.html":
+                continue
+            rel = str(f.relative_to(DIST))
+            lang = build.lang_of(DIST, f)
+            text = f.read_text()
+            m = re.search(r'<details class="lang-picker">(.*?)</details>', text, re.S)
+            self.assertIsNotNone(m, rel)
+            self.assertEqual(text.count('class="lang-picker"'), 1, rel)
+            picker = parse_text(m.group(1))
+            links = [a for t, a in picker.tags if t == "a"]
+            self.assertEqual([a["hreflang"] for a in links], [build.LANGUAGES[l]["html_lang"] for l in langs], rel)
+            self.assertEqual([a["lang"] for a in links], [a["hreflang"] for a in links], rel)
+            current = [a for a in links if a.get("aria-current") == "true"]
+            self.assertEqual([a["hreflang"] for a in current], [build.LANGUAGES[lang]["html_lang"]], rel)
+            for l, a in zip(langs, links):
+                self.assertIn(f'>{build.LANGUAGES[l]["name"]}</a>', m.group(1), rel)
+                self.assertTrue(resolve(a["href"]).is_file(), f"{rel}: {a['href']}")
+                if f.name != "404.html":
+                    self.assertEqual(SITE + a["href"], alternates(page)[a["hreflang"]], rel)
+            # The summary says what it is to a screen reader ("Language: English") and shows the current language.
+            summary = re.search(r"<summary>(.*?)</summary>", m.group(1), re.S).group(1)
+            self.assertIn('class="visually-hidden"', summary, rel)
+            self.assertIn(build.LANGUAGES[lang]["name"], summary, rel)
+            self.assertIn('aria-hidden="true"', summary, rel)     # the globe icon
+
+    def test_copy_links_stay_in_their_language(self):
+        # Every link to a site page from a page in language L goes to L's page, except the picker and the alternates.
+        for f in html_files():
+            if f.name == "pair.html":
+                continue
+            lang = build.lang_of(DIST, f)
+            text = re.sub(r'<details class="lang-picker">.*?</details>', "", f.read_text(), flags=re.S)
+            for u in re.findall(r'<a [^>]*href="(/[^"]*)"', text):
+                if u.startswith("//"):
+                    continue
+                path = urlsplit(u).path
+                if resolve(path).suffix != ".html" or path == "/pair":
+                    continue
+                self.assertEqual(build.lang_of(DIST, resolve(path)), lang, f"{f.relative_to(DIST)}: {u}")
+
+    def test_og_image_per_language_or_english(self):
+        for f, page in self.pages.items():
+            og = next((a["content"] for t, a in page.tags if t == "meta" and a.get("property") == "og:image"), None)
+            if og is None:
+                continue
+            lang = build.lang_of(DIST, f)
+            own = DIST / f"img/og/og-{lang}.jpg"
+            want = f"{SITE}/img/og/og-{lang}.jpg" if own.is_file() else f"{SITE}/img/og/og-en.jpg"
+            self.assertEqual(og, want, str(f.relative_to(DIST)))
+
+    def test_sitemap_lists_every_language(self):
+        locs = re.findall(r"<loc>([^<]+)</loc>", (DIST / "sitemap.xml").read_text())
+        pages = [s for s in build.PAGES if s not in ("404", "pair")]
+        self.assertEqual(len(locs), len(pages) * len(built()))
+        for u in locs:
+            self.assertTrue(resolve(u[len(SITE):]).is_file(), u)
 
     def test_landmarks_headings_alt(self):
         for f, page in self.pages.items():
@@ -275,7 +390,8 @@ class SiteTest(unittest.TestCase):
         # The gateway .deb and image are built but not released: its Download card offers nothing to download.
         r = build.Renderer("en", {"x": {"on": True, "off": False}}, {}, release=False)
         self.assertEqual(r.render("{{#unless x.on}}a{{/unless}}{{#unless x.off}}b{{/unless}}{{#unless x.none}}c{{/unless}}"), "bc")
-        for lang, prefix in (("en", ""), ("no", "no/")):
+        for lang in built():
+            prefix = prefix_dir(lang)
             copy = build.tomllib.loads((ROOT / f"content/{lang}.toml").read_text())
             soon = [p["id"] for p in copy["platforms"] if p.get("coming_soon")]
             self.assertIn("gateway", soon, lang)
@@ -291,7 +407,7 @@ class SiteTest(unittest.TestCase):
                 self.assertIn("btn", re.search(rf'id="{pid}">(.*?)</article>', doc, re.S).group(1), f"{lang}/{pid}")
 
     def test_gateway_step_text_before_the_command(self):
-        for prefix in ("", "no/"):
+        for prefix in ("", "no/"):       # the Coming-soon wording is checked in the two languages written in-house
             doc = (DIST / f"{prefix}gateway/index.html").read_text()
             m = re.search(r'<section class="guide-part" id="debian">(.*?)</section>', doc, re.S)
             if m is None:   # pre-release: step 1 is one Coming-soon paragraph, with no install command to copy
@@ -353,6 +469,191 @@ class SiteTest(unittest.TestCase):
             if f.suffix in (".html", ".css", ".js", ".json", ".xml", ".txt", ".webmanifest") or f.name == "_headers":
                 m = pat.search(f.read_text())
                 self.assertIsNone(m, f"{f.relative_to(DIST)}: {m and m.group(0)}")
+
+
+class LanguageUnitTest(unittest.TestCase):
+    """The language table, link prefixing and the key check, without a build."""
+
+    def test_language_table(self):
+        L = build.LANGUAGES
+        self.assertEqual(list(L)[:2], ["en", "no"])
+        self.assertEqual((L["en"]["prefix"], L["en"]["html_lang"]), ("", "en"))
+        self.assertEqual((L["no"]["prefix"], L["no"]["html_lang"]), ("/no", "nb"))
+        self.assertEqual((L["pt-BR"]["prefix"], L["pt-BR"]["html_lang"]), ("/pt", "pt-BR"))
+        self.assertEqual((L["zh-Hans"]["prefix"], L["zh-Hans"]["html_lang"]), ("/zh", "zh-Hans"))
+        prefixes = [v["prefix"] for v in L.values()]
+        self.assertEqual(len(prefixes), len(set(prefixes)))
+        # A prefix must not shadow a static folder, a page, /pair or a path the Worker routes elsewhere.
+        routes = json.loads((ROOT / "worker/routes.json").read_text())["routes"]
+        taken = {p.name for p in (ROOT / "static").iterdir()} | set(build.PAGES) | {".well-known"}
+        taken |= {r["pattern"].split("/", 1)[1].split("/")[0] for r in routes}
+        for code, v in L.items():
+            if v["prefix"]:
+                self.assertNotIn(v["prefix"].lstrip("/"), taken, code)
+
+    def test_localize(self):
+        loc = build.localize
+        self.assertEqual(loc("/download/#android", "de"), "/de/download/#android")
+        self.assertEqual(loc("/", "zh-Hans"), "/zh/")
+        self.assertEqual(loc("/#how", "pt-BR"), "/pt/#how")
+        self.assertEqual(loc("/gateway", "de"), "/de/gateway")          # no trailing slash is still a page
+        self.assertEqual(loc("/download/?x=1#a", "ja"), "/ja/download/?x=1#a")
+        for keep in ("/no/download/#android", "/de/download/", "/pair", "/pair#abc", "/img/og/og-en.jpg",
+                     "/.well-known/assetlinks.json", "/releases.json", "/fonts/manrope-var-latin.woff2",
+                     "https://github.com/Incremental-AS/loft", "//example.com/download/", "#android",
+                     "mailto:hello@example.com", "/v1/health", "/healthz", "/404.html", "/unknown/"):
+            self.assertEqual(loc(keep, "de"), keep, keep)
+        self.assertEqual(loc("/download/", "en"), "/download/")         # English is at the root
+
+    def test_localize_links_in_copy(self):
+        html_copy = ('See <a href="/download/#android">Android</a>, <a href="/no/security/">sikkerhet</a>, '
+                     '<a href="https://github.com/Incremental-AS/loft">GitHub</a> and <a href="/pair">pair</a>.')
+        self.assertEqual(build.localize_links(html_copy, "fr"),
+                         'See <a href="/fr/download/#android">Android</a>, <a href="/no/security/">sikkerhet</a>, '
+                         '<a href="https://github.com/Incremental-AS/loft">GitHub</a> and <a href="/pair">pair</a>.')
+        self.assertEqual(build.localize_links("/gateway/", "ko"), "/ko/gateway/")
+        self.assertEqual(build.localize_links("/ text with a slash", "ko"), "/ text with a slash")
+
+    def test_renderer_prefixes_copy_but_not_build_values(self):
+        copy = {"x": {"a": '<a href="/support/">s</a>'}, "links": [{"href": "/source/"}]}
+        ctx = {"languages": [{"href": "/support/"}], "page": {"b": "/privacy/"}}
+        r = build.Renderer("de", copy, ctx, release=False)
+        self.assertEqual(r.render("{{x.a}}"), '<a href="/de/support/">s</a>')
+        self.assertEqual(r.render("{{#each links}}{{attr:it.href}}{{/each}}"), "/de/source/")
+        self.assertEqual(r.render("{{page.b}}"), "/de/privacy/")
+        self.assertEqual(r.render("{{#each languages}}{{it.href}}{{/each}}"), "/support/")   # the picker's English link
+        self.assertEqual(r.render("{{link:support}}"), "/de/support/")
+
+    def test_key_paths_and_parity(self):
+        en = {"release": {"hold": []}, "ui": {"a": "x", "b": "y"},
+              "items": [{"t": "1", "href": "/"}, {"t": "2", "alt": "z"}]}
+        self.assertEqual(build.key_paths(en), {"release", "release.hold", "ui", "ui.a", "ui.b",
+                                               "items", "items[].t", "items[].href", "items[].alt"})
+        # Same keys (an array may have other items or another order of optional keys; [release] is not copy).
+        same = {"ui": {"b": "Y", "a": "X"}, "items": [{"t": "1", "href": "/", "alt": "z"}]}
+        build.check_keys({"en": en, "de": same})
+        bad = {"release": {"hold": []}, "ui": {"a": "X", "c": "?"}, "items": [{"t": "1", "href": "/", "alt": "z"}]}
+        with self.assertRaises(build.BuildError) as e:
+            build.check_keys({"en": en, "de": bad})
+        msg = str(e.exception)
+        self.assertIn("content/de.toml missing: ui.b", msg)
+        self.assertIn("content/de.toml extra: ui.c", msg)
+
+    def test_live_copy_files_match(self):
+        langs = built()
+        build.check_keys({l: build.tomllib.loads((ROOT / f"content/{l}.toml").read_text()) for l in langs})
+
+    def test_built_languages(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp = Path(tmp)
+            for name in ("zh-Hans", "en", "no"):
+                (tmp / f"{name}.toml").write_text("")
+            self.assertEqual(build.built_languages(tmp), ["en", "no", "zh-Hans"])
+            (tmp / "sv.toml").write_text("")
+            with self.assertRaisesRegex(build.BuildError, "unknown language.*sv"):
+                build.built_languages(tmp)
+            (tmp / "sv.toml").unlink()
+            (tmp / "en.toml").unlink()
+            with self.assertRaises(build.BuildError):
+                build.built_languages(tmp)
+
+
+class MultiLanguageTest(unittest.TestCase):
+    """A site with English, Norwegian, German and Simplified Chinese (English copies stand in for the
+    translations), built into a temporary folder so dist/ and content/ are left alone."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.tmp = tempfile.TemporaryDirectory()
+        tmp = Path(cls.tmp.name)
+        content = tmp / "content"
+        content.mkdir()
+        for lang in ("en", "no"):
+            shutil.copyfile(ROOT / f"content/{lang}.toml", content / f"{lang}.toml")
+        for lang in ("de", "zh-Hans"):
+            shutil.copyfile(ROOT / "content/en.toml", content / f"{lang}.toml")
+        cls.dist = tmp / "dist"
+        with mock.patch("sys.stdout"):
+            build.build(release=False, content=content, dist=cls.dist)
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.tmp.cleanup()
+
+    def read(self, rel):
+        return (self.dist / rel).read_text()
+
+    def test_every_language_is_built(self):
+        for prefix in ("", "no/", "de/", "zh/"):
+            for slug in ("index.html", "download/index.html", "404.html"):
+                self.assertTrue((self.dist / prefix / slug).is_file(), prefix + slug)
+        self.assertFalse((self.dist / "zh-Hans").exists())
+        self.assertIn('<html lang="zh-Hans">', self.read("zh/index.html"))
+        self.assertIn('<html lang="de">', self.read("de/index.html"))
+
+    def test_hreflang_has_every_language_and_x_default(self):
+        alts = alternates(parse(self.dist / "de/download/index.html"))
+        self.assertEqual(alts, {"en": f"{SITE}/download/", "nb": f"{SITE}/no/download/", "de": f"{SITE}/de/download/",
+                                "zh-Hans": f"{SITE}/zh/download/", "x-default": f"{SITE}/download/"})
+        self.assertEqual(alternates(parse(self.dist / "zh/download/index.html")), alts)
+
+    def test_picker(self):
+        text = self.read("zh/how-it-works/index.html")
+        picker = re.search(r'<details class="lang-picker">(.*?)</details>', text, re.S).group(1)
+        self.assertEqual(re.findall(r'<a href="([^"]+)" hreflang="([^"]+)"', picker),
+                         [("/how-it-works/", "en"), ("/no/how-it-works/", "nb"), ("/de/how-it-works/", "de"),
+                          ("/zh/how-it-works/", "zh-Hans")])
+        self.assertIn('lang="zh-Hans" aria-current="true">简体中文</a>', picker)
+        self.assertEqual(picker.count("aria-current"), 1)
+        self.assertIn('>Deutsch</a>', picker)
+        self.assertIn('<span class="lang-name" lang="zh-Hans">简体中文</span>', picker)
+        # From a 404, the picker goes to each language's front page.
+        p404 = re.search(r'<details class="lang-picker">(.*?)</details>', self.read("de/404.html"), re.S).group(1)
+        self.assertEqual(re.findall(r'<a href="([^"]+)"', p404), ["/", "/no/", "/de/", "/zh/"])
+
+    def test_copy_links_are_prefixed(self):
+        home = self.read("de/index.html")
+        self.assertIn('href="/de/how-it-works/#security"', home)
+        self.assertIn('href="/de/gateway/"', home)                  # a bare href value in an {{#each}}
+        dl = self.read("zh/download/index.html")
+        self.assertNotIn('href="/download/', re.sub(r'<details class="lang-picker">.*?</details>', "", dl, flags=re.S))
+        # Norwegian copy writes its prefix out: still once.
+        self.assertIn('href="/no/download/#android"', self.read("no/index.html") + self.read("no/how-it-works/index.html")
+                      + self.read("no/download/index.html") + self.read("no/gateway/index.html"))
+        for f in self.dist.rglob("*.html"):
+            self.assertNotRegex(f.read_text(), r'href="/(no|de|zh)/(no|de|zh)/', str(f))
+            self.assertNotIn('href="/de/pair', f.read_text())
+
+    def test_og_image_falls_back_to_english(self):
+        self.assertIn(f'content="{SITE}/img/og/og-en.jpg"', self.read("de/index.html"))
+        self.assertIn(f'content="{SITE}/img/og/og-no.jpg"', self.read("no/index.html"))
+
+    def test_pair_carries_every_language(self):
+        text = self.read("pair.html")
+        self.assertIn('data-langs="en nb de zh-Hans"', text)
+        self.assertIn('<details class="pair-copy" data-lang="de" lang="de">', text)
+        self.assertIn('<details class="pair-copy" data-lang="zh-Hans" lang="zh-Hans">', text)
+        self.assertIn("<summary>简体中文</summary>", text)
+        self.assertIn('href="/zh/download/"', text)
+        self.assertIn('data-to="zh-Hans" lang="zh-Hans">简体中文</button>', text)
+        self.assertLess(len(text.encode()), 40_000, "pair.html grew past 40 kB")
+
+    def test_sitemap(self):
+        locs = re.findall(r"<loc>([^<]+)</loc>", self.read("sitemap.xml"))
+        self.assertIn(f"{SITE}/zh/", locs)
+        self.assertIn(f"{SITE}/de/download/", locs)
+        self.assertEqual(len(locs), 4 * (len(build.PAGES) - 2))
+
+    def test_missing_key_fails_the_build(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            content = Path(tmp) / "content"
+            content.mkdir()
+            en = (ROOT / "content/en.toml").read_text()
+            shutil.copyfile(ROOT / "content/en.toml", content / "en.toml")
+            (content / "ja.toml").write_text(en.replace('\nlanguage = "Language"\n', '\nlanguag = "Language"\n'))
+            with self.assertRaisesRegex(build.BuildError, r"ja\.toml missing: ui\.language(.|\n)*ja\.toml extra: ui\.languag"):
+                build.build(release=False, content=content, dist=Path(tmp) / "dist")
+            self.assertFalse((Path(tmp) / "dist").exists(), "dist/ is left alone when the copy doesn't match")
 
 
 if __name__ == "__main__":

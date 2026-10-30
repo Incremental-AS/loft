@@ -1,0 +1,12 @@
+{
+  "_note": "App Store listing text for Loft, Norwegian (bokmål), written natively. Change the words in the brand kit's store copy first, then here; the other languages are generated from en-US.json by tools/i18n/loft_i18n.py.",
+  "name": "Loft by Incremental",
+  "subtitle": "Filene dine, hjemme hos deg",
+  "promotional_text": "NAS-en hjemme, i lomma. Bla i arkivet, strøm video uten å laste ned alt, lagre fra alle apper og send bilder rett hjem. Ikke skyen. Loftet.",
+  "description": "Loft gir deg NAS-en hjemme på iPhonen. Filene blir liggende på din egen NAS, og Loft åpner dem uansett hvor du er.\n\n• Bla gjennom hele arkivet, mappe for mappe.\n• Åpne og forhåndsvis dokumenter, bilder og PDF-er.\n• Strøm video og lyd rett hjemmefra, uten å laste ned hele filen først.\n• Finn Loft i Filer-appen, så Lagre i Filer › Loft virker fra alle apper.\n• Lagre i Loft fra delingsmenyen i alle apper, og velg mappen det skal i.\n• Ta bilder i Loft som går rett til en mappe på NAS-en. De lagres ikke i bildebiblioteket ditt.\n\nFørste innlogging må skje på hjemmenettet, så NAS-passordet ditt aldri sendes over internett. Etter det virker Loft overalt.\n\nLoft virker med en NAS som står bak en Loft-gateway satt opp av NAS-eieren. Uten den er det ingenting å logge inn på. Loft har ingen reklame, ingen sporing og ingen analyseverktøy, og samler ikke inn noe.\n\nIkke skyen. Loftet.",
+  "keywords": "nas,filer,hjemme,lagring,arkiv,strømme,video,bilder,kamera,dele,dokumenter,privat,mapper,nettverk",
+  "whats_new": "Første versjon av Loft for iPhone. Bla i NAS-en, strøm video og lyd, lagre i Loft fra alle apper og ta bilder som går rett hjem.",
+  "support_url": "https://www.incremental.no/loft/support/",
+  "privacy_policy_url": "https://www.incremental.no/loft/privacy/",
+  "marketing_url": ""
+}

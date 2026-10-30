@@ -48,6 +48,41 @@ h3 { font: 600 clamp(1.15rem, 1.6vw, 1.4rem)/1.25 var(--loft-font-heading); lett
 /* Unfinished copy (DRAFT: in content/*.toml). Release builds refuse to ship it. */
 .draft { outline: 1.5px dashed var(--loft-warn); outline-offset: 2px; border-radius: 3px; }
 
+.visually-hidden { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden;
+                   clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; border: 0; }
+
+/* ---------------------------------------------------------------- CJK
+   The brand fonts are Latin-only subsets (Basic Latin + Latin-1), so Japanese, Korean and Chinese text falls back
+   per character. These stacks keep the brand fonts first (for the Latin in the copy) and then name each script's
+   good system fonts, so the fallback isn't left to chance (Song/Mincho bitmaps, Chinese glyphs in Japanese).
+   :lang() matches the page (<html lang>) and any block with its own lang (the picker, /pair). */
+:lang(ja) {
+  --loft-font-display: "Fraunces", "Hiragino Mincho ProN", "Yu Mincho", "YuMincho", "Noto Serif CJK JP", "Noto Serif JP", serif;
+  --loft-font-heading: "Sora", "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic UI", "Yu Gothic", "Meiryo", "Noto Sans CJK JP", "Noto Sans JP", sans-serif;
+  --loft-font-body: "Manrope", "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic UI", "Yu Gothic", "Meiryo", "Noto Sans CJK JP", "Noto Sans JP", sans-serif;
+}
+:lang(ko) {
+  --loft-font-display: "Fraunces", "AppleMyungjo", "Noto Serif CJK KR", "Noto Serif KR", "Batang", serif;
+  --loft-font-heading: "Sora", "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans CJK KR", "Noto Sans KR", sans-serif;
+  --loft-font-body: "Manrope", "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans CJK KR", "Noto Sans KR", sans-serif;
+}
+:lang(zh) {
+  --loft-font-display: "Fraunces", "Songti SC", "Noto Serif CJK SC", "Noto Serif SC", "SimSun", serif;
+  --loft-font-heading: "Sora", "PingFang SC", "Microsoft YaHei UI", "Microsoft YaHei", "Noto Sans CJK SC", "Noto Sans SC", sans-serif;
+  --loft-font-body: "Manrope", "PingFang SC", "Microsoft YaHei UI", "Microsoft YaHei", "Noto Sans CJK SC", "Noto Sans SC", sans-serif;
+}
+/* A /pair block in another language takes its body font again, so plain text in it uses that language's stack. */
+:where([data-lang][lang|="ja"], [data-lang][lang|="ko"], [data-lang][lang|="zh"]) { font-family: var(--loft-font-body); }
+/* Tight Latin tracking and the 1.02 display leading are too tight for CJK glyphs. Lines break between characters
+   with strict kinsoku rules; Korean keeps its words whole (it has spaces); Japanese headings break at phrase
+   boundaries where the browser can (auto-phrase), never mid-word in the nav (white-space: nowrap there). */
+:lang(ja), :lang(ko), :lang(zh) { letter-spacing: 0; }
+:where(:lang(ja), :lang(ko), :lang(zh)) { line-break: strict; }
+:lang(ja) .display, :lang(ko) .display, :lang(zh) .display { line-height: 1.25; letter-spacing: 0; }
+:lang(ja) :is(h1, h2, h3), :lang(ko) :is(h1, h2, h3), :lang(zh) :is(h1, h2, h3) { line-height: 1.35; letter-spacing: 0; }
+:where(:lang(ko)) { word-break: keep-all; }
+:lang(ja) :is(h1, h2, h3, .lead) { word-break: auto-phrase; }
+
 .skip { position: absolute; left: var(--loft-space-4); top: -100px; z-index: 100; padding: 10px 16px;
         background: var(--loft-surface); color: var(--loft-ink); border-radius: var(--loft-radius-sm); }
 .skip:focus { top: var(--loft-space-4); }
@@ -69,7 +104,32 @@ h3 { font: 600 clamp(1.15rem, 1.6vw, 1.4rem)/1.25 var(--loft-font-heading); lett
 .site-nav a[aria-current="page"] { background: var(--loft-bg-soft); box-shadow: inset 0 -2px 0 var(--loft-accent); }
 .nav-tools { display: flex; align-items: center; gap: var(--loft-space-2); padding-left: var(--loft-space-3);
              border-left: 1px solid var(--loft-line); }
-.site-nav .lang-switch { font-weight: 500; color: var(--loft-ink-soft); }
+/* Language picker: a <details> (works without JavaScript); a dropdown on wide screens, a list in the mobile menu. */
+.lang-picker { position: relative; }
+.lang-picker > summary { display: flex; align-items: center; gap: 6px; padding: 8px 12px; border-radius: var(--loft-radius-pill);
+                         font: 500 0.95rem/1.2 var(--loft-font-heading); color: var(--loft-ink-soft); white-space: nowrap;
+                         cursor: pointer; list-style: none; }
+.lang-picker > summary::-webkit-details-marker { display: none; }
+.lang-picker > summary::after { content: ""; width: 0.4em; height: 0.4em; margin: -0.25em 0 0 2px;
+                                border: solid currentColor; border-width: 0 1.5px 1.5px 0; transform: rotate(45deg); }
+.lang-picker[open] > summary::after { margin-top: 0.2em; transform: rotate(-135deg); }
+.lang-picker > summary:hover, .lang-picker[open] > summary { background: var(--loft-bg-soft); color: var(--loft-ink); }
+.lang-picker .i { width: 18px; height: 18px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.75;
+                  stroke-linecap: round; stroke-linejoin: round; }
+.site-nav .lang-list, .lang-list { position: absolute; top: calc(100% + 6px); right: 0; z-index: 60; display: block;
+            min-width: 13rem; max-height: calc(100vh - 96px); overflow-y: auto; padding: 6px;
+            background: var(--loft-surface); border: 1px solid var(--loft-line); border-radius: var(--loft-radius-md);
+            box-shadow: var(--loft-shadow-md); }
+.lang-list a, .lang-list button { display: block; width: 100%; padding: 9px 12px; border: 0; border-radius: var(--loft-radius-sm);
+            background: none; text-align: left; font: 500 0.95rem/1.3 var(--loft-font-heading); color: var(--loft-ink);
+            text-decoration: none; white-space: nowrap; cursor: pointer; }
+.site-nav .lang-list a { padding: 9px 12px; border-radius: var(--loft-radius-sm); font-weight: 500; color: var(--loft-ink); }
+.lang-list a:hover, .lang-list button:hover { background: var(--loft-bg-soft); }
+/* Menu breakpoint 1140px: the French, Spanish and Portuguese nav needs ~34px more than English at 1101px (checked 2026-10-30). Just above it the nav is tight: the picker shows only the globe (the name is still read out). */
+@media (min-width: 1141px) and (max-width: 1279px) {
+  .site-nav .lang-name { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+}
+.lang-list [aria-current="true"] { font-weight: 700; background: var(--loft-bg-soft); box-shadow: inset 3px 0 0 var(--loft-accent); }
 .theme-toggle { display: grid; place-items: center; width: 40px; height: 40px; padding: 0; border: 0;
                 border-radius: var(--loft-radius-pill); background: transparent; color: var(--loft-brand); cursor: pointer; }
 .theme-toggle:hover { background: var(--loft-bg-soft); }
@@ -82,7 +142,7 @@ h3 { font: 600 clamp(1.15rem, 1.6vw, 1.4rem)/1.25 var(--loft-font-heading); lett
 :root[data-theme-choice="dark"] .i-dark { display: block; }
 .menu-toggle { display: none; }
 
-@media (max-width: 1100px) {
+@media (max-width: 1140px) {
   .brand img { height: 28px; }
   .header-row { flex-wrap: wrap; min-height: 60px; gap: 0; }
   .js .menu-toggle { display: block; margin-left: auto; padding: 8px 16px; border: 1.5px solid var(--loft-line-strong);
@@ -90,11 +150,20 @@ h3 { font: 600 clamp(1.15rem, 1.6vw, 1.4rem)/1.25 var(--loft-font-heading); lett
                      font: 600 0.95rem/1.2 var(--loft-font-heading); cursor: pointer; }
   .js .site-nav { display: none; }
   .js.menu-open .site-nav { display: block; }
-  .site-nav { flex-basis: 100%; margin: 0; padding: var(--loft-space-2) 0 var(--loft-space-4); }
+  /* Without JavaScript the menu is always open: stacked the same way as the open menu (display: block) with it. */
+  .site-nav { flex-basis: 100%; flex-direction: column; align-items: stretch; gap: 0; margin: 0;
+              padding: var(--loft-space-2) 0 var(--loft-space-4); }
   .site-nav ul { flex-direction: column; }
   .site-nav a { padding: 12px 8px; border-radius: var(--loft-radius-sm); }
   .nav-tools { border-left: 0; padding: var(--loft-space-2) 0 0; margin-top: var(--loft-space-2);
-               border-top: 1px solid var(--loft-line); }
+               border-top: 1px solid var(--loft-line); align-items: flex-start; }
+  /* In the menu the picker opens in place: the languages as a grid under it, the theme button stays at the right. */
+  .site-nav .lang-picker { flex: 1; }
+  .site-nav .lang-picker > summary { display: inline-flex; padding: 10px 8px; }
+  .site-nav .lang-list { position: static; display: grid; grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr));
+                         gap: 2px; min-width: 0; max-height: none; padding: var(--loft-space-1) 0 0; border: 0;
+                         box-shadow: none; background: none; }
+  .site-nav .lang-list a { padding: 10px 8px; }
 }
 
 /* ---------------------------------------------------------------- hero
@@ -305,18 +374,22 @@ pre .copy { position: absolute; top: 11px; right: var(--loft-space-3);
 .sources ol { padding-left: 1.6em; list-style: decimal; font-size: 0.92rem; }
 .sources li { margin-bottom: var(--loft-space-2); }
 
-/* /pair: one page, both languages; site.js shows one */
-:root[data-lang-choice="en"] [data-lang="no"],
-:root[data-lang-choice="no"] [data-lang="en"] { display: none !important; }
-:root:not(.js) .lang-toggle { display: none; }
+/* /pair: one page, every language. Without JavaScript English shows and the others are <details> under it.
+   site.js picks one (data-lang-choice) and marks its blocks .is-current; until then nothing in a language shows. */
+:root[data-lang-choice] [data-lang]:not(.is-current) { display: none !important; }
+:root[data-lang-choice] .pair-copy > summary { display: none; }
+:root:not(.js) .pair-tools .lang-picker { display: none; }
 .pair-tools { margin-left: auto; border-left: 0; padding-left: 0; }
-.lang-toggle { padding: 8px 12px; border: 0; border-radius: var(--loft-radius-pill); background: transparent; cursor: pointer;
-               font: 500 0.95rem/1.2 var(--loft-font-heading); color: var(--loft-ink-soft); }
-.lang-toggle:hover { background: var(--loft-bg-soft); }
 .pair { padding-top: var(--loft-space-8); }
 .pair-icon { width: 96px; height: 96px; margin-bottom: var(--loft-space-6); border-radius: 22%; }
-.pair-copy + .pair-copy { margin-top: var(--loft-space-8); padding-top: var(--loft-space-8); border-top: 1px solid var(--loft-line); }
-:root[data-lang-choice] .pair-copy + .pair-copy { margin-top: 0; padding-top: 0; border-top: 0; }
+.pair-others { margin-top: var(--loft-space-8); border-top: 1px solid var(--loft-line); }
+.pair-others > .pair-copy { border-bottom: 1px solid var(--loft-line); }
+.pair-others > .pair-copy > summary { padding: var(--loft-space-3) 0; cursor: pointer;
+            font: 600 1.05rem/1.3 var(--loft-font-heading); color: var(--loft-ink); }
+.pair-others > .pair-copy[open] { padding-bottom: var(--loft-space-6); }
+.pair-others > .pair-copy[open] > summary { margin-bottom: var(--loft-space-4); }
+:root[data-lang-choice] .pair-others { margin-top: 0; border-top: 0; }
+:root[data-lang-choice] .pair-others > .pair-copy { border-bottom: 0; padding-bottom: 0; }
 .pair .smallprint { margin-top: var(--loft-space-6); max-width: 56ch; }
 .site-footer-min { padding-top: var(--loft-space-5); }
 .site-footer-min .footer-base { margin-top: 0; padding-top: 0; border-top: 0; background: none; }
@@ -367,4 +440,4 @@ pre .copy { position: absolute; top: 11px; right: var(--loft-space-3);
 
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; scroll-behavior: auto !important; } }
 /* /pair has no menu, so its tools stay in the header row on small screens too */
-@media (max-width: 1100px) { .pair-tools { border-top: 0; margin-top: 0; padding-top: 0; } .page-pair .header-row { flex-wrap: nowrap; } }
+@media (max-width: 1140px) { .pair-tools { border-top: 0; margin-top: 0; padding-top: 0; } .page-pair .header-row { flex-wrap: nowrap; } }

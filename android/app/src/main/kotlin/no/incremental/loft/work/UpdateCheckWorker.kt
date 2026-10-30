@@ -12,6 +12,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import no.incremental.loft.BuildConfig
 import no.incremental.loft.Loft
+import no.incremental.loft.Work
 import no.incremental.loft.core.HttpClients
 import no.incremental.loft.core.UpdateCheck
 import okhttp3.OkHttpClient
@@ -20,7 +21,7 @@ import okhttp3.Request
 class UpdateCheckWorker(ctx: Context, params: WorkerParameters) : CoroutineWorker(ctx, params) {
     override suspend fun doWork(): Result {
         val prefs = Loft.get(applicationContext).prefs
-        if (!prefs.updateCheck) return Result.success()
+        if (!Work.updateCheckAvailable || !prefs.updateCheck) return Result.success()
         val (url, http) = endpointForTests ?: (UpdateCheck.RELEASES_URL to HttpClients.base())
         val body = try {
             withContext(Dispatchers.IO) {

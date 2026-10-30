@@ -1,7 +1,8 @@
 # Loft for Android
 
 Kotlin + Jetpack Compose. `applicationId` `no.incremental.loft`, minSdk 26, targetSdk 36.
-Distributed as an APK from loft.incremental.no, not Google Play.
+Distributed two ways, from the same code and the same release key: on Google Play, and as an APK from
+loft.incremental.no. See *Distribution* below.
 
 - `core/`: plain Kotlin/JVM. Pairing payload (`docs/pairing.md`), SPKI pinning, route choice, the gateway API
   client (OkHttp), change feed, update-check parser. Tests run on any JDK.
@@ -53,6 +54,19 @@ Instrumented, on an arm64 API 35 emulator against `dev_server.py`, 24 tests:
 Not tested: decoding a QR code from the live camera. The scan screen opens and shows the emulator's camera
 (virtual scene), but its camera can't be pointed at a poster without the emulator window; the decoder the frames
 go through is tested on generated codes. App Link verification (needs `assetlinks.json` live on the website).
+
+## Distribution
+
+`-PloftDistribution=direct` (the default) is the website APK: it checks `loft.incremental.no/releases.json` once a day,
+with a switch in Settings. `-PloftDistribution=play` is the Google Play build: Play updates it, so it never schedules
+the check and Settings has no Updates section (`Work.updateCheckAvailable`). The value is in `BuildConfig.DISTRIBUTION`
+and in the manifest meta-data `no.incremental.loft.distribution`.
+
+    ./gradlew -PloftDistribution=play bundleRelease    # the AAB for Play
+    ./gradlew assembleRelease                           # the APK for the website
+
+Both are signed with the same Loft release key, which is also the Play App Signing key, so the two install over each
+other.
 
 ## Release signing
 

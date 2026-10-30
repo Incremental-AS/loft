@@ -38,9 +38,13 @@ jobs:
         run: apple/scripts/core-it.sh /opt/gw/bin/python
 
   core-macos:
-    runs-on: macos-26
+    # macos-latest, not a pinned image: no macos-26 hosted runner was ever assigned to this repo
+    # (every job waited 15 minutes and was cancelled).
+    runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
+      - name: macOS and Xcode on this runner
+        run: sw_vers && xcodebuild -version
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
@@ -52,7 +56,7 @@ jobs:
         run: apple/scripts/core-it.sh "$RUNNER_TEMP/gw/bin/python"
 
   build:
-    runs-on: macos-26
+    runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
       - name: XcodeGen

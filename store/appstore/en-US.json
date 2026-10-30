@@ -1,0 +1,12 @@
+{
+  "_note": "App Store listing text for Loft, English. Change the words in the brand kit's store copy first, then here; the other languages are generated from en-US.json by tools/i18n/loft_i18n.py.",
+  "name": "Loft by Incremental",
+  "subtitle": "Your files, kept at home",
+  "promotional_text": "The NAS at home, in your pocket. Browse the archive, stream video without downloading it all, save from any app and send photos straight home. Not the cloud. The loft.",
+  "description": "Loft puts the NAS at home on your iPhone. Your files stay on your own NAS, and Loft opens them wherever you are.\n\n• Browse the whole archive, folder by folder.\n• Open and preview documents, photos and PDFs.\n• Stream video and audio straight from home, without downloading the whole file first.\n• Find Loft in the Files app, so Save to Files › Loft works from any app.\n• Save to Loft from the share sheet in any app, and pick the folder it goes in.\n• Take photos in Loft that go straight to a folder on the NAS. They are not saved to your photo library.\n\nYour first sign-in has to happen on your home network, so your NAS password never travels over the internet. After that, Loft works from anywhere.\n\nLoft works with a NAS behind a Loft gateway, set up by the NAS owner. Without one there is nothing to sign in to. Loft has no ads, no tracking and no analytics, and it collects nothing.\n\nNot the cloud. The loft.",
+  "keywords": "nas,files,home,storage,archive,stream,video,photos,camera,share,documents,private,folders,network",
+  "whats_new": "The first version of Loft for iPhone. Browse the NAS, stream video and audio, save to Loft from any app, and take photos that go straight home.",
+  "support_url": "https://www.incremental.no/loft/support/",
+  "privacy_policy_url": "https://www.incremental.no/loft/privacy/",
+  "marketing_url": ""
+}

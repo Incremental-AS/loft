@@ -20,7 +20,7 @@
     <string name="pair_manual_pin">Key fingerprint</string>
     <string name="pair_manual_name">Name (optional)</string>
     <string name="pair_replace_title">Pair with “%1$s”?</string>
-    <string name="pair_replace_body">This phone is paired with %1$s. Pairing with another gateway signs you out of that one.</string>
+    <string name="pair_replace_body">This phone is paired with %1$s. If you pair with another gateway, you\'ll be signed out of %1$s.</string>
     <string name="pair_replace_confirm">Pair</string>
     <string name="pair_continue">Continue</string>
     <string name="pair_scan_title">Scan the pairing code</string>

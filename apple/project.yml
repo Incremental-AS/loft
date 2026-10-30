@@ -17,7 +17,7 @@ settings:
   base:
     DEVELOPMENT_TEAM: 5A3JX4D37B
     MARKETING_VERSION: 0.2.0
-    CURRENT_PROJECT_VERSION: 11         # Mac and iPhone share the build counter
+    CURRENT_PROJECT_VERSION: 12         # Mac and iPhone share the build counter
     ARCHS: "arm64 x86_64"          # one universal dmg
     ONLY_ACTIVE_ARCH: NO
     ENABLE_HARDENED_RUNTIME: YES
@@ -177,7 +177,7 @@ targets:
     platform: iOS
     sources:
       - path: FileProvider
-        excludes: ["Info.plist", "*.entitlements"]   # the Mac extension's
+        excludes: ["Info.plist", "*.entitlements", "*.lproj"]   # the Mac extension's (its lproj = Mac InfoPlist.strings)
       - path: iOS/FileProviderStrings                # en/nb InfoPlist.strings
     info:
       path: iOS/FileProviderInfo.plist

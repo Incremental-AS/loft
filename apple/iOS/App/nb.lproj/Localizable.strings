@@ -29,7 +29,7 @@
 "No outside address: Loft works on the home network only." = "Ingen adresse utenfra: Loft virker bare på hjemmenettet.";
 "Away from home, Loft connects straight to the gateway and checks its keys every time." = "Borte kobler Loft seg rett til gatewayen og sjekker nøklene dens hver gang.";
 "Away from home, Loft goes through a tunnel. Sign in at home first." = "Borte går Loft gjennom en tunnel. Logg inn hjemme først.";
-"This iPhone is paired with %@. Pairing with another gateway signs you out of that one." = "Denne iPhonen er paret med %@. Parer du med en annen gateway, blir du logget ut av den du har nå.";
+"This iPhone is paired with %@. If you pair with another gateway, you'll be signed out of %@." = "Denne iPhonen er paret med %@. Parer du med en annen gateway, blir du logget ut av %@.";
 "Pair" = "Par";
 
 /* Sign-in and account screens: the gateway line */
@@ -50,7 +50,7 @@
 /* Sign-in errors (PhoneCopy): same wording as Mac, Android and Windows */
 "You're not at home right now. Connect to the home network for the first sign-in. After that, Loft works from anywhere." = "Du er ikke hjemme nå. Koble til hjemmenettet for den første innloggingen. Etter det virker Loft hvor som helst.";
 "That username and password didn't work on the NAS. Check them and try again." = "Brukernavnet og passordet virket ikke på NAS-en. Sjekk dem og prøv igjen.";
-"This account can't use Loft." = "Denne kontoen kan ikke bruke Loft.";
+"This gateway doesn't allow that account. Sign in with your own NAS account." = "Denne gatewayen tillater ikke den kontoen. Logg inn med din egen konto på NAS-en.";
 "Too many tries. Wait 15 minutes, then try again." = "For mange forsøk. Vent 15 minutter før du prøver igjen.";
 "Loft can't reach the NAS right now. Try again in a moment." = "Loft får ikke kontakt med NAS-en akkurat nå. Prøv igjen om litt.";
 "Sign-in didn't work. Try again." = "Innloggingen virket ikke. Prøv igjen.";

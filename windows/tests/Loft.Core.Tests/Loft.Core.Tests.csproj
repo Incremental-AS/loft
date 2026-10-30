@@ -12,4 +12,12 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\Loft.Core\Loft.Core.csproj" />
   </ItemGroup>
+  <!-- The app's UI strings, tested here on Linux: Loft.App itself is WinUI and builds only on Windows,
+       but S and its catalog machinery are platform-neutral, so they're compiled in with the same
+       embedded catalogs (same wildcard and resource names as Loft.App.csproj). -->
+  <ItemGroup>
+    <Compile Include="..\..\src\Loft.App\Strings.cs" Link="App\Strings.cs" />
+    <Compile Include="..\..\src\Loft.App\Localization.cs" Link="App\Localization.cs" />
+    <EmbeddedResource Include="..\..\src\Loft.App\Strings\*.json" LogicalName="Loft.Strings.%(Filename)%(Extension)" WithCulture="false" Link="App\Strings\%(Filename)%(Extension)" />
+  </ItemGroup>
 </Project>

@@ -153,7 +153,7 @@ struct ConfirmPairView: View {
                     }
                     if let cur = model.pairing, !model.isSameGateway(p) {
                         Section {
-                            Label("This iPhone is paired with \(cur.name). Pairing with another gateway signs you out of that one.",
+                            Label("This iPhone is paired with \(cur.name). If you pair with another gateway, you'll be signed out of \(cur.name).",
                                   systemImage: "exclamationmark.triangle")
                                 .foregroundStyle(.orange)
                         }

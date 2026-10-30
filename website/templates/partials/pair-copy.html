@@ -1,0 +1,10 @@
+{{#if pair_first}}<div class="pair-copy" data-lang="{{html_lang}}" lang="{{html_lang}}">{{/if}}{{#unless pair_first}}<details class="pair-copy" data-lang="{{html_lang}}" lang="{{html_lang}}">
+  <summary>{{lang_name}}</summary>{{/unless}}
+      <h1 class="display">{{page.h1}}</h1>
+      <p class="lead">{{page.text}}</p>
+      <p class="actions">
+        <a class="btn btn-primary" href="{{link:download}}">{{page.download}}</a>
+        <a class="btn btn-secondary" href="{{link:home}}">{{page.what}}</a>
+      </p>
+      <p class="smallprint">{{page.smallprint}}</p>
+{{#if pair_first}}</div>{{/if}}{{#unless pair_first}}</details>{{/unless}}

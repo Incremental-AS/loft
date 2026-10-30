@@ -1,4 +1,4 @@
-/* Loft site: theme choice, mobile menu, copy buttons, and the language on /pair. No tracking, no cookies, no network.
+/* Loft site: theme choice, mobile menu, copy buttons, the language picker, and the language on /pair. No tracking, no cookies, no network.
    /pair carries the pairing details in its URL fragment: nothing here reads location.hash, and it must stay that way. */
 (function () {
   var KEY = "loft-theme";              // "light" | "dark"; absent = follow the system
@@ -42,30 +42,77 @@
   if (choice !== "system") root.setAttribute("data-theme", choice);
   root.setAttribute("data-theme-choice", choice);
 
-  // /pair has no language prefix, so it carries both languages ([data-lang]) and shows the one the browser
-  // asks for: Norwegian for nb, nn and no, English otherwise. Without JavaScript both show, English first.
+  // /pair has no language prefix, so it carries every language (<html data-langs="en nb de ...">, blocks marked
+  // data-lang) and shows the best match for the browser's languages, English if none match. Without JavaScript,
+  // English shows and the other languages are <details> to open.
+  var langs = (root.getAttribute("data-langs") || "").split(" ").filter(Boolean);
+  function primary(tag) {
+    var p = tag.toLowerCase().split("-")[0];
+    return p === "nn" || p === "no" ? "nb" : p;       // Norwegian: the one written form we have is bokmål
+  }
+  function bestLang(wanted) {
+    for (var i = 0; i < wanted.length; i++) {
+      var w = String(wanted[i] || "").replace(/_/g, "-").toLowerCase();
+      if (!w) continue;
+      for (var j = 0; j < langs.length; j++) if (langs[j].toLowerCase() === w) return langs[j];
+      for (j = 0; j < langs.length; j++) if (primary(langs[j]) === primary(w)) return langs[j];
+    }
+    return "en";
+  }
   function setLang(l) {
     root.setAttribute("data-lang-choice", l);
-    root.lang = l === "no" ? "nb" : "en";
-    var t = document.body && document.body.getAttribute("data-title-" + l);
+    root.lang = l;
+    if (!document.body) return;           // before the body exists the CSS hides every block (.js [data-lang])
+    var blocks = document.querySelectorAll("[data-lang]");
+    for (var i = 0; i < blocks.length; i++) {
+      var on = blocks[i].getAttribute("data-lang") === l;
+      blocks[i].classList.toggle("is-current", on);
+      blocks[i].hidden = !on;
+      if (on && blocks[i].tagName === "DETAILS") blocks[i].open = true;
+    }
+    var choices = document.querySelectorAll(".lang-choice");
+    for (i = 0; i < choices.length; i++) {
+      if (choices[i].getAttribute("data-to") === l) {
+        choices[i].setAttribute("aria-current", "true");
+        var cur = document.querySelector(".lang-current");
+        if (cur) { cur.textContent = choices[i].textContent; cur.lang = l; }
+      } else choices[i].removeAttribute("aria-current");
+    }
+    var t = document.body.getAttribute("data-title-" + l);
     if (t) document.title = t;
   }
-  var bilingual = root.hasAttribute("data-bilingual");
-  if (bilingual) setLang(/^(nb|nn|no)(-|_|$)/i.test(navigator.language || "") ? "no" : "en");
+  var multilingual = langs.length > 1;
+  if (multilingual) setLang(bestLang(navigator.languages && navigator.languages.length ? navigator.languages : [navigator.language]));
+
+  // The language picker is a <details>: it works without JavaScript; this only closes it on Escape or a click outside.
+  function closePickers(except, focus) {
+    var open = document.querySelectorAll("details.lang-picker[open]");
+    for (var i = 0; i < open.length; i++) {
+      if (open[i] === except) continue;
+      open[i].open = false;
+      if (focus) open[i].querySelector("summary").focus();
+    }
+  }
 
   document.addEventListener("DOMContentLoaded", function () {
     apply(choice);
 
-    if (bilingual) {
+    if (multilingual) {
       setLang(root.getAttribute("data-lang-choice"));
-      var toggles = document.querySelectorAll(".lang-toggle");
-      for (var t = 0; t < toggles.length; t++) toggles[t].addEventListener("click", function (e) {
-        var to = e.currentTarget.getAttribute("data-to");
-        setLang(to);
-        var next = document.querySelector('.lang-toggle[data-lang="' + to + '"]');
-        if (next) next.focus();
+      var choices = document.querySelectorAll(".lang-choice");
+      for (var c = 0; c < choices.length; c++) choices[c].addEventListener("click", function (e) {
+        setLang(e.currentTarget.getAttribute("data-to"));
+        closePickers(null, true);
       });
     }
+
+    document.addEventListener("click", function (e) {
+      var inside = e.target.closest ? e.target.closest("details.lang-picker") : null;
+      closePickers(inside, false);
+    });
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape") closePickers(null, true);
+    });
 
     var btn = document.querySelector(".theme-toggle");
     if (btn) btn.addEventListener("click", function () {

@@ -69,8 +69,9 @@ enum Copy {
     static let signIn = "Sign in"
     static let notAtHome = String(localized: "You're not at home right now. Connect to the home network for the first sign-in. After that, Loft works from anywhere.")
     static let wrongPassword = String(localized: "That username and password didn't work on the NAS. Check them and try again.")
-    /// Gateway 403 account_not_allowed: one of the NAS's own system accounts (denied_users_re).
-    static let accountNotAllowed = String(localized: "Loft can't use the NAS's built-in accounts, like admin. Sign in with your own NAS account.")
+    /// Gateway 403 account_not_allowed: the owner's allowed_users_re / denied_users_re refused this account
+    /// (by default only guest). Don't name admin here: the gateway allows it unless the owner denies it.
+    static let accountNotAllowed = String(localized: "This gateway doesn't allow that account. Sign in with your own NAS account.")
 
     static let pickFolderTitle = "Choose your Loft folder"
     static let pickFolderBody = "This folder on the NAS becomes Loft in Finder. You can change it later in Settings."
@@ -139,7 +140,7 @@ enum Copy {
     static func awayTunnel(_ host: String) -> String { String(localized: "Away from home: \(host), through a tunnel. Sign in at home first.") }
     static func awayDirect(_ host: String) -> String { String(localized: "Away from home: \(host), straight to the gateway.") }
     static let homeOnly = String(localized: "Away from home: not set up. Loft works on the home network only.")
-    static func replacesGateway(_ name: String) -> String { String(localized: "This Mac is paired with \(name). Pairing with another gateway signs you out of that one.") }
+    static func replacesGateway(_ name: String) -> String { String(localized: "This Mac is paired with \(name). If you pair with another gateway, you'll be signed out of \(name).") }
     static let pair = String(localized: "Pair")
     static let pairEllipsis = String(localized: "Pair with your gateway…")
     static let pairAnother = String(localized: "Pair with another gateway…")
