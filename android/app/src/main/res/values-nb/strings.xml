@@ -72,7 +72,7 @@
     <string name="share">Del</string>
     <string name="rename">Gi nytt navn</string>
     <string name="delete">Slett</string>
-    <string name="delete_confirm">Slette «%1$s»? Den havner i papirkurven på gatewayen og blir liggende der i 30 dager.</string>
+    <string name="delete_confirm">Slette «%1$s»? Den havner i papirkurven på NAS-en og blir liggende der i 30 dager.</string>
     <string name="cancel">Avbryt</string>
     <string name="create">Opprett</string>
     <string name="more">Mer</string>

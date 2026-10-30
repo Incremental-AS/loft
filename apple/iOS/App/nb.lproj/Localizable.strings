@@ -10,7 +10,7 @@
 "On the gateway, run loft-gateway pair. Scan the QR code it shows, or open its link on this iPhone. The code carries the gateway's address and its keys, so Loft talks to your gateway from the very first connection." = "Kjør loft-gateway pair på gatewayen. Skann QR-koden den viser, eller åpne lenken på denne iPhonen. Koden inneholder gatewayens adresse og nøkler, så Loft snakker med din gateway fra aller første tilkobling.";
 "Scan QR code" = "Skann QR-kode";
 "Pairing link" = "Paringslenke";
-"Everything after the # stays on this iPhone." = "Alt etter # blir værende på denne iPhonen.";
+"Everything after the # stays on this iPhone." = "Alt etter # blir på denne iPhonen.";
 "Continue" = "Fortsett";
 "Set up manually" = "Sett opp manuelt";
 "Cancel" = "Avbryt";
@@ -69,7 +69,7 @@
 "Move “%@” to the Loft trash?" = "Flytte «%@» til papirkurven i Loft?";
 "Move to trash" = "Flytt til papirkurven";
 "It stays in the trash on the NAS for 30 days." = "Den blir liggende i papirkurven på NAS-en i 30 dager.";
-"Can't reach Loft. Pull down to try again." = "Får ikke kontakt med Loft. Dra ned for å prøve igjen.";
+"Can't reach home. Pull down to try again." = "Får ikke kontakt med hjemmenettet. Dra ned for å prøve igjen.";
 "Couldn't create the folder." = "Kunne ikke opprette mappen.";
 "Couldn't move it to the trash." = "Kunne ikke flytte den til papirkurven.";
 "Couldn't open “%@”" = "Kunne ikke åpne «%@»";
@@ -82,13 +82,13 @@
 "Account" = "Konto";
 "Signed in as" = "Logget inn som";
 "Connection" = "Tilkobling";
-"Loft is also in the Files app, and in the share sheet of other apps." = "Loft finnes også i Filer-appen og i delingsarket i andre apper.";
+"Loft is also in the Files app, and in the share sheet of other apps." = "Loft finnes også i Filer-appen og under Del i andre apper.";
 "Sign out" = "Logg ut";
 "Sign out of Loft on this iPhone?" = "Logge ut av Loft på denne iPhonen?";
 "Done" = "Ferdig";
 
 /* Sign-in screen (SignInView) */
-"Your NAS, on your iPhone" = "NAS-en din, på iPhonen";
+"Your NAS, on your iPhone" = "NAS-en din på iPhonen";
 "Use the username and password you already have on the NAS. Sign in at home the first time, so your password never passes through anyone else's servers. After that, Loft works from anywhere." = "Bruk brukernavnet og passordet du allerede har på NAS-en. Logg inn hjemme første gang, så passordet ditt aldri går via andres servere. Etter det virker Loft hvor som helst.";
 "Sign-in code" = "Innloggingskode";
 "A sign-in code is made on the home network for a specific account." = "En innloggingskode lages på hjemmenettet for én bestemt konto.";
@@ -104,7 +104,7 @@
 "Shares" = "Delte mapper";
 "No shares." = "Ingen delte mapper.";
 "No folders inside." = "Ingen mapper her.";
-"Can't reach Loft." = "Får ikke kontakt med Loft.";
+"Can't reach home." = "Får ikke kontakt med hjemmenettet.";
 "Couldn't save. Tap to try again." = "Kunne ikke lagre. Trykk for å prøve igjen.";
 "Open Loft and sign in first." = "Åpne Loft og logg inn først.";
 "Save to Loft" = "Lagre i Loft";

@@ -107,7 +107,7 @@ struct FolderView: View {
             }
             error = nil
         } catch {
-            self.error = String(localized: "Can't reach Loft. Pull down to try again.")
+            self.error = String(localized: "Can't reach home. Pull down to try again.")
         }
         loaded = true
     }

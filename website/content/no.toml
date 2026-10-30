@@ -82,11 +82,13 @@ href = "{DOWNLOAD_URL}"
 id = "android"
 name = "Android"
 shows = "Filer-appen og systemets filvelger, og i delingsmenyen"
-get = "Last ned (APK fra dette nettstedet) (kommer snart)"
+get = "Google Play, eller APK fra dette nettstedet (kommer snart)"
 coming_soon = true
 detail = "Loft legger NAS-en i Filer-appen og systemets filvelger, legger Loft til i delingsmenyen og kan laste opp bilder rett til en mappe på NAS-en."
 version = "versjon {VERSION}"
-note = "<em>Hvorfor ikke Google Play?</em> Vi publiserer Loft for Android her, som en APK signert av Incremental. Første gang ber Android deg tillate installering fra nettleseren. Appen sjekker dette nettstedet for oppdateringer."
+# Vises i stedet for note mens kortet er «Kommer snart»: Forsidens Android-linje lenker hit.
+soon_note = "<em>Google Play eller APK?</em> Loft for Android kommer på Google Play, og her som en APK for telefoner uten Google Play. Begge er samme app, signert av Incremental. APK-en sjekker dette nettstedet for oppdateringer."
+note = "<em>Google Play eller APK?</em> Loft for Android ligger på Google Play, og her som en APK for telefoner uten Google Play. Begge er samme app, signert av Incremental. Første gang du installerer APK-en, ber Android deg tillate installering fra nettleseren, og APK-en sjekker dette nettstedet for oppdateringer."
 sha256 = "{SHA256}"
 [[platforms.downloads]]
 label = "Last ned for Android (.apk)"
@@ -174,14 +176,14 @@ body = "<p>Loft kopierer ikke filene dine til en server et annet sted. De ligger
 
 [home.open]
 title = "Gratis, og koden er åpen"
-body = "<p>Loft koster ingenting. Gatewayen og alle appene er åpen kildekode under lisensen Apache-2.0: Du kan lese koden, bygge den selv og endre den. Koden legges ut på GitHub med den første utgivelsen. → <a href=\"/no/source/\">Kildekode</a></p>"
+body = "<p>Loft koster ingenting. Gatewayen og alle appene er åpen kildekode under lisensen Apache-2.0: Du kan lese koden, bygge den selv og endre den. → <a href=\"https://github.com/Incremental-AS/loft\">Kildekoden på github.com/Incremental-AS/loft</a></p>"
 smallprint = "Navnet «Loft by Incremental» og ikonet er ikke en del av lisensen. Lager du en egen versjon, gi den et eget navn."
 
 [home.platforms]
 title = "Fem apper og én gateway"
 col_shows = "Dukker opp i"
 col_get = "Slik får du den"
-after = "Android-appen lastes ned her, ikke fra Google Play. → <a href=\"/no/download/#android\">Hvorfor, og hvordan du installerer den</a>"
+after = "Android-appen kommer på Google Play, og som APK fra dette nettstedet. → <a href=\"/no/download/#android\">Hvilken du bør velge</a>"
 
 [home.how]
 title = "Tre steg"
@@ -426,7 +428,7 @@ needs = "FUSE. Statusikon der skrivebordsmiljøet støtter det"
 
 [pages.compatibility.tell]
 title = "Fortell oss"
-body = "<p>Har du testet Loft med noe som ikke står her? Send en e-post til <strong>hello@incremental.no</strong> med utdataene fra <code>loft-gateway doctor</code>.</p><p>Fjern det som er privat først: Adresser, navn på delte mapper og brukernavn.</p>"
+body = "<p>Har du testet Loft med noe som ikke står her? Opprett en sak på <a href=\"https://github.com/Incremental-AS/loft/issues\">github.com/Incremental-AS/loft</a> med utdataene fra <code>loft-gateway doctor</code>.</p><p>Fjern det som er privat først: Adresser, navn på delte mapper og brukernavn.</p>"
 
 # ---------------------------------------------------------------- personvern, brukerstøtte, sikkerhet, kildekode
 
@@ -450,7 +452,7 @@ body = "<p>Appene for Mac, Android, Windows og Linux sjekker <code>loft.incremen
 [[pages.privacy.sections]]
 title = "Dette nettstedet"
 # Forutsetter driftsplanen: en Cloudflare Worker, nedlastinger fra GitHub Releases. Oppdater dette om det endres.
-body = "<p>Ingen informasjonskapsler, ingen analyse, ingen sporing, ingen fonter eller skript fra andre. Valget mellom lyst og mørkt lagres i din egen nettleser og sendes ingen steder. Nettstedet leveres av Cloudflare, og nedlastingene kommer fra GitHub. Som alle vertstjenester ser de IP-adressen din og hvilken fil du ba om. Vi legger ingenting til.</p>"
+body = "<p>Ingen informasjonskapsler, ingen analyse, ingen sporing, ingen fonter eller skript fra andre. Valget mellom lyst og mørkt lagres i din egen nettleser og sendes ingen steder. Nettstedet leveres av Cloudflare, og nedlastingene skal komme fra GitHub. Som alle vertstjenester ser de IP-adressen din og hvilken fil du ba om. Vi legger ingenting til.</p>"
 [[pages.privacy.sections]]
 title = "Paringslenker"
 body = "<p>Paringsdetaljene i en lenke står etter <code>#</code>, og den delen sender nettlesere aldri til en server. Siden <code>/pair</code> leser den heller ikke.</p>"
@@ -477,7 +479,7 @@ body = '''<ul>
 </ul>'''
 [[pages.support.sections]]
 title = "Meld fra om feil"
-body = '''<p>Send en e-post til <strong>hello@incremental.no</strong>. Skriv hvilken app og versjon, hvilken NAS, og lim inn det <code>loft-gateway doctor</code> skriver ut.</p>
+body = '''<p>Opprett en sak på <a href="https://github.com/Incremental-AS/loft/issues">github.com/Incremental-AS/loft</a>. Skriv hvilken app og versjon, hvilken NAS, og lim inn det <code>loft-gateway doctor</code> skriver ut.</p>
 <p>Fjern alt privat fra utskriften først: Adresser, navn på delte mapper og brukernavn.</p>'''
 [[pages.support.sections]]
 title = "Sikkerhetsproblemer"
@@ -512,10 +514,12 @@ body = '''<ul>
 
 [pages.source]
 title = "Kildekode · Loft by Incremental"
-description = "Loft er åpen kildekode under Apache-2.0-lisensen. Gatewayen, alle appene og dette nettstedet legges ut på GitHub med den første utgivelsen."
+description = "Loft er åpen kildekode under Apache-2.0-lisensen. Gatewayen, alle appene og dette nettstedet ligger på GitHub."
 kicker = "Kildekode"
 h1 = "Les hver eneste linje."
-lead = "Gatewayen, alle fem appene og dette nettstedet er åpen kildekode under Apache-2.0-lisensen. Kodelageret blir offentlig på GitHub med den første utgivelsen."
+lead = "Gatewayen, alle fem appene og dette nettstedet er åpen kildekode under Apache-2.0-lisensen."
+button = "github.com/Incremental-AS/loft"
+button_href = "https://github.com/Incremental-AS/loft"
 [[pages.source.sections]]
 title = "Dette ligger i kodelageret"
 body = '''<ul>

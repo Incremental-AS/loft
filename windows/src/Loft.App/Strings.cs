@@ -112,7 +112,7 @@ public static class S
     public static string GatewayHeading => T("Gateway", "Gateway");
     public static string LanAddress(string a) => T($"At home: {a}", $"Hjemme: {a}");
     public static string OutsideAddress(string a, PublicMode m) => m == PublicMode.Direct
-        ? T($"Away: {a} (direct to the gateway)", $"Borte: {a} (rett til gatewayen)")
+        ? T($"Away: {a} (straight to the gateway)", $"Borte: {a} (rett til gatewayen)")
         : T($"Away: {a} (through a tunnel)", $"Borte: {a} (gjennom en tunnel)");
     public static string HomeOnly => T("Away: not set up (home network only)", "Borte: Ikke satt opp (bare hjemmenettet)");
     public static string ForgetGateway => T("Forget this gateway", "Glem denne gatewayen");

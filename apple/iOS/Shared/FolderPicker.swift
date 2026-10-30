@@ -62,7 +62,7 @@ struct PickerLevelList: View {
                     }
                 }
             } else if failed {
-                Text("Can't reach Loft.").foregroundStyle(.secondary)
+                Text("Can't reach home.").foregroundStyle(.secondary)
             } else {
                 ProgressView()
             }

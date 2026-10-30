@@ -13,7 +13,7 @@
         {{/if}}
         {{#if it.version}}<p class="dl-version">{{it.version}}</p>{{/if}}
         {{/unless}}
-        {{#if it.coming_soon}}<p class="dl-soon"><strong>{{ui.coming_soon}}</strong></p>{{/if}}
+        {{#if it.coming_soon}}<p class="dl-soon"><strong>{{ui.coming_soon}}</strong></p>{{#if it.soon_note}}<p class="note">{{it.soon_note}}</p>{{/if}}{{/if}}
         {{#unless it.coming_soon}}
         {{#if it.after}}<p>{{it.after}}</p>{{/if}}
         {{#if it.note}}<p class="note">{{it.note}}</p>{{/if}}

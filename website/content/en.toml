@@ -6,9 +6,8 @@
 
 # build.py --release refuses while this list has entries. Each is copy that reads finished but isn't true yet.
 [release]
-# Pre-launch (2026-10-30): every download is coming_soon and the GitHub links are out while the repo is private.
-# When the repo goes public, put back: the Source button + Releases link, the GitHub issue links on Compatibility
-# and Support, and the link on the home page (git log -S "Incremental-AS/loft/issues" content/).
+# Pre-launch (2026-10-30): every download is coming_soon. The repo is public (since 2026-10-30), so the GitHub
+# links are back; the Releases link on Source comes back with the first release.
 hold = []
 
 [site]
@@ -91,11 +90,13 @@ href = "{DOWNLOAD_URL}"
 id = "android"
 name = "Android"
 shows = "the Files app and the system file picker, plus a share target"
-get = "Download (APK from this site) (coming soon)"
+get = "Google Play, or an APK from this site (coming soon)"
 coming_soon = true
 detail = "Loft puts your NAS in the Files app and the system file picker, adds Loft to the share menu, and can upload photos straight to a folder on the NAS."
 version = "version {VERSION}"
-note = "<em>Why not Google Play?</em> We publish Loft for Android here, as an APK, signed by Incremental. Android will ask you to allow installs from your browser the first time. The app checks this site for updates."
+note = "<em>Google Play or APK?</em> Loft for Android is on Google Play, and here as an APK for phones without Google Play. Both are the same app, signed by Incremental. The first time you install the APK, Android asks you to allow installs from your browser, and the APK checks this site for updates."
+# Shown instead of note while coming_soon: Home's Android line links to this card.
+soon_note = "<em>Google Play or APK?</em> Loft for Android will be on Google Play, and here as an APK for phones without Google Play. Both are the same app, signed by Incremental. The APK checks this site for updates."
 sha256 = "{SHA256}"
 [[platforms.downloads]]
 label = "Download for Android (.apk)"
@@ -183,14 +184,14 @@ body = "<p>Loft doesn't copy your files to a server somewhere. They stay on your
 
 [home.open]
 title = "Free, and the code is public"
-body = "<p>Loft costs nothing. The gateway and every app are open source under the Apache-2.0 licence, so you can read the code, build it yourself and change it. The code goes up on GitHub with the first release. → <a href=\"/source/\">Source</a></p>"
+body = "<p>Loft costs nothing. The gateway and every app are open source under the Apache-2.0 licence, so you can read the code, build it yourself and change it. → <a href=\"https://github.com/Incremental-AS/loft\">Source on github.com/Incremental-AS/loft</a></p>"
 smallprint = "The name “Loft by Incremental” and the icon are not part of the licence. If you ship a fork, give it its own name."
 
 [home.platforms]
 title = "Five apps and one gateway"
 col_shows = "Shows up in"
 col_get = "Get it"
-after = "Android comes from this site, not Google Play. → <a href=\"/download/#android\">Why, and how to install it</a>"
+after = "Android will be on Google Play, and as an APK from this site. → <a href=\"/download/#android\">Which one to choose</a>"
 
 [home.how]
 title = "Three steps"
@@ -436,7 +437,7 @@ needs = "FUSE. A tray icon where your desktop supports one"
 
 [pages.compatibility.tell]
 title = "Tell us"
-body = "<p>Tested Loft with something that isn't here? Write to <strong>hello@incremental.no</strong> with the output of <code>loft-gateway doctor</code>.</p><p>Remove anything private from the output first: addresses, share names and user names.</p>"
+body = "<p>Tested Loft with something that isn't here? Open an issue on <a href=\"https://github.com/Incremental-AS/loft/issues\">github.com/Incremental-AS/loft</a> with the output of <code>loft-gateway doctor</code>.</p><p>Remove anything private from the output first: addresses, share names and user names.</p>"
 
 # ---------------------------------------------------------------- privacy, support, security, source
 
@@ -460,7 +461,7 @@ body = "<p>The Mac, Android, Windows and Linux apps check <code>loft.incremental
 [[pages.privacy.sections]]
 title = "This website"
 # Assumes the hosting plan: a Cloudflare Worker, downloads from GitHub Releases. Update this if that changes.
-body = "<p>No cookies, no analytics, no tracking, no fonts or scripts from anyone else. The light/dark setting is stored in your own browser and never sent anywhere. The site is served by Cloudflare, and app downloads come from GitHub. Like any host, they see your IP address and which file you asked for. We add nothing on top.</p>"
+body = "<p>No cookies, no analytics, no tracking, no fonts or scripts from anyone else. The light/dark setting is stored in your own browser and never sent anywhere. The site is served by Cloudflare, and app downloads will come from GitHub. Like any host, they see your IP address and which file you asked for. We add nothing on top.</p>"
 [[pages.privacy.sections]]
 title = "Pairing links"
 body = "<p>The pairing details in a link stay after the <code>#</code>, and browsers never send that part to a server. The <code>/pair</code> page doesn't read it either.</p>"
@@ -487,7 +488,7 @@ body = '''<ul>
 </ul>'''
 [[pages.support.sections]]
 title = "Report a problem"
-body = '''<p>Write to <strong>hello@incremental.no</strong>. Say which app and version, which NAS, and paste the output of <code>loft-gateway doctor</code>.</p>
+body = '''<p>Open an issue on <a href="https://github.com/Incremental-AS/loft/issues">github.com/Incremental-AS/loft</a>. Say which app and version, which NAS, and paste the output of <code>loft-gateway doctor</code>.</p>
 <p>Remove anything private from the output first: addresses, share names and user names.</p>'''
 [[pages.support.sections]]
 title = "Security problems"
@@ -522,10 +523,12 @@ body = '''<ul>
 
 [pages.source]
 title = "Source · Loft by Incremental"
-description = "Loft is open source under the Apache-2.0 licence. The gateway, every app and this website go on GitHub with the first release."
+description = "Loft is open source under the Apache-2.0 licence. The gateway, every app and this website are on GitHub."
 kicker = "Source"
 h1 = "Read every line."
-lead = "The gateway, all five apps and this website are open source under the Apache-2.0 licence. The repository goes public on GitHub with the first release."
+lead = "The gateway, all five apps and this website are open source under the Apache-2.0 licence."
+button = "github.com/Incremental-AS/loft"
+button_href = "https://github.com/Incremental-AS/loft"
 [[pages.source.sections]]
 title = "What's in the repository"
 body = '''<ul>

@@ -76,7 +76,7 @@
     <string name="share">Share</string>
     <string name="rename">Rename</string>
     <string name="delete">Delete</string>
-    <string name="delete_confirm">Delete “%1$s”? It goes to the gateway\'s trash for 30 days.</string>
+    <string name="delete_confirm">Delete “%1$s”? It goes to the trash on the NAS for 30 days.</string>
     <string name="cancel">Cancel</string>
     <string name="create">Create</string>
     <string name="more">More</string>
