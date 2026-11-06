@@ -14,7 +14,7 @@ import time
 from contextlib import contextmanager
 from pathlib import Path
 
-SCHEMA_VERSION = 1
+SCHEMA_VERSION = 3
 
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS meta (k TEXT PRIMARY KEY, v TEXT NOT NULL);
@@ -33,9 +33,29 @@ CREATE TABLE IF NOT EXISTS devices (
   last_used_at REAL,
   last_ip TEXT,
   expires_at REAL NOT NULL,
-  revoked_at REAL
+  revoked_at REAL,
+  kind TEXT NOT NULL DEFAULT 'app',   -- 'app' (Loft apps, REST API) or 'mcp' (an assistant, /mcp only)
+  read_only INTEGER NOT NULL DEFAULT 0,
+  -- An assistant signed in with OAuth (oauth.py): the newest access token (the columns
+  -- above), earlier ones still within their 2 hours (oauth_access), and one refresh
+  -- token that doesn't rotate, each with its own wrapped credential.
+  client_id TEXT,
+  refresh_hash BLOB,
+  refresh_wrapped BLOB,
+  refresh_expires_at REAL
 );
 CREATE INDEX IF NOT EXISTS devices_user ON devices(nas_user);
+
+-- Access tokens of an OAuth connection that a later refresh replaced on the device row
+-- but that are still within their own 2 hours: an assistant on two devices shares one
+-- connection, and each device refreshes by itself (docs/mcp.md).
+CREATE TABLE IF NOT EXISTS oauth_access (
+  device_id TEXT NOT NULL REFERENCES devices(id),
+  token_hash BLOB NOT NULL,
+  wrapped_cred BLOB NOT NULL,
+  expires_at REAL NOT NULL
+);
+CREATE INDEX IF NOT EXISTS oauth_access_device ON oauth_access(device_id);
 
 -- Sign-in codes: the NAS password wrapped like a device's, under the code's
 -- secret instead of a token secret (crypto.py). Revoking wipes the blob.
@@ -49,7 +69,69 @@ CREATE TABLE IF NOT EXISTS signin_codes (
   expires_at REAL NOT NULL,
   max_uses INTEGER NOT NULL,
   uses INTEGER NOT NULL DEFAULT 0,
-  revoked_at REAL
+  revoked_at REAL,
+  purpose TEXT NOT NULL DEFAULT 'device'   -- 'device' (signs in an app) or 'assistant' (approves an OAuth sign-in)
+);
+
+-- OAuth for assistants (oauth.py). Clients register themselves (RFC 7591).
+CREATE TABLE IF NOT EXISTS oauth_clients (
+  id TEXT PRIMARY KEY,
+  name TEXT NOT NULL,
+  redirect_uris TEXT NOT NULL,   -- JSON list, matched exactly
+  created_at REAL NOT NULL,
+  created_ip TEXT,
+  used_at REAL                   -- last sign-in; never-used clients are pruned
+);
+-- A sign-in page that is open in a browser: binds the form to what the client asked for.
+CREATE TABLE IF NOT EXISTS oauth_requests (
+  id TEXT PRIMARY KEY,
+  client_id TEXT NOT NULL,
+  redirect_uri TEXT NOT NULL,
+  state TEXT,
+  code_challenge TEXT NOT NULL,
+  created_at REAL NOT NULL,
+  expires_at REAL NOT NULL,
+  created_ip TEXT                -- pages open per IP are limited
+);
+-- An authorization code: the NAS password wrapped under the code's secret until the
+-- client trades it (with its PKCE verifier) for tokens, once, within minutes.
+CREATE TABLE IF NOT EXISTS oauth_codes (
+  id TEXT PRIMARY KEY,
+  code_hash BLOB NOT NULL,
+  client_id TEXT NOT NULL,
+  redirect_uri TEXT NOT NULL,
+  code_challenge TEXT NOT NULL,
+  nas_user TEXT NOT NULL,
+  wrapped_cred BLOB NOT NULL,
+  created_at REAL NOT NULL,
+  expires_at REAL NOT NULL,
+  used_at REAL
+);
+
+-- What an assistant connection may open (mcp.py). path is "share/folder" from the
+-- top of the user's drive ('' = all of it). access 'write' = the working folder
+-- (read and write; one per context), 'read' = readable. context '' applies to every
+-- call; another value only to calls that name it (an assistant's project or thread).
+-- Folders the user has approved for an assistant connection (schema 3), 'read' or
+-- 'write' (read and save; covers read). A grant (mcp_grants) that none covers needs the
+-- user's approval first: the setup right after sign-in, or a fresh approval code (mcp.py,
+-- m_access_set). Narrowing a grant doesn't take an approval back; signing the
+-- connection out does.
+CREATE TABLE IF NOT EXISTS mcp_approved (
+  device_id TEXT NOT NULL,
+  path TEXT NOT NULL,
+  access TEXT NOT NULL DEFAULT 'read',
+  created_at REAL NOT NULL,
+  PRIMARY KEY (device_id, path)
+);
+
+CREATE TABLE IF NOT EXISTS mcp_grants (
+  device_id TEXT NOT NULL,
+  context TEXT NOT NULL DEFAULT '',
+  access TEXT NOT NULL,
+  path TEXT NOT NULL,
+  created_at REAL NOT NULL,
+  PRIMARY KEY (device_id, context, access, path)
 );
 
 CREATE TABLE IF NOT EXISTS roots (
@@ -146,6 +228,16 @@ CREATE TABLE IF NOT EXISTS audit (
   detail TEXT
 );
 
+-- Owner SID of each share's root folder as each account first saw it (SMB only).
+-- A different owner later = the NAS is serving another folder under that name.
+CREATE TABLE IF NOT EXISTS share_owners (
+  nas_user TEXT NOT NULL,        -- casefolded
+  share TEXT NOT NULL,           -- casefolded
+  owner_sid TEXT NOT NULL,
+  first_seen REAL NOT NULL,
+  PRIMARY KEY (nas_user, share)
+);
+
 CREATE TABLE IF NOT EXISTS login_failures (
   k TEXT NOT NULL,               -- 'u:<user>' or 'ip:<addr>'
   at REAL NOT NULL
@@ -166,8 +258,37 @@ class DB:
             self.conn.execute("PRAGMA journal_mode=WAL")
             self.conn.execute("PRAGMA foreign_keys=ON")
             self.conn.executescript(SCHEMA)
+            self._migrate()
             self.conn.execute("INSERT OR IGNORE INTO meta VALUES ('schema_version', ?)",
                               (str(SCHEMA_VERSION),))
+
+    def _migrate(self):
+        """Columns added after a table first shipped (CREATE TABLE IF NOT EXISTS
+        leaves an existing table as it was)."""
+        added = {                                                  # schema 2: assistants (MCP)
+            "devices": [("kind", "TEXT NOT NULL DEFAULT 'app'"),
+                        ("read_only", "INTEGER NOT NULL DEFAULT 0"),
+                        ("client_id", "TEXT"), ("refresh_hash", "BLOB"),
+                        ("refresh_wrapped", "BLOB"), ("refresh_expires_at", "REAL")],
+            "signin_codes": [("purpose", "TEXT NOT NULL DEFAULT 'device'")],
+            "oauth_requests": [("created_ip", "TEXT")],
+            # a schema 3 table made by 0bca895, before approvals kept read/write apart
+            "mcp_approved": [("access", "TEXT NOT NULL DEFAULT 'read'")],
+        }
+        v = self.conn.execute("SELECT v FROM meta WHERE k='schema_version'").fetchone()
+        if v and int(v["v"]) < 3:
+            # schema 3: approvals. What a connection had before counts as approved.
+            # A working folder's grant is a write approval ('write' > 'read').
+            self.conn.execute("INSERT OR IGNORE INTO mcp_approved (device_id, path, access,"
+                              " created_at) SELECT device_id, path, MAX(access),"
+                              " MIN(created_at) FROM mcp_grants GROUP BY device_id, path")
+        for table, cols in added.items():
+            have = {r["name"] for r in self.conn.execute(f"PRAGMA table_info({table})")}
+            for name, decl in cols:
+                if name not in have:
+                    self.conn.execute(f"ALTER TABLE {table} ADD COLUMN {name} {decl}")
+        self.conn.execute("UPDATE meta SET v=? WHERE k='schema_version' AND CAST(v AS INTEGER)<?",
+                          (str(SCHEMA_VERSION), SCHEMA_VERSION))
 
     @contextmanager
     def tx(self):

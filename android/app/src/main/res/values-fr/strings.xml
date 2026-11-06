@@ -6,6 +6,8 @@
     <string name="pair_scan">Scanner le code</string>
     <string name="pair_paste">Coller le lien</string>
     <string name="pair_manual">Configurer manuellement</string>
+    <string name="pair_no_gateway">Pas encore de passerelle ? Loft en a besoin d’une à la maison, à côté de votre NAS.</string>
+    <string name="pair_setup_gateway">Installer une passerelle</string>
     <string name="pair_paste_title">Coller le lien d’association</string>
     <string name="pair_paste_hint">https://loft.incremental.no/pair#…</string>
     <string name="pair_manual_title">Configurer manuellement</string>
@@ -41,6 +43,12 @@
     <string name="signin_too_many">Trop de tentatives. Patientez 15 minutes, puis réessayez.</string>
     <string name="signin_nas_down">La passerelle a répondu, mais elle ne parvient pas à joindre le NAS. Réessayez dans un instant.</string>
     <string name="signin_failed">Un problème est survenu. Réessayez.</string>
+    <string name="signin_code_label">Code de connexion</string>
+    <string name="signin_code_help">Un code de connexion est créé sur le réseau domestique pour un compte précis.</string>
+    <string name="signin_use_code">J’ai un code de connexion</string>
+    <string name="signin_use_password">Se connecter plutôt avec un mot de passe</string>
+    <string name="signin_code_invalid">Ce code n’est pas valide. Vérifiez-le et réessayez.</string>
+    <string name="signin_code_expired">Ce code a expiré ou a déjà été utilisé.</string>
     <string name="forget_gateway">Oublier cette passerelle</string>
     <string name="pick_title">Choisissez votre dossier Loft</string>
     <string name="pick_body">Ce dossier du NAS devient Loft sur ce téléphone. Vous pourrez le modifier plus tard dans les paramètres.</string>

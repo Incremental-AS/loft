@@ -169,6 +169,18 @@ public class StringsTests
         }
     }
 
+    [Theory]
+    [InlineData("en", "https://loft.incremental.no/gateway/")]
+    [InlineData("nb", "https://loft.incremental.no/no/gateway/")]
+    [InlineData("de", "https://loft.incremental.no/de/gateway/")]
+    [InlineData("pt-BR", "https://loft.incremental.no/pt/gateway/")]
+    [InlineData("zh-Hans", "https://loft.incremental.no/zh/gateway/")]
+    public void GatewayGuideIsTheWebsitePageInTheSameLanguage(string lang, string url)
+    {
+        using var _ = S.Use(Make(lang));
+        Assert.Equal(url, S.GatewayGuideUrl);
+    }
+
     // ── fallback ────────────────────────────────────────────────────────
 
     [Fact]

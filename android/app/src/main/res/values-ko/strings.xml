@@ -6,6 +6,8 @@
     <string name="pair_scan">코드 스캔</string>
     <string name="pair_paste">링크 붙여넣기</string>
     <string name="pair_manual">수동으로 설정</string>
+    <string name="pair_no_gateway">아직 게이트웨이가 없나요? Loft를 쓰려면 집에 NAS 옆에 둘 게이트웨이가 있어야 해요.</string>
+    <string name="pair_setup_gateway">게이트웨이 설정</string>
     <string name="pair_paste_title">페어링 링크 붙여넣기</string>
     <string name="pair_paste_hint">https://loft.incremental.no/pair#…</string>
     <string name="pair_manual_title">수동으로 설정</string>
@@ -41,6 +43,12 @@
     <string name="signin_too_many">시도 횟수가 너무 많아요. 15분 후에 다시 시도하세요.</string>
     <string name="signin_nas_down">게이트웨이는 응답했지만 NAS에 연결할 수 없어요. 잠시 후 다시 시도하세요.</string>
     <string name="signin_failed">문제가 발생했어요. 다시 시도하세요.</string>
+    <string name="signin_code_label">로그인 코드</string>
+    <string name="signin_code_help">로그인 코드는 홈 네트워크에서 특정 계정용으로 만들어요.</string>
+    <string name="signin_use_code">로그인 코드가 있어요</string>
+    <string name="signin_use_password">비밀번호로 로그인</string>
+    <string name="signin_code_invalid">유효하지 않은 코드예요. 확인하고 다시 시도하세요.</string>
+    <string name="signin_code_expired">만료되었거나 이미 다 사용한 코드예요.</string>
     <string name="forget_gateway">이 게이트웨이 지우기</string>
     <string name="pick_title">Loft 폴더 선택</string>
     <string name="pick_body">NAS의 이 폴더가 이 휴대전화의 Loft가 돼요. 나중에 설정에서 바꿀 수 있어요.</string>

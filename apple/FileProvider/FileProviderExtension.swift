@@ -146,7 +146,7 @@ final class FileProviderExtension: NSObject, NSFileProviderReplicatedExtension, 
             progress.totalUnitCount = max(meta.size, 1)
             shared.transferStarted()
             defer { shared.transferEnded() }
-            let tag = try await client.download(id, to: tmp) { done, total in
+            let tag = try await client.download(id, to: tmp, expectedSize: meta.size) { done, total in
                 progress.totalUnitCount = max(total, 1)
                 progress.completedUnitCount = done
             }
@@ -190,7 +190,20 @@ final class FileProviderExtension: NSObject, NSFileProviderReplicatedExtension, 
         let progress = Progress(totalUnitCount: 100)
         return run(progress, "createItem") { [self] () -> LoftItem in
             let parent = try await gid(itemTemplate.parentItemIdentifier)
-            if type.conforms(to: .folder) {
+            let isFolder = type.conforms(to: .folder)
+            // Re-import (a domain reset, or the system's own reimport): the item may already
+            // be on the NAS. Take that one when it's the same kind and this Mac has nothing
+            // newer: a folder (a share can't be made: 403 share_is_fixed, and the re-import
+            // retried it forever), a file with no local content (must never upload as empty), or the same bytes.
+            if options.contains(.mayAlreadyExist),
+               let ex = try await findChild(parent, name), ex.isDirectory == isFolder {
+                let same = isFolder || url.map { ex.sha256 != nil && ex.sha256 == (try? Hasher256.hex(ofFile: $0)) } ?? true
+                if same {
+                    mirror?.upsert([ex])
+                    return try await wrap(ex)
+                }
+            }
+            if isFolder {
                 let it: Item
                 do {
                     it = try await client.mkdir(parentId: parent, name: name)
@@ -202,13 +215,6 @@ final class FileProviderExtension: NSObject, NSFileProviderReplicatedExtension, 
                 return try await wrap(it)
             }
             let file = try url ?? emptyFile()
-            // Re-import after a domain reset: the same bytes are already on the NAS.
-            if options.contains(.mayAlreadyExist),
-               let ex = try await findChild(parent, name), !ex.isDirectory,
-               let sha = ex.sha256, sha == (try? Hasher256.hex(ofFile: file)) {
-                mirror?.upsert([ex])
-                return try await wrap(ex)
-            }
             var req = CommitRequest(parentId: parent, name: name)
             if let x = mirror?.live(parent: parent, name: name), !x.isDir {
                 req.replaces = x.id                  // safe-save, create-before-delete (docs/design.md §D.3)

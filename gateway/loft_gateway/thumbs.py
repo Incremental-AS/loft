@@ -36,6 +36,8 @@ KINDS = {
 # Bytes the worker may read per file. Images and PSDs are read whole, so a bigger
 # file gets no thumbnail; a PDF, video or package only reads what it needs.
 READ_CAP = {"image": 256 << 20, "pdf": 256 << 20, "video": 128 << 20, "zip": 64 << 20}
+# Documents the worker can turn into text (MCP read_file), and what they read like.
+TEXT_KINDS = {"pdf": "pdf", **dict.fromkeys(("docx", "pptx", "xlsx", "odt", "odp", "ods"), "zip")}
 MAX_REQ = 8 << 20
 MAX_OUT = 4 << 20
 SIZES = (64, 128, 256, 512, 1024)
@@ -89,6 +91,34 @@ class Thumbnailer:
                 self.cache_bytes -= len(old[1]) if old else 0
         return r
 
+    def text(self, key: tuple, name: str, size: int,
+             read: Callable[[int, int], Iterator[bytes]]) -> str | None:
+        """A document's text, extracted in the sandboxed worker, or None (not a document
+        type it reads, or nothing came out). Cached with the thumbnails."""
+        ext = name.rsplit(".", 1)[-1].lower() if "." in name else ""
+        kind = TEXT_KINDS.get(ext)
+        if not kind or size <= 0:
+            return None
+        key = (*key, "text")
+        with self.lock:
+            if key in self.cache:
+                self.cache.move_to_end(key)
+                hit = self.cache[key]
+                return hit[1].decode("utf-8") if hit else None
+        if not self.slots.acquire(timeout=DEADLINE_S):
+            raise TimeoutError("document workers busy")
+        try:
+            r = self._run("text", ext, size, 0, read, budget=READ_CAP[kind])
+        finally:
+            self.slots.release()
+        with self.lock:
+            self.cache[key] = r
+            self.cache_bytes += len(r[1]) if r else 0
+            while self.cache_bytes > self.cache_max and self.cache:
+                _, old = self.cache.popitem(last=False)
+                self.cache_bytes -= len(old[1]) if old else 0
+        return r[1].decode("utf-8", "replace") if r else None
+
     def _connect(self):
         if self.socket_path:
             s = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
@@ -102,12 +132,13 @@ class Thumbnailer:
         a.settimeout(DEADLINE_S)
         return a, p
 
-    def _run(self, kind, ext, size, px, read) -> tuple[str, bytes] | None:
+    def _run(self, kind, ext, size, px, read, budget: int | None = None) -> tuple[str, bytes] | None:
         """Serve one worker. Its every line is untrusted: strict parsing, hard caps.
         None = the worker says this file has no thumbnail (cached); raises otherwise."""
         sock, proc = self._connect()
         deadline = time.monotonic() + DEADLINE_S
-        budget = READ_CAP[kind]
+        budget = READ_CAP[kind] if budget is None else budget
+        want = ("text",) if kind == "text" else ("jpeg", "png")
         try:
             rf, wf = sock.makefile("rb"), sock.makefile("wb")
             wf.write(json.dumps({"kind": kind, "ext": ext, "size": size, "px": px}).encode() + b"\n")
@@ -125,7 +156,7 @@ class Thumbnailer:
                     data = b"".join(read(off, n)) if n else b""
                     wf.write(f"{len(data)}\n".encode() + data)
                     wf.flush()
-                elif len(line) == 3 and line[0] == "OK" and line[1] in ("jpeg", "png"):
+                elif len(line) == 3 and line[0] == "OK" and line[1] in want:
                     n = int(line[2])
                     if not 0 < n <= MAX_OUT:
                         raise ValueError(f"bad output size {n}")

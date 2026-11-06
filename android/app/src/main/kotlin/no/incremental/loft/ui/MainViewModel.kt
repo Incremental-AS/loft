@@ -19,8 +19,10 @@ import kotlinx.coroutines.withContext
 import no.incremental.loft.Loft
 import no.incremental.loft.R
 import no.incremental.loft.Work
+import no.incremental.loft.core.GatewayClient
 import no.incremental.loft.core.GatewayException
 import no.incremental.loft.core.Item
+import no.incremental.loft.core.LoginResult
 import no.incremental.loft.core.LoopState
 import no.incremental.loft.core.Pairing
 import no.incremental.loft.core.PairingException
@@ -144,22 +146,33 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
 
     // ── sign in ─────────────────────────────────────────────────────────
 
-    fun signIn(user: String, password: String) {
+    fun signIn(user: String, password: String) = finishSignIn(fallbackUser = user.trim()) { c ->
+        // Pinned routes only: home, or an outside address in `direct` mode.
+        val ep = c.signInEndpoint() ?: return@finishSignIn null
+        c.login(ep, user.trim(), password, loft.deviceName())
+    }
+
+    /** A sign-in code made on the home network (e.g. an app store reviewer's account): any network. */
+    fun signIn(code: String) = finishSignIn(fallbackUser = null, codeLogin = true) { c ->
+        c.codeLogin(code, loft.deviceName())
+    }
+
+    /** [login] returns null when there is no route to sign in on. */
+    private fun finishSignIn(fallbackUser: String?, codeLogin: Boolean = false,
+                             login: suspend (GatewayClient) -> LoginResult?) {
         if (busy) return
         busy = true
         signInError = null
         viewModelScope.launch {
             try {
                 val c = loft.requireClient()
-                // Pinned routes only: home, or an outside address in `direct` mode.
-                val ep = c.signInEndpoint()
-                if (ep == null) {
+                val r = login(c)
+                if (r == null) {
                     signInError = ctx.getString(R.string.signin_not_home)
                     return@launch
                 }
-                val r = c.login(ep, user.trim(), password, loft.deviceName())
                 loft.tokens.save(StoredToken.of(r))
-                loft.prefs.nasUser = r.nasUser ?: user.trim()
+                loft.prefs.nasUser = r.nasUser ?: fallbackUser
                 val me = c.me()
                 loft.prefs.deviceName = me.deviceName
                 loft.prefs.root = me.root
@@ -174,10 +187,13 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
                     "too_many_attempts" -> R.string.signin_too_many
                     "nas_unavailable", "nas_error" -> R.string.signin_nas_down
                     "password_login_direct_only" -> R.string.signin_not_home
+                    "invalid_code" -> R.string.signin_code_invalid
+                    "code_expired" -> R.string.signin_code_expired
                     else -> R.string.signin_failed
                 })
             } catch (e: GatewayException.Unreachable) {
-                signInError = ctx.getString(R.string.signin_not_home)
+                // A code works from anywhere, so "not at home" isn't the reason there.
+                signInError = ctx.getString(if (codeLogin) R.string.signin_failed else R.string.signin_not_home)
             } catch (e: Exception) {
                 signInError = ctx.getString(R.string.signin_failed)
             } finally {

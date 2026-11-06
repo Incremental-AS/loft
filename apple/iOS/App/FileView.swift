@@ -1,5 +1,6 @@
 // Opening a file: video and audio stream (the player asks for byte ranges, nothing is
-// stored); everything else is downloaded once into the cache and shown with Quick Look,
+// stored); everything else is downloaded once into the cache (several Range slices at a
+// time, resumable) and shown with Quick Look,
 // whose share button covers "Open in…", AirDrop and printing.
 import AVKit
 import QuickLook
@@ -131,21 +132,29 @@ struct DownloadedPreview: View {
     @EnvironmentObject var model: PhoneModel
     let item: Item
     @State private var local: URL?
-    @State private var progress: Double = 0
+    @State private var done: Int64 = 0
     @State private var failed = false
+    @State private var attempt = 0
 
     var body: some View {
         Group {
             if let local {
                 QuickLookView(url: local).ignoresSafeArea(edges: .bottom)
             } else if failed {
-                ContentUnavailableView("Couldn't open “\(item.name)”", systemImage: "wifi.exclamationmark",
-                                       description: Text("Check your connection and try again."))
+                ContentUnavailableView {
+                    Label("Couldn't open “\(item.name)”", systemImage: "wifi.exclamationmark")
+                } description: {
+                    Text("Check your connection and try again.")
+                } actions: {
+                    Button("Try again") { failed = false; attempt += 1 }
+                        .buttonStyle(.borderedProminent)
+                }
             } else {
                 VStack(spacing: 12) {
-                    ProgressView(value: progress).frame(maxWidth: 240)
-                    Text("Downloading \(ByteCountFormatter.string(fromByteCount: item.size, countStyle: .file))")
-                        .font(.footnote).foregroundStyle(.secondary)
+                    ProgressView(value: item.size > 0 ? Double(done) / Double(item.size) : 0)
+                        .frame(maxWidth: 240)
+                    Text(PhoneCopy.downloaded(done, of: item.size))
+                        .font(.footnote).foregroundStyle(.secondary).monospacedDigit()
                 }
             }
         }
@@ -153,22 +162,24 @@ struct DownloadedPreview: View {
         .toolbar {
             if let local { ToolbarItem(placement: .topBarTrailing) { ShareLink(item: local) } }
         }
-        .task { await fetch() }
+        .task(id: attempt) { await fetch() }
     }
 
+    /// Leaving the screen (or a dropped connection) keeps what has arrived: the next open
+    /// of the same version picks up where this one stopped.
     private func fetch() async {
         let dest = OpenCache.url(for: item)
         if FileManager.default.fileExists(atPath: dest.path) { local = dest; return }
         do {
             try FileManager.default.createDirectory(at: dest.deletingLastPathComponent(), withIntermediateDirectories: true)
             let part = dest.appendingPathExtension("part")
-            try await model.client.download(item.id, to: part) { done, total in
-                Task { @MainActor in progress = total > 0 ? Double(done) / Double(total) : 0 }
+            try await model.client.download(item.id, to: part, expectedSize: item.size, resume: true) { d, _ in
+                Task { @MainActor in done = d }
             }
             try FileManager.default.moveItem(at: part, to: dest)
             local = dest
         } catch {
-            failed = true
+            if !Task.isCancelled { failed = true }
         }
     }
 }

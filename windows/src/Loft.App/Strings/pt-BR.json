@@ -30,6 +30,8 @@
   "pair.link_field": "Link de pareamento",
   "common.continue": "Continuar",
   "pair.set_up_manually": "Configurar manualmente",
+  "pair.no_gateway": "Ainda não tem um gateway? O Loft precisa de um em casa, ao lado do seu NAS.",
+  "pair.setup_gateway": "Configurar um gateway",
   "pair.manual_body": "Digite o endereço do gateway e uma das impressões digitais das chaves dele. O loft-gateway pair mostra os dois. É pela impressão digital que o Loft confere se é mesmo o seu gateway, por isso não há como configurar sem ela.",
   "pair.address_field": "Endereço, como nas-gateway.local:8443",
   "pair.pin_field": "Impressão digital da chave",

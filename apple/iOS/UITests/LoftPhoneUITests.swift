@@ -247,5 +247,78 @@ final class LoftPhoneUITests: XCTestCase {
                         .firstMatch.waitForExistence(timeout: 5), "nb error")
         shot("20-pair-nb")
         app.buttons["Avbryt"].tap()
+        // About Loft in Norwegian, from the sign-in screen
+        let about = app.buttons["about-button"]
+        XCTAssertTrue(about.waitForExistence(timeout: 10), "nb: about button")
+        about.tap()
+        XCTAssertTrue(app.staticTexts["about-version"].waitForExistence(timeout: 5), "nb: about")
+        XCTAssertTrue(app.staticTexts.matching(NSPredicate(format: "label CONTAINS[c] %@", "Du trenger en gateway"))
+                        .firstMatch.exists, "nb: you need a gateway")
+        shot("21-about-nb")
+        app.swipeUp(); shot("22-about-nb-bottom")
+        app.buttons["Ferdig"].tap()
+    }
+
+    /// About Loft (0.2.1): before sign-in (the ⓘ button) and from Account, with the version.
+    func testAboutPage() throws {
+        let shareName = env["LOFT_SHARE"] ?? "home"
+        signOutIfNeeded()
+        try pairByLink()                                      // now at sign-in
+        let about = app.buttons["about-button"]
+        XCTAssertTrue(about.waitForExistence(timeout: 10), "about button on sign-in")
+        about.tap()
+        let version = app.staticTexts["about-version"]
+        XCTAssertTrue(version.waitForExistence(timeout: 5), "about page")
+        XCTAssertNotNil(version.label.range(of: #"^\d+\.\d+\.\d+ \(\d+\)$"#, options: .regularExpression),
+                        "version as \"0.2.1 (16)\": \(version.label)")
+        for text in ["How Loft works", "You need a gateway"] {
+            XCTAssertTrue(app.staticTexts.matching(NSPredicate(format: "label CONTAINS[c] %@", text)).firstMatch.exists, text)
+        }
+        shot("30-about"); tree("30-about")
+        app.swipeUp()
+        XCTAssertTrue(app.descendants(matching: .any)["Set up a gateway"].exists, "guide link")
+        shot("31-about-bottom")
+        app.buttons["Done"].tap()
+        try signInWithPassword()
+        XCTAssertTrue(app.buttons[shareName].waitForExistence(timeout: 30), "share list")
+        dismissSavePassword()
+        app.buttons["Account"].tap()
+        app.buttons["About Loft"].tap()
+        XCTAssertTrue(app.staticTexts["about-version"].waitForExistence(timeout: 5), "about from account")
+        shot("32-about-account")
+    }
+
+    /// A large file (TEST_RUNNER_LOFT_LARGE, seeded by ios-ui-test.sh) downloads in parallel
+    /// slices and opens; opening it again comes from the cache.
+    func testOpenLargeFile() throws {
+        let shareName = env["LOFT_SHARE"] ?? "home"
+        let large = try XCTUnwrap(env["LOFT_LARGE"], "TEST_RUNNER_LOFT_LARGE")
+        signOutIfNeeded()
+        try pairByLink()
+        try signInWithPassword()
+        let share = app.buttons[shareName]
+        XCTAssertTrue(share.waitForExistence(timeout: 30), "share list")
+        dismissSavePassword()
+        share.tap()
+        for part in large.split(separator: "/").dropLast() {
+            let folder = app.buttons[String(part)].firstMatch
+            XCTAssertTrue(folder.waitForExistence(timeout: 15), "folder \(part)")
+            folder.tap()
+        }
+        let name = String(large.split(separator: "/").last!)
+        let row = app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", name)).firstMatch
+        XCTAssertTrue(row.waitForExistence(timeout: 15), "file \(name)")
+        row.tap()
+        sleep(1); shot("40-large-progress")
+        let shareButton = app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Share")).firstMatch
+        let shown = shareButton.waitForExistence(timeout: 60)          // Quick Look's "Share…"
+        if !shown { shot("41-large-fail"); tree("41-large-fail") }
+        XCTAssertTrue(shown, "downloaded and shown")
+        XCTAssertFalse(app.staticTexts.matching(NSPredicate(format: "label BEGINSWITH %@", "Couldn't open")).firstMatch.exists)
+        shot("42-large-open")
+        app.navigationBars.buttons.element(boundBy: 0).tap()   // back
+        XCTAssertTrue(row.waitForExistence(timeout: 10))
+        row.tap()
+        XCTAssertTrue(shareButton.waitForExistence(timeout: 5), "second open is from the cache")
     }
 }

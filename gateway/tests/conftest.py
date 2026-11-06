@@ -40,7 +40,8 @@ def env(tmp_path):
     }, short_names={"PWD7QK~1": "Passwords", "NOTESO~1": "notes"})   # Samba's 8.3 aliases
     s = Settings(db_path=str(tmp_path / "index.db"), shares=["home", "secret"],
                  direct_spki_pins=["pin1", "pin2"], background_rescan=False,
-                 allowed_users_re="alice|bob|carol", thumb_socket="",
+                 allowed_users_re="alice|bob|carol", assistant_users_re="alice|bob|carol",
+                 thumb_socket="", notify=False,
                  # A site's blocks, set explicitly: the defaults block nothing (Loft 0.2).
                  blocked_shares=["git", "backup", "timemachine", "vm-images", "mail-archive",
                                  "scratch", "drive-backup-only"],

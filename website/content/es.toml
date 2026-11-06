@@ -66,16 +66,15 @@ href = "{APP_STORE_URL}"
 id = "mac"
 name = "Mac"
 shows = "el Finder, en la barra lateral"
-get = "Descarga DMG (muy pronto)"
-coming_soon = true
+get = "Descarga DMG"
 detail = "Loft pone tu NAS en la barra lateral del Finder. Los archivos se descargan cuando los abres y vuelven a casa cuando los guardas."
-version = "versión {VERSION}"
-after = "Abre el DMG y arrastra Loft a Aplicaciones."
-sha256 = "{SHA256}"
+version = "macOS 14 o posterior · versión 0.2.0"
+after = "Abre el DMG y arrastra Loft a Aplicaciones. A partir de entonces, Loft se mantiene actualizado solo y te pregunta antes de instalar nada."
+sha256 = "d35c0eb67fb0a2c62633efc54cb920882d4ade2db4426ff44253a7d70e573fb6"
 
 [[platforms.downloads]]
 label = "Descargar para Mac (.dmg)"
-href = "{DOWNLOAD_URL}"
+href = "https://github.com/Incremental-AS/loft/releases/download/v0.2.0/Loft-0.2.0-14.dmg"
 
 [[platforms]]
 id = "android"
@@ -139,10 +138,27 @@ href = "{DOWNLOAD_URL}"
 id = "gateway"
 name = "Gateway de Loft"
 shows = "funciona en casa con Linux (x86_64 o arm64, así que sirve una Raspberry Pi de 64 bits)"
-get = ".deb o imagen de contenedor (muy pronto)"
-coming_soon = true
+get = ".deb o imagen de contenedor"
 detail = "Funciona en casa con Linux, x86_64 o arm64 (sirve una Raspberry Pi de 64 bits), con Python 3.12 o posterior. Debian 13, Ubuntu 24.04 y la versión actual de Raspberry Pi OS lo incluyen. En un sistema más antiguo, usa el contenedor."
-list = "<ul><li><strong>Debian 13 y Ubuntu 24.04:</strong> un <code>.deb</code> para x86_64, que se descarga desde esta página. El paquete para arm64 está en camino. → <a href=\"/gateway/\">Configurar un gateway</a></li><li><strong>Contenedor:</strong> una imagen multiarquitectura, para x86_64 y arm64. → <a href=\"/gateway/\">Configurar un gateway</a></li></ul>"
+list = "<ul><li><strong>Debian 13 y Ubuntu 24.04:</strong> un <code>.deb</code> para x86_64 y otro para arm64. En una Raspberry Pi, elige Debian 13 arm64. → <a href=\"/gateway/#debian\">Configurar un gateway</a></li><li><strong>Contenedor:</strong> <code>ghcr.io/incremental-as/loft-gateway:0.2.0</code>, una imagen multiarquitectura para x86_64 y arm64. → <a href=\"/gateway/#container\">Configurar un gateway</a></li></ul>"
+version = "versión 0.2.0"
+note = "¿No sabes cuál? <code>dpkg --print-architecture</code> muestra <code>amd64</code> para x86_64, o <code>arm64</code>. Si muestra <code>armhf</code>, tu Raspberry Pi usa el sistema de 32 bits: usa Raspberry Pi OS de 64 bits. Las sumas de comprobación SHA-256 de los cuatro archivos están en la página de la versión en GitHub. → <a href=\"https://github.com/Incremental-AS/loft/releases/tag/v0.2.0\">Sumas de comprobación en GitHub</a>"
+
+[[platforms.downloads]]
+label = "Debian 13 (x86_64)"
+href = "https://github.com/Incremental-AS/loft/releases/download/v0.2.0/loft-gateway_0.2.0-1.debian13_amd64.deb"
+
+[[platforms.downloads]]
+label = "Debian 13 (arm64, Raspberry Pi)"
+href = "https://github.com/Incremental-AS/loft/releases/download/v0.2.0/loft-gateway_0.2.0-1.debian13_arm64.deb"
+
+[[platforms.downloads]]
+label = "Ubuntu 24.04 (x86_64)"
+href = "https://github.com/Incremental-AS/loft/releases/download/v0.2.0/loft-gateway_0.2.0-1.ubuntu24_amd64.deb"
+
+[[platforms.downloads]]
+label = "Ubuntu 24.04 (arm64)"
+href = "https://github.com/Incremental-AS/loft/releases/download/v0.2.0/loft-gateway_0.2.0-1.ubuntu24_arm64.deb"
 
 [pages]
 
@@ -209,7 +225,7 @@ title = "Descargar · Loft by Incremental"
 description = "Descarga Loft para iPhone, iPad, Mac, Android, Windows y Linux, y el gateway de Loft. Gratis y de código abierto."
 kicker = "Descargar"
 h1 = "Consigue Loft."
-lead = "Loft es gratis en todas las plataformas. También necesitas un gateway de Loft en casa. Si aún no tienes uno, <a href=\"/gateway/\">configúralo primero</a>: basta con un comando y un código QR."
+lead = "Loft es gratis en todas las plataformas. También necesitas un gateway de Loft en casa. Si aún no tienes uno, <a href=\"/gateway/\">configúralo primero</a>: solo hacen falta unos diez minutos y un código QR."
 
 [pages.download.updates]
 title = "Búsqueda de actualizaciones"
@@ -228,34 +244,33 @@ items = ["Una máquina Linux que esté siempre encendida y en la misma red que e
 
 [[pages.gateway.steps]]
 title = "Instalar"
-body = "<p><strong>Muy pronto.</strong> El gateway aún no se puede descargar. Cuando se pueda, el <code>.deb</code> y la imagen de contenedor estarán en <a href=\"/download/#gateway\">Descargar</a>, y los comandos para instalarlos estarán aquí mismo.</p>"
 
-[[pages.gateway.steps.parts_at_release]]
+[[pages.gateway.steps.parts]]
 id = "debian"
 title = "Debian 13 y Ubuntu 24.04"
-before = "<p><strong>Muy pronto.</strong> Descarga el <code>.deb</code> desde <a href=\"/download/#gateway\">Descargar</a> e instálalo. Todavía no hay repositorio de paquetes, así que cada versión nueva también es una descarga nueva.</p>"
-code = "sudo apt install ./loft-gateway_*_amd64.deb"
-after = "<p>El paquete para arm64, para Raspberry Pi, está en camino. Hasta entonces, usa el contenedor en arm64.</p>"
+before = "<p>Descarga el <code>.deb</code> para tu sistema desde <a href=\"/download/#gateway\">Descargar</a> e instálalo. Todavía no hay repositorio de paquetes, así que cada versión nueva también es una descarga nueva.</p>"
+code = "sudo apt install ./loft-gateway_*.deb"
+after = "<p>Ejecútalo en la carpeta donde está el archivo. En una Raspberry Pi, usa el paquete Debian 13 (arm64).</p>"
 
-[[pages.gateway.steps.parts_at_release]]
+[[pages.gateway.steps.parts]]
 id = "container"
 title = "Contenedor"
-before = "<p><strong>Muy pronto.</strong> Una imagen multiarquitectura, para x86_64 y arm64. Al arrancar por primera vez muestra el código de vinculación (<code>docker logs loft</code>).</p>"
-code = "docker run -d --name loft --restart unless-stopped \\\n  -p 8443:8443 \\\n  -e LOFT_SMB_SERVER=&lt;nas-address&gt; \\\n  -e LOFT_LAN_URL=https://&lt;gateway-address&gt;:8443 \\\n  -v loft-etc:/etc/loft -v loft-state:/var/lib/loft \\\n  loft-gateway:0.2.0\ndocker logs loft\ndocker exec -it loft loft-container loft-gateway doctor --user alice\ndocker exec loft loft-container loft-gateway pair"
-after = "<p>En el contenedor, el generador de miniaturas se ejecuta como un proceso aparte sin privilegios, en lugar de en el entorno aislado de systemd que usa el <code>.deb</code>. Las miniaturas funcionan igual.</p>"
+before = "<p>Una imagen multiarquitectura para x86_64 y arm64, del registro de contenedores de GitHub. El contenedor inicia el gateway por sí solo. Al arrancar por primera vez ejecuta <code>loft-gateway init</code> con las direcciones que le indiques y muestra el código de vinculación (<code>docker logs loft</code>).</p>"
+code = "docker run -d --name loft --restart unless-stopped \\\n  -p 8443:8443 \\\n  -e LOFT_SMB_SERVER=&lt;nas-address&gt; \\\n  -e LOFT_LAN_URL=https://&lt;gateway-address&gt;:8443 \\\n  -v loft-etc:/etc/loft -v loft-state:/var/lib/loft \\\n  ghcr.io/incremental-as/loft-gateway:0.2.0\ndocker logs loft\ndocker exec -it loft loft-container loft-gateway doctor --user &lt;nas-username&gt;\ndocker exec loft loft-container loft-gateway pair"
+after = "<p>En el contenedor, el generador de miniaturas se ejecuta como un proceso aparte sin privilegios, en lugar de en el entorno aislado de systemd que usa el <code>.deb</code>. Las miniaturas funcionan igual. Haz copia de seguridad de los dos volúmenes: <code>loft-etc</code> guarda la configuración y las claves, y <code>loft-state</code>, el índice y tus dispositivos.</p>"
 
 [[pages.gateway.steps]]
 title = "Indícale dónde está tu NAS"
-body = "<p>Ejecuta <code>loft-gateway init</code>. Te pide la dirección de tu NAS, escribe el archivo de configuración y crea las claves del gateway. Al final, muestra un código de vinculación.</p>\n<p>Después ejecuta <code>loft-gateway doctor</code>. Comprueba que el gateway llega al NAS, qué versión de SMB y qué cifrado ofrece el NAS, que el reloj está en hora y que el certificado es válido. Si algo falla, te dice qué. Añade <code>--user</code> y tu nombre de usuario del NAS para comprobar también el inicio de sesión y las carpetas compartidas. Te pide la contraseña y nunca la muestra.</p>\n<p><strong>¿Un NAS antiguo sin cifrado SMB?</strong> De forma predeterminada, el gateway se niega a conectarse sin él. Con <code>smb_encryption = \"server\"</code> en el archivo de configuración, decide el NAS, y la conexión en la red de casa solo se cifra si el NAS lo pide. Tú decides.</p>"
+body = "<p>Con el <code>.deb</code>, ejecuta <code>sudo loft-gateway init</code>. Te hace unas preguntas, empezando por la dirección de tu NAS, escribe el archivo de configuración en <code>/etc/loft</code> y crea las claves del gateway. Al final, muestra un código de vinculación: lo necesitarás en el paso 3. También crea una clave de reserva. Sácala de la máquina y guárdala en un lugar seguro: si alguna vez se pierde o queda expuesta la clave del gateway, instalas la clave de reserva y tus apps siguen confiando en el gateway. En el contenedor, el primer arranque ya lo ha hecho.</p>\n<p>Después ejecuta <code>sudo loft-gateway doctor</code> (en el contenedor, la línea <code>docker exec … doctor</code> de arriba). Comprueba que el gateway llega al NAS, qué versión de SMB y qué cifrado ofrece el NAS, que el reloj está en hora y que el certificado es válido. Si algo falla, te dice qué. Añade <code>--user</code> y tu nombre de usuario del NAS para comprobar también el inicio de sesión y las carpetas compartidas. Te pide la contraseña y nunca la muestra.</p>\n<p>Luego inicia el gateway y haz que vuelva a arrancar cada vez que arranque la máquina:</p>\n<pre><code>sudo systemctl enable --now loft-gateway</code></pre>\n<p>El contenedor ya está en marcha, y <code>--restart unless-stopped</code> lo vuelve a iniciar después de un reinicio.</p>\n<p><strong>¿Un NAS antiguo sin cifrado SMB?</strong> De forma predeterminada, el gateway se niega a conectarse sin él. Con <code>smb_encryption = \"server\"</code> en el archivo de configuración, decide el NAS, y la conexión en la red de casa solo se cifra si el NAS lo pide. Tú decides.</p>\n<p>¿Has cambiado el archivo de configuración más adelante? Reinicia el gateway para que lo lea: <code>sudo systemctl restart loft-gateway</code>, o <code>docker restart loft</code>.</p>"
 
 [[pages.gateway.steps]]
 title = "Vincula tus apps"
-body = "<p>Ejecuta <code>loft-gateway pair</code> y escanea el código QR con la app Loft, o abre el enlace en el dispositivo. El código contiene la dirección del gateway y sus claves, así que la app sabe que se comunica con <em>tu</em> gateway desde la primera conexión. Después, inicia sesión con tu nombre de usuario y tu contraseña del NAS.</p>\n<p>No hay ningún campo para escribir la dirección de un gateway, y es a propósito: una dirección escrita a mano podría llevarte a un gateway falso que recopila contraseñas. Si de verdad lo necesitas, la app tiene <em>Configurar manualmente</em> en la pantalla de vinculación.</p>"
+body = "<p>Ejecuta <code>sudo loft-gateway pair</code> (en el contenedor: <code>docker exec loft loft-container loft-gateway pair</code>) y escanea el código QR con la app Loft, o abre el enlace en el dispositivo. El código contiene la dirección del gateway y sus claves, así que la app sabe que se comunica con <em>tu</em> gateway desde la primera conexión. Después, inicia sesión con tu nombre de usuario y tu contraseña del NAS.</p>\n<p>No hay ningún campo para escribir la dirección de un gateway, y es a propósito: una dirección escrita a mano podría llevarte a un gateway falso que recopila contraseñas. Si de verdad lo necesitas, la app tiene <em>Configurar manualmente</em> en la pantalla de vinculación.</p>"
 
 [[pages.gateway.steps]]
 id = "outside"
 title = "Fuera de casa (opcional)"
-body = "<p>En casa no hace falta nada más. Para usar Loft fuera de casa, elige una opción:</p>\n<ul><li><strong>Un túnel</strong>, por ejemplo Cloudflare Tunnel. No hay ningún puerto abierto en tu router, pero el proveedor del túnel puede leer el tráfico, e inicias sesión en casa.</li><li><strong>Directo</strong>, con un puerto de tu router redirigido al gateway. Cifrado de extremo a extremo, y puedes iniciar sesión desde cualquier lugar. El gateway limita los intentos de inicio de sesión.</li></ul>\n<p>Las diferencias se explican en <a href=\"/how-it-works/#security\">Cómo funciona</a>. Después de cambiarlo, vuelve a ejecutar <code>loft-gateway pair</code> para que el código incluya la nueva dirección.</p>"
+body = "<p>En casa no hace falta nada más. Para usar Loft fuera de casa, elige una opción:</p>\n<ul><li><strong>Un túnel</strong>, por ejemplo Cloudflare Tunnel. No hay ningún puerto abierto en tu router, pero el proveedor del túnel puede leer el tráfico, e inicias sesión en casa.</li><li><strong>Directo</strong>, con un puerto de tu router redirigido al gateway. Cifrado de extremo a extremo, y puedes iniciar sesión desde cualquier lugar. El gateway limita los intentos de inicio de sesión.</li></ul>\n<p>Las diferencias se explican en <a href=\"/how-it-works/#security\">Cómo funciona</a>. Después de cambiarlo, vuelve a ejecutar el comando de vinculación para que el código incluya la nueva dirección.</p>"
 
 [[pages.gateway.sections]]
 id = "limit"
@@ -383,7 +398,7 @@ lead = "Loft es gratis y lo hace un equipo pequeño. No hay servicio de atenció
 
 [[pages.support.sections]]
 title = "Revisa esto primero"
-body = "<ul>\n<li><strong>Ejecuta <code>loft-gateway doctor</code> en el gateway.</strong> La mayoría de los problemas están entre el gateway y el NAS, y normalmente te dirá qué falla.</li>\n<li><strong>Mac: Loft no aparece en la barra lateral del Finder.</strong> Puede que macOS lo haya desactivado. Busca <em>“Loft” no está activado</em> en el Finder y elige <em>Activar</em>, o activa Loft en Ajustes del Sistema › General › Ítems de inicio y extensiones › Proveedores de archivos.</li>\n<li><strong>Los cambios hechos en el NAS tardan unos minutos en aparecer.</strong> Los cambios hechos desde Loft aparecen en segundos.</li>\n<li><strong>¿No puedes iniciar sesión fuera de casa?</strong> Con un túnel, el inicio de sesión solo funciona en casa. Es a propósito: consulta <a href=\"/how-it-works/#security\">Cómo funciona</a>.</li>\n<li><strong>¿La app no encuentra el gateway?</strong> Vuelve a vincularla: ejecuta <code>loft-gateway pair</code> y escanea el código nuevo.</li>\n</ul>"
+body = "<ul>\n<li><strong>Ejecuta <code>sudo loft-gateway doctor</code> en el gateway</strong> (en el contenedor: <code>docker exec -it loft loft-container loft-gateway doctor</code>). La mayoría de los problemas están entre el gateway y el NAS, y normalmente te dirá qué falla.</li>\n<li><strong>Mac: Loft no aparece en la barra lateral del Finder.</strong> Puede que macOS lo haya desactivado. Busca <em>“Loft” no está activado</em> en el Finder y elige <em>Activar</em>, o activa Loft en Ajustes del Sistema › General › Ítems de inicio y extensiones › Proveedores de archivos.</li>\n<li><strong>Los cambios hechos en el NAS tardan unos minutos en aparecer.</strong> Los cambios hechos desde Loft aparecen en segundos.</li>\n<li><strong>¿No puedes iniciar sesión fuera de casa?</strong> Con un túnel, el inicio de sesión solo funciona en casa. Es a propósito: consulta <a href=\"/how-it-works/#security\">Cómo funciona</a>.</li>\n<li><strong>¿La app no encuentra el gateway?</strong> Comprueba que está en marcha: <code>sudo systemctl status loft-gateway</code>, o <code>docker ps</code> para el contenedor. Después vuelve a vincularla: ejecuta <code>sudo loft-gateway pair</code> y escanea el código nuevo.</li>\n</ul>"
 
 [[pages.support.sections]]
 title = "Informar de un problema"

@@ -47,6 +47,16 @@ final class LoftItem: NSObject, NSFileProviderItem {
                 .allowsDeleting]
     }
 
+    // Declared so the system never adds .pathExtensionHidden on its own. Left undeclared,
+    // fileproviderd hid the "extension" of every item, so Finder showed the folder
+    // "deck_v0.3" as "deck_v0" (macOS 27, build 14). The NAS has no hidden-extension
+    // flag, so show names exactly as an SMB mount does. Same permissions as before:
+    // folders rwx, files rw.
+    var fileSystemFlags: NSFileProviderFileSystemFlags {
+        item.isDirectory ? [.userReadable, .userWritable, .userExecutable]
+                         : [.userReadable, .userWritable]
+    }
+
     // Eviction is decided by the content policy. Left undeclared, every item is "system"
     // policy and the system refuses evictItem with .nonEvictable ("content policy
     // prevention"): on macOS 27 (998751f) no downloaded or saved file could be

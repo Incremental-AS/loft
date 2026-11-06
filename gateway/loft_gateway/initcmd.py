@@ -127,7 +127,8 @@ def render_toml(v: dict) -> str:
     lines += [
         "",
         "# Optional limits (empty = none): shares, blocked_shares, blocked_paths,",
-        "# allowed_users_re, denied_users_re, code_users_re.",
+        "# allowed_users_re, denied_users_re, code_users_re (empty = nobody), assistant_users_re",
+        "# (who may connect an assistant; default: everyone who may sign in, empty = nobody).",
         "shares = []",
         "blocked_shares = []",
         "blocked_paths = []",

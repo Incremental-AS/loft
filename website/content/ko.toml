@@ -66,16 +66,15 @@ href = "{APP_STORE_URL}"
 id = "mac"
 name = "Mac"
 shows = "Finder의 사이드바"
-get = "DMG 다운로드(출시 예정)"
-coming_soon = true
+get = "DMG 다운로드"
 detail = "Loft가 NAS를 Finder 사이드바에 넣어 줘요. 파일은 열 때 다운로드되고, 저장하면 집으로 돌아가요."
-version = "버전 {VERSION}"
-after = "DMG를 열고 Loft를 응용 프로그램 폴더로 드래그하세요."
-sha256 = "{SHA256}"
+version = "macOS 14 이상 · 버전 0.2.0"
+after = "DMG를 열고 Loft를 응용 프로그램 폴더로 드래그하세요. 그다음부터는 Loft가 알아서 최신 상태를 유지하고, 무언가를 설치하기 전에는 먼저 물어봐요."
+sha256 = "d35c0eb67fb0a2c62633efc54cb920882d4ade2db4426ff44253a7d70e573fb6"
 
 [[platforms.downloads]]
 label = "Mac용 다운로드(.dmg)"
-href = "{DOWNLOAD_URL}"
+href = "https://github.com/Incremental-AS/loft/releases/download/v0.2.0/Loft-0.2.0-14.dmg"
 
 [[platforms]]
 id = "android"
@@ -139,10 +138,27 @@ href = "{DOWNLOAD_URL}"
 id = "gateway"
 name = "Loft 게이트웨이"
 shows = "집에 있는 Linux에서 실행 (x86_64 또는 arm64이므로 64비트 Raspberry Pi도 가능)"
-get = ".deb 또는 컨테이너 이미지 (출시 예정)"
-coming_soon = true
+get = ".deb 또는 컨테이너 이미지"
 detail = "집에 있는 x86_64 또는 arm64 Linux에서 Python 3.12 이상으로 실행돼요(64비트 Raspberry Pi도 가능). Debian 13, Ubuntu 24.04, 최신 Raspberry Pi OS에는 이 버전이 들어 있어요. 이전 시스템에서는 컨테이너를 사용하세요."
-list = "<ul><li><strong>Debian 13 및 Ubuntu 24.04:</strong> 이 페이지에서 다운로드하는 x86_64용 <code>.deb</code> 패키지. arm64 패키지는 준비 중이에요. → <a href=\"/gateway/\">게이트웨이 설정</a></li><li><strong>컨테이너:</strong> x86_64와 arm64용 멀티 아키텍처 이미지. → <a href=\"/gateway/\">게이트웨이 설정</a></li></ul>"
+list = "<ul><li><strong>Debian 13 및 Ubuntu 24.04:</strong> x86_64용과 arm64용 <code>.deb</code> 패키지. Raspberry Pi에서는 Debian 13 arm64를 받으세요. → <a href=\"/gateway/#debian\">게이트웨이 설정</a></li><li><strong>컨테이너:</strong> <code>ghcr.io/incremental-as/loft-gateway:0.2.0</code>, x86_64와 arm64용 멀티 아키텍처 이미지. → <a href=\"/gateway/#container\">게이트웨이 설정</a></li></ul>"
+version = "버전 0.2.0"
+note = "어떤 걸 받아야 할지 모르겠나요? <code>dpkg --print-architecture</code>를 실행하면 x86_64에서는 <code>amd64</code>, 그 밖에는 <code>arm64</code>가 출력돼요. <code>armhf</code>가 출력되면 Raspberry Pi에서 32비트 시스템을 쓰고 있는 거예요. 64비트 Raspberry Pi OS를 사용하세요. 네 파일 모두의 SHA-256 체크섬은 GitHub의 릴리스 페이지에 있어요. → <a href=\"https://github.com/Incremental-AS/loft/releases/tag/v0.2.0\">GitHub의 체크섬</a>"
+
+[[platforms.downloads]]
+label = "Debian 13 (x86_64)"
+href = "https://github.com/Incremental-AS/loft/releases/download/v0.2.0/loft-gateway_0.2.0-1.debian13_amd64.deb"
+
+[[platforms.downloads]]
+label = "Debian 13 (arm64, Raspberry Pi)"
+href = "https://github.com/Incremental-AS/loft/releases/download/v0.2.0/loft-gateway_0.2.0-1.debian13_arm64.deb"
+
+[[platforms.downloads]]
+label = "Ubuntu 24.04 (x86_64)"
+href = "https://github.com/Incremental-AS/loft/releases/download/v0.2.0/loft-gateway_0.2.0-1.ubuntu24_amd64.deb"
+
+[[platforms.downloads]]
+label = "Ubuntu 24.04 (arm64)"
+href = "https://github.com/Incremental-AS/loft/releases/download/v0.2.0/loft-gateway_0.2.0-1.ubuntu24_arm64.deb"
 
 [pages]
 
@@ -209,7 +225,7 @@ title = "다운로드 · Loft by Incremental"
 description = "iPhone, iPad, Mac, Android, Windows, Linux용 Loft와 Loft 게이트웨이를 다운로드하세요. 무료 오픈 소스예요."
 kicker = "다운로드"
 h1 = "Loft 받기."
-lead = "Loft는 모든 플랫폼에서 무료예요. 집에는 Loft 게이트웨이도 있어야 해요. 아직 없다면 <a href=\"/gateway/\">먼저 설정하세요</a>. 명령어 하나와 QR 코드 하나면 돼요."
+lead = "Loft는 모든 플랫폼에서 무료예요. 집에는 Loft 게이트웨이도 있어야 해요. 아직 없다면 <a href=\"/gateway/\">먼저 설정하세요</a>. 10분 정도와 QR 코드 하나면 돼요."
 
 [pages.download.updates]
 title = "업데이트 확인"
@@ -228,34 +244,33 @@ items = ["항상 켜져 있고 NAS와 같은 네트워크에 있는 Linux 머신
 
 [[pages.gateway.steps]]
 title = "설치"
-body = "<p><strong>곧 출시돼요.</strong> 게이트웨이는 아직 다운로드할 수 없어요. 출시되면 <code>.deb</code> 패키지와 컨테이너 이미지가 <a href=\"/download/#gateway\">다운로드</a> 페이지에 올라오고, 설치 명령어도 바로 여기에 안내할게요.</p>"
 
-[[pages.gateway.steps.parts_at_release]]
+[[pages.gateway.steps.parts]]
 id = "debian"
 title = "Debian 13 및 Ubuntu 24.04"
-before = "<p><strong>곧 출시돼요.</strong> <a href=\"/download/#gateway\">다운로드</a> 페이지에서 <code>.deb</code> 패키지를 받아 설치하세요. 아직 패키지 저장소가 없어서, 새 버전도 새로 다운로드해야 해요.</p>"
-code = "sudo apt install ./loft-gateway_*_amd64.deb"
-after = "<p>Raspberry Pi용 arm64 패키지는 준비 중이에요. 그때까지 arm64에서는 컨테이너를 사용하세요.</p>"
+before = "<p><a href=\"/download/#gateway\">다운로드</a> 페이지에서 내 시스템에 맞는 <code>.deb</code> 패키지를 받아 설치하세요. 아직 패키지 저장소가 없어서, 새 버전도 새로 다운로드해야 해요.</p>"
+code = "sudo apt install ./loft-gateway_*.deb"
+after = "<p>파일이 있는 폴더에서 실행하세요. Raspberry Pi에서는 Debian 13(arm64) 패키지를 사용하세요.</p>"
 
-[[pages.gateway.steps.parts_at_release]]
+[[pages.gateway.steps.parts]]
 id = "container"
 title = "컨테이너"
-before = "<p><strong>곧 출시돼요.</strong> x86_64와 arm64용 멀티 아키텍처 이미지예요. 처음 시작할 때 페어링 코드가 출력돼요(<code>docker logs loft</code>).</p>"
-code = "docker run -d --name loft --restart unless-stopped \\\n  -p 8443:8443 \\\n  -e LOFT_SMB_SERVER=&lt;nas-address&gt; \\\n  -e LOFT_LAN_URL=https://&lt;gateway-address&gt;:8443 \\\n  -v loft-etc:/etc/loft -v loft-state:/var/lib/loft \\\n  loft-gateway:0.2.0\ndocker logs loft\ndocker exec -it loft loft-container loft-gateway doctor --user alice\ndocker exec loft loft-container loft-gateway pair"
-after = "<p>컨테이너에서는 썸네일 생성기가 <code>.deb</code> 패키지에서 쓰는 systemd 샌드박스 대신, 권한이 없는 별도 프로세스로 실행돼요. 썸네일은 똑같이 작동해요.</p>"
+before = "<p>GitHub 컨테이너 레지스트리에서 받는 x86_64와 arm64용 멀티 아키텍처 이미지예요. 게이트웨이는 컨테이너가 알아서 시작해요. 처음 시작할 때 입력한 주소로 <code>loft-gateway init</code>을 실행하고, 페어링 코드를 출력해요(<code>docker logs loft</code>).</p>"
+code = "docker run -d --name loft --restart unless-stopped \\\n  -p 8443:8443 \\\n  -e LOFT_SMB_SERVER=&lt;nas-address&gt; \\\n  -e LOFT_LAN_URL=https://&lt;gateway-address&gt;:8443 \\\n  -v loft-etc:/etc/loft -v loft-state:/var/lib/loft \\\n  ghcr.io/incremental-as/loft-gateway:0.2.0\ndocker logs loft\ndocker exec -it loft loft-container loft-gateway doctor --user &lt;nas-username&gt;\ndocker exec loft loft-container loft-gateway pair"
+after = "<p>컨테이너에서는 썸네일 생성기가 <code>.deb</code> 패키지에서 쓰는 systemd 샌드박스 대신, 권한이 없는 별도 프로세스로 실행돼요. 썸네일은 똑같이 작동해요. 두 볼륨 모두 백업하세요. <code>loft-etc</code>에는 설정과 키가, <code>loft-state</code>에는 인덱스와 기기 정보가 들어 있어요.</p>"
 
 [[pages.gateway.steps]]
 title = "NAS 지정하기"
-body = "<p><code>loft-gateway init</code>을 실행하세요. NAS 주소를 묻고, 설정 파일을 작성하고, 게이트웨이의 키를 생성해요. 마지막에는 페어링 코드를 보여 줘요.</p>\n<p>그다음 <code>loft-gateway doctor</code>를 실행하세요. 게이트웨이가 NAS에 연결할 수 있는지, NAS가 어떤 SMB 버전과 암호화를 제공하는지, 시계가 정확한지, 인증서가 유효한지 확인해요. 문제가 있으면 무엇이 문제인지 알려 줘요. <code>--user</code>와 NAS 사용자 이름을 추가하면 로그인과 공유 폴더도 확인해요. 비밀번호를 묻지만 절대 출력하지는 않아요.</p>\n<p><strong>SMB 암호화를 지원하지 않는 오래된 NAS인가요?</strong> 기본적으로 게이트웨이는 암호화 없이는 연결을 거부해요. 설정 파일에 <code>smb_encryption = \"server\"</code>를 넣으면 NAS가 대신 결정하고, 홈 네트워크에서의 연결은 NAS가 요구할 때만 암호화돼요. 선택은 사용자의 몫이에요.</p>"
+body = "<p><code>.deb</code> 패키지라면 <code>sudo loft-gateway init</code>을 실행하세요. NAS 주소부터 시작해 몇 가지를 묻고, 설정 파일을 <code>/etc/loft</code>에 작성하고, 게이트웨이의 키를 생성해요. 마지막에는 페어링 코드를 보여 줘요. 3단계에서 필요해요. 예비 키도 함께 만들어요. 예비 키는 이 컴퓨터 밖으로 옮겨 안전하게 보관하세요. 게이트웨이의 키를 잃어버리거나 유출되더라도, 예비 키를 설치하면 앱이 계속 게이트웨이를 신뢰해요. 컨테이너에서는 처음 시작할 때 이미 이 과정을 마쳤어요.</p>\n<p>그다음 <code>sudo loft-gateway doctor</code>를 실행하세요(컨테이너에서는 위의 <code>docker exec … doctor</code> 줄). 게이트웨이가 NAS에 연결할 수 있는지, NAS가 어떤 SMB 버전과 암호화를 제공하는지, 시계가 정확한지, 인증서가 유효한지 확인해요. 문제가 있으면 무엇이 문제인지 알려 줘요. <code>--user</code>와 NAS 사용자 이름을 추가하면 로그인과 공유 폴더도 확인해요. 비밀번호를 묻지만 절대 출력하지는 않아요.</p>\n<p>그런 다음 게이트웨이를 시작하고, 컴퓨터가 켜질 때마다 다시 시작되도록 설정하세요.</p>\n<pre><code>sudo systemctl enable --now loft-gateway</code></pre>\n<p>컨테이너는 이미 실행 중이고, <code>--restart unless-stopped</code> 덕분에 재부팅 후에도 다시 실행돼요.</p>\n<p><strong>SMB 암호화를 지원하지 않는 오래된 NAS인가요?</strong> 기본적으로 게이트웨이는 암호화 없이는 연결을 거부해요. 설정 파일에 <code>smb_encryption = \"server\"</code>를 넣으면 NAS가 대신 결정하고, 홈 네트워크에서의 연결은 NAS가 요구할 때만 암호화돼요. 선택은 사용자의 몫이에요.</p>\n<p>나중에 설정 파일을 바꿨나요? 게이트웨이가 설정 파일을 다시 읽도록 재시작하세요. <code>sudo systemctl restart loft-gateway</code> 또는 <code>docker restart loft</code>를 실행하면 돼요.</p>"
 
 [[pages.gateway.steps]]
 title = "앱 페어링하기"
-body = "<p><code>loft-gateway pair</code>를 실행하고 Loft 앱으로 QR 코드를 스캔하거나, 기기에서 링크를 여세요. 코드에 게이트웨이의 주소와 키가 들어 있어서, 앱은 처음 연결할 때부터 <em>내</em> 게이트웨이와 통신하고 있다는 걸 알아요. 그다음 NAS 사용자 이름과 비밀번호로 로그인하세요.</p>\n<p>게이트웨이 주소를 입력하는 칸은 일부러 없앴어요. 직접 입력한 주소 때문에 비밀번호를 수집하는 가짜 게이트웨이로 연결될 수 있기 때문이에요. 꼭 필요하다면 앱의 페어링 화면에 <em>수동으로 설정</em>이 있어요.</p>"
+body = "<p><code>sudo loft-gateway pair</code>(컨테이너에서는 <code>docker exec loft loft-container loft-gateway pair</code>)를 실행하고 Loft 앱으로 QR 코드를 스캔하거나, 기기에서 링크를 여세요. 코드에 게이트웨이의 주소와 키가 들어 있어서, 앱은 처음 연결할 때부터 <em>내</em> 게이트웨이와 통신하고 있다는 걸 알아요. 그다음 NAS 사용자 이름과 비밀번호로 로그인하세요.</p>\n<p>게이트웨이 주소를 입력하는 칸은 일부러 없앴어요. 직접 입력한 주소 때문에 비밀번호를 수집하는 가짜 게이트웨이로 연결될 수 있기 때문이에요. 꼭 필요하다면 앱의 페어링 화면에 <em>수동으로 설정</em>이 있어요.</p>"
 
 [[pages.gateway.steps]]
 id = "outside"
 title = "외부에서 사용하기(선택 사항)"
-body = "<p>집에서는 더 할 일이 없어요. 집 밖에서 Loft를 쓰려면 다음 중 하나를 고르세요.</p>\n<ul><li><strong>터널</strong>: 예를 들어 Cloudflare Tunnel. 공유기에 포트를 열 필요는 없지만, 터널 제공업체가 트래픽을 읽을 수 있고, 로그인은 집에서 해야 해요.</li><li><strong>직접 연결</strong>: 공유기에서 게이트웨이로 포트를 포워딩해요. 종단 간 암호화되고, 어디서나 로그인할 수 있어요. 게이트웨이가 로그인 시도 횟수를 제한해요.</li></ul>\n<p>차이점은 <a href=\"/how-it-works/#security\">작동 방식</a>에서 설명해요. 설정을 바꾼 뒤에는 <code>loft-gateway pair</code>를 다시 실행해서 코드에 새 주소가 들어가게 하세요.</p>"
+body = "<p>집에서는 더 할 일이 없어요. 집 밖에서 Loft를 쓰려면 다음 중 하나를 고르세요.</p>\n<ul><li><strong>터널</strong>: 예를 들어 Cloudflare Tunnel. 공유기에 포트를 열 필요는 없지만, 터널 제공업체가 트래픽을 읽을 수 있고, 로그인은 집에서 해야 해요.</li><li><strong>직접 연결</strong>: 공유기에서 게이트웨이로 포트를 포워딩해요. 종단 간 암호화되고, 어디서나 로그인할 수 있어요. 게이트웨이가 로그인 시도 횟수를 제한해요.</li></ul>\n<p>차이점은 <a href=\"/how-it-works/#security\">작동 방식</a>에서 설명해요. 설정을 바꾼 뒤에는 페어링 명령어를 다시 실행해서 코드에 새 주소가 들어가게 하세요.</p>"
 
 [[pages.gateway.sections]]
 id = "limit"
@@ -383,7 +398,7 @@ lead = "Loft는 무료이고, 작은 팀이 만들어요. 고객 지원 센터�
 
 [[pages.support.sections]]
 title = "먼저 확인해 보세요"
-body = "<ul>\n<li><strong>게이트웨이에서 <code>loft-gateway doctor</code>를 실행하세요.</strong> 대부분의 문제는 게이트웨이와 NAS 사이에서 생기고, 대개 무엇이 문제인지 알려 줘요.</li>\n<li><strong>Mac: Finder 사이드바에 Loft가 없어요.</strong> macOS가 Loft를 꺼 두었을 수 있어요. Finder에서 <em>‘Loft’이(가) 활성화되지 않았습니다</em>라는 메시지를 찾아 <em>활성화</em>를 선택하거나, 시스템 설정 › 일반 › 로그인 항목 및 확장 프로그램 › 파일 제공자에서 Loft를 켜세요.</li>\n<li><strong>NAS에서 바꾼 내용은 몇 분 뒤에 표시돼요.</strong> Loft에서 바꾼 내용은 몇 초 안에 표시돼요.</li>\n<li><strong>외부에서 로그인할 수 없나요?</strong> 터널을 쓰면 로그인은 집에서만 할 수 있어요. 일부러 그렇게 만들었어요. <a href=\"/how-it-works/#security\">작동 방식</a>을 참고하세요.</li>\n<li><strong>앱이 게이트웨이를 찾지 못하나요?</strong> 다시 페어링하세요. <code>loft-gateway pair</code>를 실행하고 새 코드를 스캔하면 돼요.</li>\n</ul>"
+body = "<ul>\n<li><strong>게이트웨이에서 <code>sudo loft-gateway doctor</code>를 실행하세요</strong>(컨테이너에서는 <code>docker exec -it loft loft-container loft-gateway doctor</code>). 대부분의 문제는 게이트웨이와 NAS 사이에서 생기고, 대개 무엇이 문제인지 알려 줘요.</li>\n<li><strong>Mac: Finder 사이드바에 Loft가 없어요.</strong> macOS가 Loft를 꺼 두었을 수 있어요. Finder에서 <em>‘Loft’이(가) 활성화되지 않았습니다</em>라는 메시지를 찾아 <em>활성화</em>를 선택하거나, 시스템 설정 › 일반 › 로그인 항목 및 확장 프로그램 › 파일 제공자에서 Loft를 켜세요.</li>\n<li><strong>NAS에서 바꾼 내용은 몇 분 뒤에 표시돼요.</strong> Loft에서 바꾼 내용은 몇 초 안에 표시돼요.</li>\n<li><strong>외부에서 로그인할 수 없나요?</strong> 터널을 쓰면 로그인은 집에서만 할 수 있어요. 일부러 그렇게 만들었어요. <a href=\"/how-it-works/#security\">작동 방식</a>을 참고하세요.</li>\n<li><strong>앱이 게이트웨이를 찾지 못하나요?</strong> 게이트웨이가 실행 중인지 확인하세요. <code>sudo systemctl status loft-gateway</code>, 컨테이너라면 <code>docker ps</code>로 확인할 수 있어요. 그다음 다시 페어링하세요. <code>sudo loft-gateway pair</code>를 실행하고 새 코드를 스캔하면 돼요.</li>\n</ul>"
 
 [[pages.support.sections]]
 title = "문제 신고"

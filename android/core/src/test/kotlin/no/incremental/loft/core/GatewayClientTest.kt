@@ -185,6 +185,20 @@ class GatewayClientTest {
         assertEquals(1_900_000_000_500L, StoredToken.of(ok).expiresAtMs)
     }
 
+    @Test fun codeLoginSendsTheTrimmedCodeWithoutAToken() = runBlocking {
+        val c = client(MemoryTokenStore(token))
+        home.enqueue(json("""{"error":"invalid_code"}""", 401))
+        val e = runCatching { c.codeLogin(" ABCD-EFGH ", "Pixel") }.exceptionOrNull() as GatewayException.Api
+        assertEquals("invalid_code", e.error.error)
+        val r = home.takeRequest()
+        assertEquals("/v1/auth/code", r.path)
+        assertNull(r.getHeader("Authorization"))
+        assertEquals("""{"code":"ABCD-EFGH","device_name":"Pixel"}""", r.body.readUtf8())
+
+        home.enqueue(json("""{"device_id":"d2","token":"lft_d2.s","nas_user":"test-user","expires_at":1900000000}"""))
+        assertEquals("test-user", c.codeLogin("ABCD-EFGH", "Pixel").nasUser)
+    }
+
     @Test fun rotateStoresTheNewToken() = runBlocking {
         val store = MemoryTokenStore(token)
         home.enqueue(json("""{"device_id":"dev","token":"lft_dev.new","expires_at":1900000000}"""))

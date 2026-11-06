@@ -12,6 +12,8 @@
 "Key fingerprint" = "키 지문";
 "Base64, ends in =" = "Base64, =로 끝남";
 "Use a pairing link instead" = "페어링 링크로 설정하기";
+"No gateway yet? Loft needs one at home, next to your NAS." = "아직 게이트웨이가 없나요? Loft를 쓰려면 집에 NAS 옆에 둘 게이트웨이가 있어야 해요.";
+"Set up a gateway" = "게이트웨이 설정";
 "Pair with “%@”?" = "“%@” 게이트웨이와 페어링할까요?";
 "At home: %@" = "집에서: %@";
 "Away from home: %@, through a tunnel. Sign in at home first." = "외부에서: %@, 터널 경유. 먼저 집에서 로그인하세요.";
@@ -36,5 +38,6 @@
 "Too many tries. Wait 15 minutes, then try again." = "시도 횟수가 너무 많아요. 15분 후에 다시 시도하세요.";
 "Something went wrong. Try again." = "문제가 발생했어요. 다시 시도하세요.";
 "Loft %@ is available…" = "Loft %@ 사용 가능…";
+"Loft %@" = "Loft %@";
 "Check for updates" = "업데이트 확인";
 "Once a day, Loft asks loft.incremental.no if there's a newer version. It sends nothing about you, this Mac or your files." = "Loft는 하루에 한 번 loft.incremental.no에 새 버전이 있는지 물어봐요. 사용자, 이 Mac, 파일에 관한 정보는 전혀 보내지 않아요.";

@@ -186,6 +186,12 @@ struct OnboardingView: View {
         case .pair:
             Text(Copy.pairTitle).font(.title).fontWeight(.semibold)
             Text(Copy.pairBody).fixedSize(horizontal: false, vertical: true)
+            HStack(spacing: 6) {
+                Text(Copy.noGatewayYet).foregroundStyle(.secondary)
+                Link(Copy.setUpGateway, destination: Copy.gatewayGuideURL)
+                    .accessibilityIdentifier("gateway-guide")
+            }
+            .font(.callout)
             Form {
                 TextField(Copy.pairLinkField, text: $flow.link, prompt: Text(Copy.pairLinkPlaceholder))
                     .onSubmit { flow.submitLink() }

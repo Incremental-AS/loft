@@ -29,6 +29,8 @@
   "pair.link_field": "Pairing link",
   "common.continue": "Continue",
   "pair.set_up_manually": "Set up manually",
+  "pair.no_gateway": "No gateway yet? Loft needs one at home, next to your NAS.",
+  "pair.setup_gateway": "Set up a gateway",
   "pair.manual_body": "Type the gateway's address and one of its key fingerprints. loft-gateway pair shows both. The fingerprint is how Loft checks it's really your gateway, so there's no setup without it.",
   "pair.address_field": "Address, like nas-gateway.local:8443",
   "pair.pin_field": "Key fingerprint",

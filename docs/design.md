@@ -72,7 +72,8 @@ master_key   = a systemd credential (TPM-bound where the host has one), or a 060
   these limits may be the only wall; where the NAS has one, keep the gateway's limit below it so the gateway trips
   first. The audit log records sign-ins, failures, refreshes, revokes and every write, delete, move and restore.
 - **Accounts**: `allowed_users_re` / `denied_users_re` choose which NAS accounts may sign in. Service accounts that
-  can open everything (backup, replication) belong in `denied_users_re`.
+  can open everything (backup, replication) belong in `denied_users_re`. `assistant_users_re` separately chooses who may connect an assistant
+  (default: everyone who may sign in; empty = nobody; docs/mcp.md).
 - **Residual risk, stated plainly**: an attacker inside the running gateway process can capture the passwords of
   users who are active at that time. Every design where a gateway signs in as the user over NTLM has this; only
   Kerberos delegation avoids it. Mitigations: run nothing else on the gateway host, and use the hardened systemd
@@ -103,6 +104,8 @@ share, and SMB 8.3 short names (`ABCDEF~1`) are refused, so an alias cannot reac
   same pins, so sign-in works from outside too.
 - Sign-in codes (`code_users_re`, empty by default): a device signed in on the direct route can mint a code that
   signs in another device over the internet, for example for an app store reviewer.
+- Assistants (MCP, `docs/mcp.md`) sign in with OAuth on the public route. That page never takes a password: the user
+  types a 10-minute approval code made in a signed-in Loft app (home network) or on the gateway host.
 
 ### B.5 Running a gateway
 

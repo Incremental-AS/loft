@@ -81,9 +81,43 @@ class Settings:
     code_users_re: str = ""
     code_max_uses: int = 10             # Apple reviews every update, often two reviewers
     code_ttl_days: int = 90
+    # Accounts that may connect assistants (MCP), on top of allowed_users_re (full match,
+    # case-insensitive; denied_users_re still refuses). The default, ".*", is every account
+    # that may sign in: connecting needs an approval code from a signed-in Loft app, and
+    # the assistant opens only folders the user approves. Narrow it to name accounts;
+    # empty: nobody. Taking an account out ends its connections at their next call.
+    assistant_users_re: str = ".*"
+    # An assistant approval code (Loft app > Connect an assistant) may be made away from
+    # home too (the code itself is the approval; it works once, within 10 minutes).
+    # False: only on the home network, like sign-in codes.
+    assistant_codes_over_internet: bool = True
+    # Wrong approval codes from everyone together, per login window. Each code also has
+    # its own limit (login_max_fail_user), so this only stops a guessing swarm.
+    assistant_code_max_fail_global: int = 500
+    # The internet address assistants use (https://<host>, /mcp and OAuth under it), when
+    # it isn't public_url: e.g. a friendlier hostname routed to the same public listener.
+    # Empty: public_url. Pairing links keep public_url either way.
+    assistant_url: str = ""
+    # Where assistants may send the browser back after sign-in. Empty: any https host
+    # (any MCP client may register). Set it, e.g. ["api.jeevo.ai"], to allow only those;
+    # loopback (an app on the user's own computer) is always allowed.
+    assistant_return_hosts: list[str] = field(default_factory=list)
 
     rescan_interval_s: int = 300
     background_rescan: bool = True      # tests switch it off for determinism
+    # Change notify (watch.py): the NAS reports changes, the gateway re-reads only
+    # those folders. The full rescan becomes the safety net, run every
+    # rescan_interval_watched_s while every watch of a root is up and a pass has
+    # started since; rescan_interval_s otherwise.
+    notify: bool = True
+    notify_debounce_s: float = 1.0      # gather a burst into one listing per folder
+    notify_folder_min_s: float = 10.0   # a busy folder is re-read at most this often
+    notify_move_grace_s: float = 3.0    # a missing item waits this long for its move's other half
+    notify_overflow_rescan_s: int = 600 # NAS overflowed: rescan that share, this often at most
+    # Same as rescan_interval_s for now. SMB notify doesn't see files written on the NAS
+    # itself (its own web or phone uploads, jobs running on it), so the scan stays as
+    # often as before until changes are detected on the NAS itself. 6 * 3600 was the plan.
+    rescan_interval_watched_s: int = 300
     safe_save_window_s: int = 60        # delete-then-create inside this = one new version
     versions_keep: int = 10
     versions_days: int = 30
@@ -92,6 +126,10 @@ class Settings:
     upload_ttl_s: int = 24 * 3600
     longpoll_max_s: int = 25            # well under Cloudflare's 100 s
     session_idle_s: int = 1800          # cached SMB session per device
+    # ...but kept while a rescan runs on it, up to this long after the device's last
+    # request, so a full pass of a big root finishes on an idle Mac. The NAS password
+    # stays in memory that much longer, at most.
+    rescan_keeps_session_s: int = 3 * 3600
     # Thumbnails: decoded only in the sandboxed worker (thumbs.py, loft-thumb@.service).
     # "" = spawn the worker as a subprocess (tests, dev): NOT for production.
     thumb_socket: str = "/run/loft-thumb.sock"
@@ -145,5 +183,7 @@ def validate(s: Settings) -> None:
         raise ValueError(f"smb_encryption must be 'required' or 'server', not {s.smb_encryption!r}")
     if s.public_mode not in ("none", "tunnel", "direct"):
         raise ValueError(f"public_mode must be 'none', 'tunnel' or 'direct', not {s.public_mode!r}")
+    if s.assistant_url and not s.assistant_url.startswith("https://"):
+        raise ValueError("assistant_url must be \"https://...\" (or empty: public_url)")
     if s.public_mode != "none" and not s.public_url.startswith("https://"):
         raise ValueError("public_mode needs public_url = \"https://...\"")

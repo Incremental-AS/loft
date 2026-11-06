@@ -18,6 +18,12 @@ class AuthFailed(StorageError):
     pass
 
 
+class WrongShareOwner(StorageError):
+    """The share's root has another owner than this account's share had before: the
+    NAS is serving some other folder under this share's name. A StorageError, so the
+    index keeps its rows (a rescan skips the share; nothing is deleted)."""
+
+
 class NotFound(StorageError):
     pass
 
@@ -93,6 +99,18 @@ def split(path: str) -> tuple[str, str]:
     return head, tail
 
 
+class Watch(Protocol):
+    """A change watch on one folder and everything under it (SMB2 CHANGE_NOTIFY
+    with WATCH_TREE). next() blocks until the NAS reports something and returns the
+    changed paths relative to the watched folder ('/'-separated, NAS names mapped
+    back as from_nas does), or None when the NAS had more changes than it could
+    list (overflow: rescan the folder). It raises StorageError once the watch is
+    gone (closed, connection dropped, session closed)."""
+
+    def next(self) -> list[str] | None: ...
+    def close(self) -> None: ...
+
+
 class Session(Protocol):
     user: str
 
@@ -109,6 +127,7 @@ class Session(Protocol):
     def remove(self, share: str, path: str) -> None: ...
     def rmtree(self, share: str, path: str) -> None: ...
     def set_mtime(self, share: str, path: str, mtime_ns: int) -> None: ...
+    def watch(self, share: str, path: str) -> Watch: ...
     def close(self) -> None: ...
 
 

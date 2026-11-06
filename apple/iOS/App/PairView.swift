@@ -26,6 +26,14 @@ struct PairView: View {
                     .padding(.vertical, 6)
                 }
                 Section {
+                    Link(destination: PhoneCopy.gatewayGuideURL) {
+                        Label(PhoneCopy.setUpGateway, systemImage: "safari")
+                    }
+                    .accessibilityIdentifier("gateway-guide")
+                } footer: {
+                    Text(PhoneCopy.noGatewayYet)
+                }
+                Section {
                     Button { scanning = true } label: { Label("Scan QR code", systemImage: "qrcode.viewfinder") }
                 }
                 Section {
@@ -50,10 +58,15 @@ struct PairView: View {
                         .disabled(link.trimmingCharacters(in: .whitespaces).isEmpty)
                     NavigationLink("Set up manually") { ManualPairView() }
                         .font(.footnote)
+                } footer: {
+                    Text(verbatim: "Loft \(PhoneCopy.appVersion)")
+                        .frame(maxWidth: .infinity).padding(.top, 12)
+                        .accessibilityIdentifier("app-version")
                 }
             }
             .navigationTitle("Loft")
             .toolbar {
+                ToolbarItem(placement: .topBarTrailing) { AboutButton() }
                 if model.choosingGateway {
                     ToolbarItem(placement: .cancellationAction) {
                         Button("Cancel") { model.choosingGateway = false }

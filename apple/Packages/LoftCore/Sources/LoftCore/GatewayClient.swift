@@ -9,6 +9,19 @@ import FoundationNetworking
 
 public protocol HTTPTransport: Sendable {
     func send(_ request: URLRequest) async throws -> (Data, HTTPURLResponse)
+    /// The same, telling `received` how many body bytes have arrived while it runs
+    /// (progress bars). The default reports once, at the end.
+    func send(_ request: URLRequest,
+              received: @escaping @Sendable (Int64) -> Void) async throws -> (Data, HTTPURLResponse)
+}
+
+extension HTTPTransport {
+    public func send(_ request: URLRequest,
+                     received: @escaping @Sendable (Int64) -> Void) async throws -> (Data, HTTPURLResponse) {
+        let r = try await send(request)
+        received(Int64(r.0.count))
+        return r
+    }
 }
 
 public struct URLSessionTransport: HTTPTransport, @unchecked Sendable {
@@ -20,7 +33,40 @@ public struct URLSessionTransport: HTTPTransport, @unchecked Sendable {
         guard let h = resp as? HTTPURLResponse else { throw GatewayError.badResponse(0, "not http") }
         return (data, h)
     }
+
+    #if canImport(Darwin)
+    public func send(_ request: URLRequest,
+                     received: @escaping @Sendable (Int64) -> Void) async throws -> (Data, HTTPURLResponse) {
+        // A task delegate that only watches the byte count: everything else (the pinned
+        // TLS check) still goes to the session's own delegate.
+        let watch = ReceivedBytesWatch(received)
+        defer { watch.stop() }
+        let (data, resp) = try await session.data(for: request, delegate: watch)
+        guard let h = resp as? HTTPURLResponse else { throw GatewayError.badResponse(0, "not http") }
+        received(Int64(data.count))
+        return (data, h)
+    }
+    #endif
 }
+
+#if canImport(Darwin)
+final class ReceivedBytesWatch: NSObject, URLSessionTaskDelegate, @unchecked Sendable {
+    private let report: @Sendable (Int64) -> Void
+    private let lock = NSLock()
+    private var observation: NSKeyValueObservation?
+
+    init(_ report: @escaping @Sendable (Int64) -> Void) { self.report = report }
+
+    func urlSession(_ session: URLSession, didCreateTask task: URLSessionTask) {
+        let o = task.observe(\.countOfBytesReceived, options: [.new]) { [report] t, _ in
+            report(t.countOfBytesReceived)
+        }
+        lock.withLock { observation = o }
+    }
+
+    func stop() { lock.withLock { observation?.invalidate(); observation = nil } }
+}
+#endif
 
 public enum GatewayError: Error, Sendable, CustomStringConvertible {
     case api(APIError)              // the gateway answered with an error body
@@ -53,7 +99,15 @@ public final class GatewayClient: @unchecked Sendable {
     public var probe: (@Sendable () async -> Bool)?
     /// Upload chunk / download slice sizes; tests make them small.
     public var chunkLimit: Int64 = 32 << 20
-    public var downloadSlice: Int64 = 32 << 20
+    /// Downloads go in Range slices of this size, `downloadParallel` of them at once.
+    /// 8 MiB x 4 keeps at most 32 MiB in memory (a File Provider extension has little).
+    public var downloadSlice: Int64 = 8 << 20
+    public var downloadParallel = 4
+    /// One transport per parallel slice, each its own URLSession: Cloudflare speaks HTTP/2,
+    /// so slices sent through one session share ONE TCP connection, and a lossy mobile link
+    /// holds a single connection far below what the line can do (2026-11-06: 6-13 Mbit/s
+    /// per connection on a 38 Mbit/s 4G line). Empty: everything goes through `transport`.
+    public var downloadLanes: [HTTPTransport] = []
     public var retryDelays: [UInt64] = [1, 2, 4, 8, 16]   // seconds, transport errors only
 
     private let encoder = JSONEncoder()
@@ -72,7 +126,8 @@ public final class GatewayClient: @unchecked Sendable {
     /// rotated it under us (the old one stays valid 120 s, so this is rare).
     func raw(_ method: String, _ path: String, query: [URLQueryItem] = [], body: Data? = nil,
              contentType: String? = "application/json", headers: [String: String] = [:],
-             auth: Bool = true, base: URL? = nil, timeout: TimeInterval = 60) async throws
+             auth: Bool = true, base: URL? = nil, timeout: TimeInterval = 60,
+             via: HTTPTransport? = nil, received: (@Sendable (Int64) -> Void)? = nil) async throws
         -> (Data, HTTPURLResponse)
     {
         if base == nil, let probe { await selector.ensureFresh(probe) }
@@ -96,7 +151,9 @@ public final class GatewayClient: @unchecked Sendable {
             }
             let data: Data, resp: HTTPURLResponse
             do {
-                (data, resp) = try await transport.send(r)
+                let t = via ?? transport
+                if let received { (data, resp) = try await t.send(r, received: received) }
+                else { (data, resp) = try await t.send(r) }
             } catch let e as GatewayError {
                 throw e
             } catch {
@@ -365,18 +422,34 @@ public final class GatewayClient: @unchecked Sendable {
 
     // MARK: download (Range, sliced)
 
-    /// Download an item's content into `dest` (created/truncated) in Range slices, so a
-    /// dropped connection resumes from the last byte written. Returns the content etag
-    /// the bytes belong to ("c<N>"). If the NAS copy changes mid-way it starts over (max 3).
+    /// Download an item's content into `dest` in Range slices, `downloadParallel` at once,
+    /// each through its own lane. Returns the content etag the bytes belong to ("c<N>").
+    /// If the NAS copy changes mid-way it starts over (max 3).
+    /// - `expectedSize`: the item's size, if known; the slices then start at once instead
+    ///   of after the first one (checked against the gateway's answer).
+    /// - `resume`: keep what an interrupted earlier call left in `dest`. The slices it
+    ///   finished are noted in `dest` + ".loftparts"; a different version, size or slice
+    ///   size starts over. Without it `dest` is truncated and nothing is noted.
+    /// - `progress(done, total)`: bytes so far, counted while slices arrive, at most ~10/s.
     @discardableResult
-    public func download(_ id: String, to dest: URL,
+    public func download(_ id: String, to dest: URL, expectedSize: Int64? = nil, resume: Bool = false,
                          progress: (@Sendable (Int64, Int64) -> Void)? = nil) async throws -> String {
         var restarts = 0
+        var keep = resume, hint = expectedSize
         while true {
-            if let tag = try await downloadOnce(id, to: dest, progress: progress) { return tag }
+            if let tag = try await downloadOnce(id, to: dest, expectedSize: hint, resume: keep,
+                                                note: resume, progress: progress) {
+                return tag
+            }
+            keep = false; hint = nil                 // changed on the NAS: start clean
             restarts += 1
             if restarts >= 3 { throw GatewayError.changedDuringTransfer }
         }
+    }
+
+    /// Where `download(resume:)` notes the finished slices of `dest`.
+    public static func partsNote(for dest: URL) -> URL {
+        dest.deletingLastPathComponent().appendingPathComponent(dest.lastPathComponent + ".loftparts")
     }
 
     /// One Range read into memory, for a player that asks for byte ranges (iPhone app).
@@ -443,55 +516,201 @@ public final class GatewayClient: @unchecked Sendable {
         }
     }
 
-    /// nil = the content changed on the NAS between slices; the caller starts over.
-    private func downloadOnce(_ id: String, to dest: URL,
-                              progress: (@Sendable (Int64, Int64) -> Void)?) async throws -> String? {
-        guard FileManager.default.createFile(atPath: dest.path, contents: nil) else {
-            throw CocoaError(.fileWriteUnknown)
-        }
-        let fh = try FileHandle(forWritingTo: dest)
-        defer { try? fh.close() }
-        var offset: Int64 = 0
-        var total: Int64?
-        var etag: String?
+    private struct PartsNote: Codable {
+        var etag: String
+        var total: Int64
+        var slice: Int64
+        var done: [Int64]                            // offsets of the finished slices
+    }
+
+    private enum SliceAnswer: Sendable {
+        case bytes(offset: Int64, data: Data, etag: String, total: Int64?)   // total nil: a 200
+        case gone(offset: Int64)                     // 416: shorter on the NAS than we knew
+    }
+
+    /// One slice, retried on transport errors (a dropped connection, a Cloudflare 5xx page).
+    private func fetchSlice(_ id: String, offset: Int64, length: Int64?, lane: HTTPTransport?,
+                            received: @escaping @Sendable (Int64) -> Void) async throws -> SliceAnswer {
         var failures = 0
-        var askWhole = false                         // after a 416 at 0: an empty file, ask without a Range
-        while askWhole || total == nil || offset < total! {
+        while true {
             try Task.checkCancellation()
-            let headers = askWhole ? [:] : ["Range": "bytes=\(offset)-\(offset + downloadSlice - 1)"]
-            let data: Data, resp: HTTPURLResponse
+            let headers = length.map { ["Range": "bytes=\(offset)-\(offset + max($0, 1) - 1)"] } ?? [:]
             do {
-                (data, resp) = try await raw("GET", "v1/items/\(id)/content", headers: headers, timeout: 300)
+                received(0)
+                let (data, resp) = try await raw("GET", "v1/items/\(id)/content", headers: headers,
+                                                 timeout: 300, via: lane, received: received)
+                let tag = (resp.value(forHTTPHeaderField: "ETag") ?? "")
+                    .trimmingCharacters(in: CharacterSet(charactersIn: "\""))
+                if resp.statusCode == 206, let cr = resp.value(forHTTPHeaderField: "Content-Range"),
+                   let slash = cr.lastIndex(of: "/"), let t = Int64(cr[cr.index(after: slash)...]) {
+                    return .bytes(offset: offset, data: data, etag: tag, total: t)
+                }
+                return .bytes(offset: 0, data: data, etag: tag, total: nil)
             } catch GatewayError.unreachable(let why) {
                 guard failures < retryDelays.count else { throw GatewayError.unreachable(why) }
                 try await Task.sleep(nanoseconds: retryDelays[failures] * 1_000_000_000)
                 failures += 1
-                continue
             } catch GatewayError.api(let e) where e.status == 416 {
-                if offset > 0 || askWhole { return nil }   // shrank on the NAS since the first slice
-                askWhole = true                      // empty file: ask again without a Range
-                continue
+                return .gone(offset: offset)
             }
-            failures = 0
-            askWhole = false
-            let tag = (resp.value(forHTTPHeaderField: "ETag") ?? "")
-                .trimmingCharacters(in: CharacterSet(charactersIn: "\""))
-            if let etag, tag != etag { return nil }
-            etag = tag
-            if resp.statusCode == 206, let cr = resp.value(forHTTPHeaderField: "Content-Range"),
-               let slash = cr.lastIndex(of: "/"), let t = Int64(cr[cr.index(after: slash)...]) {
-                total = t
-            } else {
-                // 200: the gateway sent the whole file; start over the write from zero.
-                try fh.truncate(atOffset: 0)
-                offset = 0
-                total = Int64(data.count)
-            }
-            try fh.write(contentsOf: data)
-            offset += Int64(data.count)
-            progress?(offset, total!)
-            if data.isEmpty { break }
         }
-        return etag ?? ""
+    }
+
+    /// nil = the content changed on the NAS between slices; the caller starts over.
+    private func downloadOnce(_ id: String, to dest: URL, expectedSize: Int64?, resume: Bool,
+                              note: Bool, progress: (@Sendable (Int64, Int64) -> Void)?) async throws -> String? {
+        let fm = FileManager.default
+        let noteURL = Self.partsNote(for: dest)
+        let slice = max(downloadSlice, 1)
+        var parts: PartsNote?
+        if resume, fm.fileExists(atPath: dest.path), let d = try? Data(contentsOf: noteURL),
+           let p = try? decoder.decode(PartsNote.self, from: d), p.slice == slice {
+            parts = p
+        }
+        if parts == nil {
+            try? fm.removeItem(at: noteURL)
+            guard fm.createFile(atPath: dest.path, contents: nil) else { throw CocoaError(.fileWriteUnknown) }
+        }
+        let fh = try FileHandle(forWritingTo: dest)
+        defer { try? fh.close() }
+
+        var etag = parts?.etag
+        var total = parts?.total ?? expectedSize
+        var done = Set(parts?.done ?? [])
+        let tally = DownloadTally(progress)
+        func save() {
+            guard note, let etag, let total else { return }
+            let p = PartsNote(etag: etag, total: total, slice: slice, done: done.sorted())
+            if let d = try? encoder.encode(p) { try? d.write(to: noteURL, options: .atomic) }
+        }
+        func sliceLength(_ off: Int64) -> Int64 { min(slice, (total ?? 0) - off) }
+        /// false: another version, or a size other than the one we work to.
+        func accept(_ a: SliceAnswer) throws -> Bool {
+            guard case .bytes(let off, let data, let tag, let t) = a else { return false }
+            if let etag, tag != etag { return false }
+            etag = tag
+            if let t {
+                if let total, t != total { return false }
+                total = t
+            }
+            try fh.seek(toOffset: UInt64(off))
+            try fh.write(contentsOf: data)
+            return true
+        }
+
+        // The size is unknown (or 0, and an empty file's etag comes only from an answer):
+        // the first slice alone tells it.
+        if total == nil || total == 0 {
+            total = nil
+            switch try await fetchSlice(id, offset: 0, length: slice, lane: downloadLanes.first,
+                                        received: { tally.inFlight(0, $0) }) {
+            case .gone(offset: 0):
+                // 416 at 0: an empty file. Ask once more without a Range for its etag.
+                let a = try await fetchSlice(id, offset: 0, length: nil, lane: downloadLanes.first,
+                                             received: { _ in })
+                guard case .bytes(_, let data, let tag, _) = a, data.isEmpty else { return nil }
+                try fh.truncate(atOffset: 0)
+                try? fm.removeItem(at: noteURL)
+                return tag
+            case .gone:
+                return nil
+            case .bytes(_, let data, let tag, nil):
+                // 200: the gateway sent the whole file.
+                try fh.truncate(atOffset: 0)
+                try fh.write(contentsOf: data)
+                try? fm.removeItem(at: noteURL)
+                tally.setTotal(Int64(data.count), done: Int64(data.count))
+                return tag
+            case let a:
+                guard try accept(a) else { return nil }
+                done.insert(0)
+                save()
+            }
+        }
+        guard let size = total else { return nil }
+        tally.setTotal(size, done: done.reduce(0) { $0 + sliceLength($1) }, finished: done)
+
+        var todo = Array(stride(from: Int64(0), to: size, by: Int(slice))).filter { !done.contains($0) }
+        todo.reverse()                               // removeLast() takes them in file order
+        let lanes: [HTTPTransport?] = downloadLanes.isEmpty ? [nil] : downloadLanes
+        var free = Array((0..<max(1, downloadParallel)).reversed())
+        let ok: Bool = try await withThrowingTaskGroup(of: (Int, SliceAnswer).self) { group in
+            func start() {
+                while !free.isEmpty, !todo.isEmpty {
+                    let slot = free.removeLast(), off = todo.removeLast()
+                    let lane = lanes[slot % lanes.count], len = min(slice, size - off)
+                    group.addTask { [self] in
+                        (slot, try await fetchSlice(id, offset: off, length: len, lane: lane,
+                                                    received: { tally.inFlight(off, $0) }))
+                    }
+                }
+            }
+            start()
+            while let (slot, answer) = try await group.next() {
+                guard case .bytes(let off, let data, _, let t) = answer, t != nil,
+                      Int64(data.count) == min(slice, size - off), try accept(answer) else {
+                    group.cancelAll()
+                    return false
+                }
+                done.insert(off)
+                tally.finished(off, Int64(data.count))
+                save()
+                free.append(slot)
+                start()
+            }
+            return true
+        }
+        guard ok, let etag else { return nil }
+        try fh.truncate(atOffset: UInt64(size))
+        try? fm.removeItem(at: noteURL)
+        return etag
+    }
+}
+
+/// Bytes of a download so far: the finished slices plus what the running ones have
+/// received. Reports at most every 0.1 s (and always the last), from any thread.
+final class DownloadTally: @unchecked Sendable {
+    private let report: (@Sendable (Int64, Int64) -> Void)?
+    private let lock = NSLock()
+    private var total: Int64 = 0
+    private var finishedBytes: Int64 = 0
+    private var finished = Set<Int64>()
+    private var running: [Int64: Int64] = [:]
+    private var lastAt = Date.distantPast
+    private var lastSent: Int64 = -1
+
+    init(_ report: (@Sendable (Int64, Int64) -> Void)?) { self.report = report }
+
+    func setTotal(_ t: Int64, done: Int64, finished f: Set<Int64> = []) {
+        lock.withLock { total = t; finishedBytes = done; finished = f; running = [:] }
+        emit(force: true)
+    }
+
+    func inFlight(_ offset: Int64, _ bytes: Int64) {
+        // a late byte count of a slice already counted as finished is ignored
+        lock.withLock { if !finished.contains(offset) { running[offset] = bytes } }
+        emit(force: false)
+    }
+
+    func finished(_ offset: Int64, _ bytes: Int64) {
+        lock.withLock {
+            running[offset] = nil
+            if finished.insert(offset).inserted { finishedBytes += bytes }
+        }
+        emit(force: false)
+    }
+
+    private func emit(force: Bool) {
+        guard let report else { return }
+        let now = Date()
+        let out: (Int64, Int64)? = lock.withLock {
+            guard total > 0 else { return nil }      // size not known yet
+            let done = min(total, finishedBytes + running.values.reduce(0, +))
+            let last = done == total
+            guard done != lastSent, force || last || now.timeIntervalSince(lastAt) >= 0.1 else { return nil }
+            lastSent = done; lastAt = now
+            return (done, total)
+        }
+        if let out { report(out.0, out.1) }
     }
 }

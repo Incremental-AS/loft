@@ -76,6 +76,7 @@ public final class LoftEnvironment: @unchecked Sendable {
     public let client: GatewayClient
     public let probeTransport: URLSessionTransport
     private let probeSession: URLSession
+    private let downloadSessions: [URLSession]
 
     /// `legacy`: what a device signed in with 0.1.x is migrated to (LegacyPairing).
     public init(shared: SharedState = SharedState(), tokens: TokenStore = KeychainTokenStore(),
@@ -105,6 +106,12 @@ public final class LoftEnvironment: @unchecked Sendable {
 
         client = GatewayClient(transport: URLSessionTransport(session: session), tokens: tokens,
                                selector: selector)
+        // One session per parallel download slice: HTTP/2 puts every request of one
+        // session on one TCP connection, and one connection is what a lossy link limits.
+        let pin = pinning, slots = client.downloadParallel
+        let lanes = (0..<slots).map { _ in URLSession(configuration: c, delegate: pin, delegateQueue: nil) }
+        downloadSessions = lanes
+        client.downloadLanes = lanes.map { URLSessionTransport(session: $0) }
         let probeT = probeTransport, sel = selector
         client.probe = { await RouteSelector.probeDirect(probeT, sel.config) }
     }

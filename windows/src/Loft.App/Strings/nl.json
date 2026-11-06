@@ -30,6 +30,8 @@
   "pair.link_field": "Koppellink",
   "common.continue": "Doorgaan",
   "pair.set_up_manually": "Handmatig instellen",
+  "pair.no_gateway": "Nog geen gateway? Loft heeft er thuis een nodig, naast je NAS.",
+  "pair.setup_gateway": "Gateway instellen",
   "pair.manual_body": "Typ het adres van de gateway en een van zijn sleutelvingerafdrukken. loft-gateway pair toont ze allebei. Met de vingerafdruk controleert Loft of het echt jouw gateway is, dus zonder vingerafdruk kun je niet verder.",
   "pair.address_field": "Adres, zoals nas-gateway.local:8443",
   "pair.pin_field": "Sleutelvingerafdruk",

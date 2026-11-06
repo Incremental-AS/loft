@@ -50,14 +50,14 @@ info:
 
     | Status | Codes |
     |---|---|
-    | 400 | `bad_anchor`, `bad_path`, `bad_upload`, `cannot_delete_root`, `cannot_move_root`, `is_a_folder`, `missing_credentials`, `move_into_self`, `near_id_required`, `not_a_folder`, `parent_and_name_required` |
+    | 400 | `bad_anchor`, `bad_path`, `bad_upload`, `cannot_delete_root`, `cannot_move_root`, `invalid_grant`, `is_a_folder`, `missing_credentials`, `move_into_self`, `near_id_required`, `not_a_folder`, `parent_and_name_required` |
     | 401 | `code_expired`, `device_revoked`, `invalid_code`, `invalid_credentials`, `invalid_token`, `missing_token`, `nas_credentials_invalid`, `token_expired`, `token_superseded` |
-    | 403 | `access_denied`, `account_not_allowed`, `codes_direct_only`, `edge_traffic_on_direct_listener`, `password_login_direct_only`, `share_blocked`, `share_is_fixed` |
+    | 403 | `access_denied`, `account_not_allowed`, `codes_direct_only`, `edge_traffic_on_direct_listener`, `origin_not_allowed`, `password_login_direct_only`, `share_blocked`, `share_is_fixed`, `token_not_for_this_api` |
     | 404 | `no_such_code`, `no_such_device`, `no_such_share`, `no_such_upload`, `no_such_version`, `not_found`, `no_thumbnail`, `root_missing` |
     | 409 | `cross_share_move`, `name_exists`, `name_exists_on_nas`, `no_root_selected`, `upload_incomplete`, `wrong_offset` |
     | 410 | `anchor_expired` |
     | 412 | `content_etag_mismatch`, `meta_etag_mismatch` |
-    | 413 | `chunk_too_large` |
+    | 413 | `chunk_too_large`, `too_large` |
     | 416 | `bad_range`, `range_not_satisfiable` |
     | 422 | `chunk_hash_mismatch`, `file_hash_mismatch`, `invalid_or_excluded_name` |
     | 429 | `too_many_attempts` |
@@ -98,6 +98,43 @@ paths:
               schema:
                 $ref: '#/components/schemas/Identity'
       security: []
+  /v1/auth/assistant-codes:
+    post:
+      tags:
+      - auth
+      summary: Make a code that approves an assistant's sign-in
+      description: For Settings › Connect an assistant. The user types the code on Loft's sign-in page
+        that the assistant (an MCP client) opened; it works once, within 10 minutes, and signs the assistant
+        in to this device's account (docs/mcp.md). Home network (direct listener) only unless the gateway
+        sets `assistant_codes_over_internet`.
+      operationId: mint_assistant_code
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssistantCode'
+        '401':
+          description: '`missing_token`, `invalid_token`, `token_superseded`, `token_expired`, `device_revoked`'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: '`codes_direct_only`, `account_not_allowed`, `token_not_for_this_api`'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - deviceToken: []
   /v1/auth/login:
     post:
       tags:
@@ -185,7 +222,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
         '403':
-          description: '`codes_direct_only`, `account_not_allowed`'
+          description: '`codes_direct_only`, `account_not_allowed`, `token_not_for_this_api`'
           content:
             application/json:
               schema:
@@ -269,6 +306,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+        '403':
+          description: '`token_not_for_this_api`'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
         '422':
           description: Validation Error
           content:
@@ -297,7 +340,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
         '403':
-          description: '`edge_traffic_on_direct_listener`'
+          description: '`edge_traffic_on_direct_listener`, `token_not_for_this_api`'
           content:
             application/json:
               schema:
@@ -345,7 +388,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
         '403':
-          description: '`edge_traffic_on_direct_listener`'
+          description: '`edge_traffic_on_direct_listener`, `token_not_for_this_api`'
           content:
             application/json:
               schema:
@@ -390,7 +433,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
         '403':
-          description: '`edge_traffic_on_direct_listener`'
+          description: '`edge_traffic_on_direct_listener`, `token_not_for_this_api`'
           content:
             application/json:
               schema:
@@ -456,7 +499,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
         '403':
-          description: '`edge_traffic_on_direct_listener`, `access_denied`'
+          description: '`edge_traffic_on_direct_listener`, `token_not_for_this_api`, `access_denied`'
           content:
             application/json:
               schema:
@@ -514,7 +557,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
         '403':
-          description: '`edge_traffic_on_direct_listener`, `access_denied`'
+          description: '`edge_traffic_on_direct_listener`, `token_not_for_this_api`, `access_denied`'
           content:
             application/json:
               schema:
@@ -566,7 +609,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
         '403':
-          description: '`edge_traffic_on_direct_listener`, `access_denied`, `share_blocked`'
+          description: '`edge_traffic_on_direct_listener`, `token_not_for_this_api`, `access_denied`,
+            `share_blocked`'
           content:
             application/json:
               schema:
@@ -642,7 +686,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
         '403':
-          description: '`edge_traffic_on_direct_listener`, `access_denied`, `share_blocked`, `share_is_fixed`'
+          description: '`edge_traffic_on_direct_listener`, `token_not_for_this_api`, `access_denied`,
+            `share_blocked`, `share_is_fixed`'
           content:
             application/json:
               schema:
@@ -729,7 +774,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
         '403':
-          description: '`edge_traffic_on_direct_listener`, `access_denied`, `share_blocked`, `share_is_fixed`'
+          description: '`edge_traffic_on_direct_listener`, `token_not_for_this_api`, `access_denied`,
+            `share_blocked`, `share_is_fixed`'
           content:
             application/json:
               schema:
@@ -823,7 +869,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
         '403':
-          description: '`edge_traffic_on_direct_listener`, `access_denied`, `share_blocked`'
+          description: '`edge_traffic_on_direct_listener`, `token_not_for_this_api`, `access_denied`,
+            `share_blocked`'
           content:
             application/json:
               schema:
@@ -913,7 +960,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
         '403':
-          description: '`edge_traffic_on_direct_listener`, `access_denied`, `share_blocked`'
+          description: '`edge_traffic_on_direct_listener`, `token_not_for_this_api`, `access_denied`,
+            `share_blocked`'
           content:
             application/json:
               schema:
@@ -976,7 +1024,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
         '403':
-          description: '`edge_traffic_on_direct_listener`'
+          description: '`edge_traffic_on_direct_listener`, `token_not_for_this_api`'
           content:
             application/json:
               schema:
@@ -1047,7 +1095,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
         '403':
-          description: '`edge_traffic_on_direct_listener`, `access_denied`, `share_blocked`'
+          description: '`edge_traffic_on_direct_listener`, `token_not_for_this_api`, `access_denied`,
+            `share_blocked`'
           content:
             application/json:
               schema:
@@ -1148,7 +1197,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
         '403':
-          description: '`edge_traffic_on_direct_listener`, `access_denied`, `share_blocked`'
+          description: '`edge_traffic_on_direct_listener`, `token_not_for_this_api`, `access_denied`,
+            `share_blocked`'
           content:
             application/json:
               schema:
@@ -1217,7 +1267,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
         '403':
-          description: '`edge_traffic_on_direct_listener`, `access_denied`, `share_blocked`, `share_is_fixed`'
+          description: '`edge_traffic_on_direct_listener`, `token_not_for_this_api`, `access_denied`,
+            `share_blocked`, `share_is_fixed`'
           content:
             application/json:
               schema:
@@ -1283,7 +1334,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
         '403':
-          description: '`edge_traffic_on_direct_listener`, `access_denied`, `share_blocked`'
+          description: '`edge_traffic_on_direct_listener`, `token_not_for_this_api`, `access_denied`,
+            `share_blocked`'
           content:
             application/json:
               schema:
@@ -1354,7 +1406,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
         '403':
-          description: '`edge_traffic_on_direct_listener`, `access_denied`, `share_blocked`'
+          description: '`edge_traffic_on_direct_listener`, `token_not_for_this_api`, `access_denied`,
+            `share_blocked`'
           content:
             application/json:
               schema:
@@ -1425,7 +1478,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
         '403':
-          description: '`edge_traffic_on_direct_listener`, `access_denied`, `share_blocked`'
+          description: '`edge_traffic_on_direct_listener`, `token_not_for_this_api`, `access_denied`,
+            `share_blocked`'
           content:
             application/json:
               schema:
@@ -1490,7 +1544,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
         '403':
-          description: '`edge_traffic_on_direct_listener`, `access_denied`, `share_blocked`'
+          description: '`edge_traffic_on_direct_listener`, `token_not_for_this_api`, `access_denied`,
+            `share_blocked`'
           content:
             application/json:
               schema:
@@ -1570,7 +1625,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
         '403':
-          description: '`edge_traffic_on_direct_listener`, `access_denied`, `share_blocked`'
+          description: '`edge_traffic_on_direct_listener`, `token_not_for_this_api`, `access_denied`,
+            `share_blocked`'
           content:
             application/json:
               schema:
@@ -1664,7 +1720,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
         '403':
-          description: '`edge_traffic_on_direct_listener`, `access_denied`, `share_blocked`, `share_is_fixed`'
+          description: '`edge_traffic_on_direct_listener`, `token_not_for_this_api`, `access_denied`,
+            `share_blocked`, `share_is_fixed`'
           content:
             application/json:
               schema:
@@ -1715,6 +1772,24 @@ components:
       required:
       - anchor
       title: Anchor
+    AssistantCode:
+      properties:
+        code:
+          type: string
+          title: Code
+          description: 'Shown once: `XXXX-XXXX-XXXX`. Works once, within 10 minutes.'
+        nas_user:
+          type: string
+          title: Nas User
+        expires_at:
+          type: number
+          title: Expires At
+      type: object
+      required:
+      - code
+      - nas_user
+      - expires_at
+      title: AssistantCode
     Changes:
       properties:
         updated:
@@ -1922,6 +1997,16 @@ components:
           - type: number
           - type: 'null'
           title: Revoked At
+        kind:
+          type: string
+          title: Kind
+          description: '`app` (a Loft app) or `mcp` (an assistant connected over MCP; its token never
+            expires, only revocation ends it).'
+          default: app
+        read_only:
+          type: boolean
+          title: Read Only
+          default: false
       additionalProperties: true
       type: object
       required:

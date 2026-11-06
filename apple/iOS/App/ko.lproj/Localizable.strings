@@ -4,6 +4,8 @@
 "On the gateway, run loft-gateway pair. Scan the QR code it shows, or open its link on this iPhone. The code carries the gateway's address and its keys, so Loft talks to your gateway from the very first connection." = "게이트웨이에서 loft-gateway pair를 실행하세요. 표시되는 QR 코드를 스캔하거나, 링크를 이 iPhone에서 여세요. 코드에 게이트웨이의 주소와 키가 들어 있어서, Loft는 처음 연결할 때부터 내 게이트웨이와 통신해요.";
 "Scan QR code" = "QR 코드 스캔";
 "Pairing link" = "페어링 링크";
+"Set up a gateway" = "게이트웨이 설정";
+"No gateway yet? Loft needs one at home, next to your NAS." = "아직 게이트웨이가 없나요? Loft를 쓰려면 집에 NAS 옆에 둘 게이트웨이가 있어야 해요.";
 "Everything after the # stays on this iPhone." = "# 뒤의 내용은 모두 이 iPhone에만 남아요.";
 "Continue" = "계속";
 "Set up manually" = "수동으로 설정";
@@ -23,6 +25,7 @@
 "Pair" = "페어링";
 "Pair with another gateway" = "다른 게이트웨이와 페어링";
 "Pairing with another gateway signs you out of this one." = "다른 게이트웨이와 페어링하면 이 게이트웨이에서는 로그아웃돼요.";
+"Version" = "버전";
 "This iPhone isn't paired with a gateway yet." = "이 iPhone은 아직 게이트웨이와 페어링되지 않았어요.";
 "That isn't a Loft pairing link. Use the whole link or QR code that loft-gateway pair shows." = "Loft 페어링 링크가 아니에요. loft-gateway pair에 표시되는 링크 전체나 QR 코드를 사용하세요.";
 "This pairing code is from a newer gateway. Update Loft, then try again." = "더 새로운 게이트웨이에서 만든 페어링 코드예요. Loft를 업데이트한 다음 다시 시도하세요.";
@@ -84,3 +87,16 @@
 "Couldn't save. Tap to try again." = "저장하지 못했어요. 탭하여 다시 시도하세요.";
 "Open Loft and sign in first." = "먼저 Loft를 열고 로그인하세요.";
 "Save to Loft" = "Loft에 저장";
+"About Loft" = "Loft 정보";
+"How Loft works" = "Loft 작동 방식";
+"Loft shows the shared folders on your NAS on this iPhone. Your files stay on the NAS, at home. No one else stores them." = "Loft는 내 NAS의 공유 폴더를 이 iPhone에 보여 줘요. 파일은 집에 있는 NAS에 그대로 있어요. 다른 누구도 파일을 보관하지 않아요.";
+"Loft has two parts: this app, and a gateway that runs at home, next to your NAS. The app only ever talks to your gateway, and the gateway only ever talks to your NAS." = "Loft는 이 앱과, 집에서 NAS 옆에서 실행되는 게이트웨이, 두 부분으로 이루어져 있어요. 앱은 오직 내 게이트웨이하고만 통신하고, 게이트웨이는 오직 내 NAS하고만 통신해요.";
+"You sign in with the username and password you already have on the NAS, and the NAS's own permissions decide what you can see and change. Sign in at home the first time. After that, Loft works from anywhere." = "NAS에서 이미 쓰고 있는 사용자 이름과 비밀번호로 로그인하고, 무엇을 보고 변경할 수 있는지는 NAS 자체의 권한이 결정해요. 처음에는 집에서 로그인하세요. 그다음부터는 어디서나 Loft를 쓸 수 있어요.";
+"You need a gateway" = "게이트웨이가 필요해요";
+"Loft doesn't work on its own. It needs a Loft gateway at home: a small program on a Linux machine next to the NAS. You set it up once, then pair this iPhone with the QR code or link it shows." = "Loft는 혼자서는 작동하지 않아요. 집에 Loft 게이트웨이가 있어야 해요. NAS 옆의 Linux 머신에서 실행되는 작은 프로그램이에요. 한 번만 설정하면 되고, 그다음 게이트웨이에 표시되는 QR 코드나 링크로 이 iPhone을 페어링해요.";
+"Loft is free and open source." = "Loft는 무료 오픈 소스예요.";
+"How it works" = "작동 방식";
+"Privacy" = "개인정보 보호";
+"Source" = "소스 코드";
+"%@ of %@" = "%@ / %@";
+"Try again" = "다시 시도";

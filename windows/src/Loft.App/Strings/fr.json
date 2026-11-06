@@ -30,6 +30,8 @@
   "pair.link_field": "Lien d’association",
   "common.continue": "Continuer",
   "pair.set_up_manually": "Configurer manuellement",
+  "pair.no_gateway": "Pas encore de passerelle ? Loft en a besoin d’une à la maison, à côté de votre NAS.",
+  "pair.setup_gateway": "Installer une passerelle",
   "pair.manual_body": "Saisissez l’adresse de la passerelle et l’une des empreintes de ses clés. loft-gateway pair affiche les deux. L’empreinte permet à Loft de vérifier qu’il s’agit bien de votre passerelle : sans elle, pas de configuration possible.",
   "pair.address_field": "Adresse, par ex. nas-gateway.local:8443",
   "pair.pin_field": "Empreinte de clé",

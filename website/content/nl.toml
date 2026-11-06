@@ -66,16 +66,15 @@ href = "{APP_STORE_URL}"
 id = "mac"
 name = "Mac"
 shows = "de Finder, in de navigatiekolom"
-get = "DMG-download (binnenkort)"
-coming_soon = true
+get = "DMG-download"
 detail = "Loft zet je NAS in de navigatiekolom van de Finder. Bestanden worden gedownload als je ze opent en gaan terug naar huis als je ze bewaart."
-version = "versie {VERSION}"
-after = "Open de DMG en sleep Loft naar Apps."
-sha256 = "{SHA256}"
+version = "macOS 14 of nieuwer · versie 0.2.0"
+after = "Open de DMG en sleep Loft naar Apps. Daarna houdt Loft zichzelf up-to-date, en vraagt het eerst toestemming voordat het iets installeert."
+sha256 = "d35c0eb67fb0a2c62633efc54cb920882d4ade2db4426ff44253a7d70e573fb6"
 
 [[platforms.downloads]]
 label = "Downloaden voor Mac (.dmg)"
-href = "{DOWNLOAD_URL}"
+href = "https://github.com/Incremental-AS/loft/releases/download/v0.2.0/Loft-0.2.0-14.dmg"
 
 [[platforms]]
 id = "android"
@@ -139,10 +138,27 @@ href = "{DOWNLOAD_URL}"
 id = "gateway"
 name = "Loft-gateway"
 shows = "draait thuis op Linux (x86_64 of arm64, dus een 64-bits Raspberry Pi volstaat)"
-get = ".deb of container-image (binnenkort)"
-coming_soon = true
+get = ".deb of container-image"
 detail = "Draait thuis op Linux, x86_64 of arm64 (een 64-bits Raspberry Pi volstaat), met Python 3.12 of nieuwer. Debian 13, Ubuntu 24.04 en het huidige Raspberry Pi OS hebben dat. Gebruik op een ouder systeem de container."
-list = "<ul><li><strong>Debian 13 en Ubuntu 24.04:</strong> een <code>.deb</code> voor x86_64, te downloaden op deze pagina. Het pakket voor arm64 komt eraan. → <a href=\"/gateway/\">Gateway instellen</a></li><li><strong>Container:</strong> een multi-arch-image voor x86_64 en arm64. → <a href=\"/gateway/\">Gateway instellen</a></li></ul>"
+list = "<ul><li><strong>Debian 13 en Ubuntu 24.04:</strong> een <code>.deb</code> voor x86_64 en een voor arm64. Neem op een Raspberry Pi Debian 13 arm64. → <a href=\"/gateway/#debian\">Gateway instellen</a></li><li><strong>Container:</strong> <code>ghcr.io/incremental-as/loft-gateway:0.2.0</code>, een multi-arch-image voor x86_64 en arm64. → <a href=\"/gateway/#container\">Gateway instellen</a></li></ul>"
+version = "versie 0.2.0"
+note = "Weet je niet welke? <code>dpkg --print-architecture</code> toont <code>amd64</code> voor x86_64, of <code>arm64</code>. Toont het <code>armhf</code>, dan draait je Raspberry Pi het 32-bits systeem: gebruik het 64-bits Raspberry Pi OS. De SHA-256-controlegetallen van alle vier de bestanden staan op de releasepagina op GitHub. → <a href=\"https://github.com/Incremental-AS/loft/releases/tag/v0.2.0\">Controlegetallen op GitHub</a>"
+
+[[platforms.downloads]]
+label = "Debian 13 (x86_64)"
+href = "https://github.com/Incremental-AS/loft/releases/download/v0.2.0/loft-gateway_0.2.0-1.debian13_amd64.deb"
+
+[[platforms.downloads]]
+label = "Debian 13 (arm64, Raspberry Pi)"
+href = "https://github.com/Incremental-AS/loft/releases/download/v0.2.0/loft-gateway_0.2.0-1.debian13_arm64.deb"
+
+[[platforms.downloads]]
+label = "Ubuntu 24.04 (x86_64)"
+href = "https://github.com/Incremental-AS/loft/releases/download/v0.2.0/loft-gateway_0.2.0-1.ubuntu24_amd64.deb"
+
+[[platforms.downloads]]
+label = "Ubuntu 24.04 (arm64)"
+href = "https://github.com/Incremental-AS/loft/releases/download/v0.2.0/loft-gateway_0.2.0-1.ubuntu24_arm64.deb"
 
 [pages]
 
@@ -209,7 +225,7 @@ title = "Downloaden · Loft by Incremental"
 description = "Download Loft voor iPhone, iPad, Mac, Android, Windows en Linux, en de Loft-gateway. Gratis en open source."
 kicker = "Downloaden"
 h1 = "Download Loft."
-lead = "Loft is gratis op elk platform. Je hebt thuis ook een Loft-gateway nodig. Heb je die nog niet, <a href=\"/gateway/\">stel hem dan eerst in</a>: het kost één opdracht en één QR-code."
+lead = "Loft is gratis op elk platform. Je hebt thuis ook een Loft-gateway nodig. Heb je die nog niet, <a href=\"/gateway/\">stel hem dan eerst in</a>: het kost ongeveer tien minuten en één QR-code."
 
 [pages.download.updates]
 title = "Controleren op updates"
@@ -228,34 +244,33 @@ items = ["Een Linux-machine die altijd aanstaat en op hetzelfde netwerk zit als 
 
 [[pages.gateway.steps]]
 title = "Installeren"
-body = "<p><strong>Binnenkort beschikbaar.</strong> De gateway is nog niet te downloaden. Zodra dat wel kan, staan de <code>.deb</code> en het container-image op <a href=\"/download/#gateway\">Downloaden</a>, en vind je de opdrachten om ze te installeren hier.</p>"
 
-[[pages.gateway.steps.parts_at_release]]
+[[pages.gateway.steps.parts]]
 id = "debian"
 title = "Debian 13 en Ubuntu 24.04"
-before = "<p><strong>Binnenkort beschikbaar.</strong> Download de <code>.deb</code> via <a href=\"/download/#gateway\">Downloaden</a> en installeer hem. Er is nog geen pakketbron, dus een nieuwe versie is ook een nieuwe download.</p>"
-code = "sudo apt install ./loft-gateway_*_amd64.deb"
-after = "<p>Het pakket voor arm64, voor een Raspberry Pi, komt eraan. Gebruik tot die tijd de container op arm64.</p>"
+before = "<p>Download de <code>.deb</code> voor je systeem via <a href=\"/download/#gateway\">Downloaden</a> en installeer hem. Er is nog geen pakketbron, dus een nieuwe versie is ook een nieuwe download.</p>"
+code = "sudo apt install ./loft-gateway_*.deb"
+after = "<p>Voer de opdracht uit in de map waar het bestand staat. Gebruik op een Raspberry Pi het pakket Debian 13 (arm64).</p>"
 
-[[pages.gateway.steps.parts_at_release]]
+[[pages.gateway.steps.parts]]
 id = "container"
 title = "Container"
-before = "<p><strong>Binnenkort beschikbaar.</strong> Een multi-arch-image voor x86_64 en arm64. Bij de eerste start verschijnt de koppelcode (<code>docker logs loft</code>).</p>"
-code = "docker run -d --name loft --restart unless-stopped \\\n  -p 8443:8443 \\\n  -e LOFT_SMB_SERVER=&lt;nas-address&gt; \\\n  -e LOFT_LAN_URL=https://&lt;gateway-address&gt;:8443 \\\n  -v loft-etc:/etc/loft -v loft-state:/var/lib/loft \\\n  loft-gateway:0.2.0\ndocker logs loft\ndocker exec -it loft loft-container loft-gateway doctor --user alice\ndocker exec loft loft-container loft-gateway pair"
-after = "<p>In de container draait het proces voor miniaturen als een apart proces zonder rechten, in plaats van in de systemd-sandbox die de <code>.deb</code> gebruikt. Miniaturen werken op dezelfde manier.</p>"
+before = "<p>Een multi-arch-image voor x86_64 en arm64, uit de containerregistry van GitHub. De container start de gateway vanzelf. Bij de eerste start voert hij <code>loft-gateway init</code> uit met de adressen die je meegeeft, en verschijnt de koppelcode (<code>docker logs loft</code>).</p>"
+code = "docker run -d --name loft --restart unless-stopped \\\n  -p 8443:8443 \\\n  -e LOFT_SMB_SERVER=&lt;nas-address&gt; \\\n  -e LOFT_LAN_URL=https://&lt;gateway-address&gt;:8443 \\\n  -v loft-etc:/etc/loft -v loft-state:/var/lib/loft \\\n  ghcr.io/incremental-as/loft-gateway:0.2.0\ndocker logs loft\ndocker exec -it loft loft-container loft-gateway doctor --user &lt;nas-username&gt;\ndocker exec loft loft-container loft-gateway pair"
+after = "<p>In de container draait het proces voor miniaturen als een apart proces zonder rechten, in plaats van in de systemd-sandbox die de <code>.deb</code> gebruikt. Miniaturen werken op dezelfde manier. Maak een back-up van beide volumes: <code>loft-etc</code> bevat de instellingen en de sleutels, <code>loft-state</code> de index en je apparaten.</p>"
 
 [[pages.gateway.steps]]
 title = "Wijs hem je NAS aan"
-body = "<p>Voer <code>loft-gateway init</code> uit. Die vraagt om het adres van je NAS, schrijft het instellingenbestand en maakt de sleutels van de gateway aan. Aan het eind toont hij een koppelcode.</p>\n<p>Voer daarna <code>loft-gateway doctor</code> uit. Die controleert of de gateway de NAS kan bereiken, welke SMB-versie en versleuteling de NAS aanbiedt, of de klok goed staat en of het certificaat geldig is. Is er iets mis, dan vertelt hij wat. Voeg <code>--user</code> en je gebruikersnaam op de NAS toe om ook het inloggen en de gedeelde mappen te controleren. Hij vraagt om het wachtwoord en toont het nooit.</p>\n<p><strong>Een oudere NAS zonder SMB-versleuteling?</strong> Standaard weigert de gateway zonder versleuteling verbinding te maken. Met <code>smb_encryption = \"server\"</code> in het instellingenbestand beslist de NAS, en is de verbinding op je thuisnetwerk alleen versleuteld als de NAS daarom vraagt. Jij kiest.</p>"
+body = "<p>Gebruik je de <code>.deb</code>, voer dan <code>sudo loft-gateway init</code> uit. Die stelt een paar vragen, te beginnen met het adres van je NAS, schrijft het instellingenbestand naar <code>/etc/loft</code> en maakt de sleutels van de gateway aan. Aan het eind toont hij een koppelcode: die heb je nodig in stap 3. Hij maakt ook een reservesleutel aan. Haal die van de machine af en bewaar hem goed: gaat de sleutel van de gateway ooit verloren of lekt hij uit, dan installeer je de reservesleutel en blijven je apps de gateway vertrouwen. In de container heeft de eerste start dit al gedaan.</p>\n<p>Voer daarna <code>sudo loft-gateway doctor</code> uit (in de container de regel <code>docker exec … doctor</code> hierboven). Die controleert of de gateway de NAS kan bereiken, welke SMB-versie en versleuteling de NAS aanbiedt, of de klok goed staat en of het certificaat geldig is. Is er iets mis, dan vertelt hij wat. Voeg <code>--user</code> en je gebruikersnaam op de NAS toe om ook het inloggen en de gedeelde mappen te controleren. Hij vraagt om het wachtwoord en toont het nooit.</p>\n<p>Start daarna de gateway, en laat hem weer opstarten telkens als de machine opstart:</p>\n<pre><code>sudo systemctl enable --now loft-gateway</code></pre>\n<p>De container draait al, en <code>--restart unless-stopped</code> start hem weer op na een herstart.</p>\n<p><strong>Een oudere NAS zonder SMB-versleuteling?</strong> Standaard weigert de gateway zonder versleuteling verbinding te maken. Met <code>smb_encryption = \"server\"</code> in het instellingenbestand beslist de NAS, en is de verbinding op je thuisnetwerk alleen versleuteld als de NAS daarom vraagt. Jij kiest.</p>\n<p>Later het instellingenbestand gewijzigd? Herstart de gateway zodat hij het opnieuw inleest: <code>sudo systemctl restart loft-gateway</code>, of <code>docker restart loft</code>.</p>"
 
 [[pages.gateway.steps]]
 title = "Koppel je apps"
-body = "<p>Voer <code>loft-gateway pair</code> uit en scan de QR-code met de Loft-app, of open de link op het apparaat. De code bevat het adres en de sleutels van de gateway, zodat de app vanaf de allereerste verbinding weet dat hij met <em>jouw</em> gateway praat. Log daarna in met je gebruikersnaam en wachtwoord van de NAS.</p>\n<p>Er is bewust geen veld om een gatewayadres te typen: een getypt adres kan je naar een nep-gateway leiden die wachtwoorden verzamelt. Heb je het echt nodig, dan heeft de app <em>Handmatig instellen</em> op het koppelscherm.</p>"
+body = "<p>Voer <code>sudo loft-gateway pair</code> uit (in de container: <code>docker exec loft loft-container loft-gateway pair</code>) en scan de QR-code met de Loft-app, of open de link op het apparaat. De code bevat het adres en de sleutels van de gateway, zodat de app vanaf de allereerste verbinding weet dat hij met <em>jouw</em> gateway praat. Log daarna in met je gebruikersnaam en wachtwoord van de NAS.</p>\n<p>Er is bewust geen veld om een gatewayadres te typen: een getypt adres kan je naar een nep-gateway leiden die wachtwoorden verzamelt. Heb je het echt nodig, dan heeft de app <em>Handmatig instellen</em> op het koppelscherm.</p>"
 
 [[pages.gateway.steps]]
 id = "outside"
 title = "Onderweg (optioneel)"
-body = "<p>Thuis is er niets meer nodig. Wil je Loft onderweg gebruiken, kies dan een van deze twee:</p>\n<ul><li><strong>Een tunnel</strong>, bijvoorbeeld Cloudflare Tunnel. Geen open poort op je router, maar de tunnelaanbieder kan het verkeer lezen, en je logt thuis in.</li><li><strong>Direct</strong>, met een poort op je router die naar de gateway wordt doorgestuurd. End-to-end versleuteld, en je kunt overal inloggen. De gateway beperkt het aantal inlogpogingen.</li></ul>\n<p>De verschillen staan uitgelegd in <a href=\"/how-it-works/#security\">Hoe het werkt</a>. Voer na een wijziging opnieuw <code>loft-gateway pair</code> uit, zodat de code het nieuwe adres bevat.</p>"
+body = "<p>Thuis is er niets meer nodig. Wil je Loft onderweg gebruiken, kies dan een van deze twee:</p>\n<ul><li><strong>Een tunnel</strong>, bijvoorbeeld Cloudflare Tunnel. Geen open poort op je router, maar de tunnelaanbieder kan het verkeer lezen, en je logt thuis in.</li><li><strong>Direct</strong>, met een poort op je router die naar de gateway wordt doorgestuurd. End-to-end versleuteld, en je kunt overal inloggen. De gateway beperkt het aantal inlogpogingen.</li></ul>\n<p>De verschillen staan uitgelegd in <a href=\"/how-it-works/#security\">Hoe het werkt</a>. Voer na een wijziging de koppelopdracht opnieuw uit, zodat de code het nieuwe adres bevat.</p>"
 
 [[pages.gateway.sections]]
 id = "limit"
@@ -383,7 +398,7 @@ lead = "Loft is gratis en wordt gemaakt door een klein team. Er is geen helpdesk
 
 [[pages.support.sections]]
 title = "Controleer eerst dit"
-body = "<ul>\n<li><strong>Voer <code>loft-gateway doctor</code> uit op de gateway.</strong> De meeste problemen zitten tussen de gateway en de NAS, en meestal vertelt hij wat er mis is.</li>\n<li><strong>Mac: Loft staat niet in de navigatiekolom van de Finder.</strong> Misschien heeft macOS het uitgeschakeld. Zoek in de Finder naar <em>'Loft' is niet geactiveerd</em> en kies <em>Activeer</em>, of zet Loft aan bij Systeeminstellingen › Algemeen › Inlogonderdelen en extensies › Bestandsaanbieders.</li>\n<li><strong>Wijzigingen op de NAS zelf verschijnen pas na een paar minuten.</strong> Wijzigingen via Loft verschijnen binnen enkele seconden.</li>\n<li><strong>Kun je onderweg niet inloggen?</strong> Met een tunnel werkt inloggen alleen thuis. Dat is bewust: zie <a href=\"/how-it-works/#security\">Hoe het werkt</a>.</li>\n<li><strong>Vindt de app de gateway niet?</strong> Koppel opnieuw: voer <code>loft-gateway pair</code> uit en scan de nieuwe code.</li>\n</ul>"
+body = "<ul>\n<li><strong>Voer <code>sudo loft-gateway doctor</code> uit op de gateway</strong> (in de container: <code>docker exec -it loft loft-container loft-gateway doctor</code>). De meeste problemen zitten tussen de gateway en de NAS, en meestal vertelt hij wat er mis is.</li>\n<li><strong>Mac: Loft staat niet in de navigatiekolom van de Finder.</strong> Misschien heeft macOS het uitgeschakeld. Zoek in de Finder naar <em>'Loft' is niet geactiveerd</em> en kies <em>Activeer</em>, of zet Loft aan bij Systeeminstellingen › Algemeen › Inlogonderdelen en extensies › Bestandsaanbieders.</li>\n<li><strong>Wijzigingen op de NAS zelf verschijnen pas na een paar minuten.</strong> Wijzigingen via Loft verschijnen binnen enkele seconden.</li>\n<li><strong>Kun je onderweg niet inloggen?</strong> Met een tunnel werkt inloggen alleen thuis. Dat is bewust: zie <a href=\"/how-it-works/#security\">Hoe het werkt</a>.</li>\n<li><strong>Vindt de app de gateway niet?</strong> Controleer of hij draait: <code>sudo systemctl status loft-gateway</code>, of <code>docker ps</code> voor de container. Koppel daarna opnieuw: voer <code>sudo loft-gateway pair</code> uit en scan de nieuwe code.</li>\n</ul>"
 
 [[pages.support.sections]]
 title = "Een probleem melden"

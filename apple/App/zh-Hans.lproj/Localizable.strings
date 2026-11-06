@@ -12,6 +12,8 @@
 "Key fingerprint" = "密钥指纹";
 "Base64, ends in =" = "Base64 格式，以 = 结尾";
 "Use a pairing link instead" = "改用配对链接";
+"No gateway yet? Loft needs one at home, next to your NAS." = "还没有网关？Loft 需要在家里的 NAS 旁边有一个网关。";
+"Set up a gateway" = "设置网关";
 "Pair with “%@”?" = "与“%@”配对？";
 "At home: %@" = "在家：%@";
 "Away from home: %@, through a tunnel. Sign in at home first." = "在外：%@，经由隧道。请先在家登录。";
@@ -36,5 +38,6 @@
 "Too many tries. Wait 15 minutes, then try again." = "尝试次数过多。请等待 15 分钟后重试。";
 "Something went wrong. Try again." = "出了点问题。请重试。";
 "Loft %@ is available…" = "Loft %@ 现已推出…";
+"Loft %@" = "Loft %@";
 "Check for updates" = "检查更新";
 "Once a day, Loft asks loft.incremental.no if there's a newer version. It sends nothing about you, this Mac or your files." = "Loft 每天向 loft.incremental.no 查询一次是否有新版本，不会发送任何关于你、这台 Mac 或你的文件的信息。";

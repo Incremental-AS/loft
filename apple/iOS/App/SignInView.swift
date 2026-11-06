@@ -70,6 +70,7 @@ struct SignInView: View {
                 }
             }
             .navigationTitle("Loft")
+            .toolbar { ToolbarItem(placement: .topBarTrailing) { AboutButton() } }
         }
     }
 

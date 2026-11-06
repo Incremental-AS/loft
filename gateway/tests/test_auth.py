@@ -165,3 +165,36 @@ def test_items_scoped_to_device_root(env):
     hb, rb = rooted(env, "bob", "bob")
     assert env.public.get(f"/v1/items/{ra['root_item_id']}", headers=hb).status_code == 404
     assert env.public.get(f"/v1/items/{rb['root_item_id']}", headers=hb).status_code == 200
+
+
+def test_parallel_first_requests_share_one_session(env, monkeypatch):
+    """After a restart (or 30 min idle) a device's parallel requests each make a session.
+    The first one stored is kept; a later one must not close it under a running request."""
+    import threading
+    import time
+    h = login(env)
+    env.gw._sessions.clear()
+    made, closed = [], []
+    real = env.gw.backend.authenticate
+
+    def slow_auth(user, pw):
+        s = real(user, pw)
+        made.append(s)
+        orig_close = s.close
+        s.close = lambda: (closed.append(s), orig_close())
+        time.sleep(0.2)                           # all requests are mid-login together
+        return s
+    monkeypatch.setattr(env.gw.backend, "authenticate", slow_auth)
+    used = []
+    real_me = env.gw.me
+    monkeypatch.setattr(env.gw, "me", lambda c: (used.append(c.session), real_me(c))[1])
+    codes = []
+    ts = [threading.Thread(target=lambda: codes.append(
+        env.public.get("/v1/me", headers=h).status_code)) for _ in range(4)]
+    [t.start() for t in ts]
+    [t.join() for t in ts]
+    assert codes == [200] * 4
+    kept = env.gw._sessions[next(iter(env.gw._sessions))][0]
+    assert len(made) > 1                          # the race really happened
+    assert not [s for s in used if s in closed]   # no request ran on a closed session
+    assert set(map(id, used)) == {id(kept)} and len(closed) == len(made) - 1

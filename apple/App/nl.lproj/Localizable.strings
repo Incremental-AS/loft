@@ -12,6 +12,8 @@
 "Key fingerprint" = "Sleutelvingerafdruk";
 "Base64, ends in =" = "Base64, eindigt op =";
 "Use a pairing link instead" = "Gebruik liever een koppellink";
+"No gateway yet? Loft needs one at home, next to your NAS." = "Nog geen gateway? Loft heeft er thuis een nodig, naast je NAS.";
+"Set up a gateway" = "Gateway instellen";
 "Pair with “%@”?" = "Koppelen aan “%@”?";
 "At home: %@" = "Thuis: %@";
 "Away from home: %@, through a tunnel. Sign in at home first." = "Onderweg: %@, via een tunnel. Log eerst thuis in.";
@@ -36,5 +38,6 @@
 "Too many tries. Wait 15 minutes, then try again." = "Te veel pogingen. Wacht 15 minuten en probeer het dan opnieuw.";
 "Something went wrong. Try again." = "Er ging iets mis. Probeer het opnieuw.";
 "Loft %@ is available…" = "Loft %@ is beschikbaar…";
+"Loft %@" = "Loft %@";
 "Check for updates" = "Zoek naar updates";
 "Once a day, Loft asks loft.incremental.no if there's a newer version. It sends nothing about you, this Mac or your files." = "Eén keer per dag vraagt Loft aan loft.incremental.no of er een nieuwere versie is. Daarbij wordt niets over jou, deze Mac of je bestanden verstuurd.";

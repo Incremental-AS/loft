@@ -4,6 +4,8 @@
 "On the gateway, run loft-gateway pair. Scan the QR code it shows, or open its link on this iPhone. The code carries the gateway's address and its keys, so Loft talks to your gateway from the very first connection." = "Voer loft-gateway pair uit op de gateway. Scan de QR-code die verschijnt, of open de link op deze iPhone. De code bevat het adres en de sleutels van de gateway, zodat Loft vanaf de allereerste verbinding met jouw gateway praat.";
 "Scan QR code" = "Scan QR-code";
 "Pairing link" = "Koppellink";
+"Set up a gateway" = "Gateway instellen";
+"No gateway yet? Loft needs one at home, next to your NAS." = "Nog geen gateway? Loft heeft er thuis een nodig, naast je NAS.";
 "Everything after the # stays on this iPhone." = "Alles na de # blijft op deze iPhone.";
 "Continue" = "Ga door";
 "Set up manually" = "Handmatig instellen";
@@ -23,6 +25,7 @@
 "Pair" = "Koppel";
 "Pair with another gateway" = "Koppel aan een andere gateway";
 "Pairing with another gateway signs you out of this one." = "Als je aan een andere gateway koppelt, word je bij deze uitgelogd.";
+"Version" = "Versie";
 "This iPhone isn't paired with a gateway yet." = "Deze iPhone is nog niet aan een gateway gekoppeld.";
 "That isn't a Loft pairing link. Use the whole link or QR code that loft-gateway pair shows." = "Dat is geen koppellink van Loft. Gebruik de hele link of de QR-code die loft-gateway pair toont.";
 "This pairing code is from a newer gateway. Update Loft, then try again." = "Deze koppelcode komt van een nieuwere gateway. Werk Loft bij en probeer het opnieuw.";
@@ -84,3 +87,16 @@
 "Couldn't save. Tap to try again." = "Kan niet bewaren. Tik om het opnieuw te proberen.";
 "Open Loft and sign in first." = "Open Loft en log eerst in.";
 "Save to Loft" = "Bewaar in Loft";
+"About Loft" = "Over Loft";
+"How Loft works" = "Hoe Loft werkt";
+"Loft shows the shared folders on your NAS on this iPhone. Your files stay on the NAS, at home. No one else stores them." = "Loft toont de gedeelde mappen op je NAS op deze iPhone. Je bestanden blijven op de NAS, thuis. Niemand anders bewaart ze.";
+"Loft has two parts: this app, and a gateway that runs at home, next to your NAS. The app only ever talks to your gateway, and the gateway only ever talks to your NAS." = "Loft bestaat uit twee delen: deze app en een gateway die thuis draait, naast je NAS. De app praat alleen met je gateway, en de gateway praat alleen met je NAS.";
+"You sign in with the username and password you already have on the NAS, and the NAS's own permissions decide what you can see and change. Sign in at home the first time. After that, Loft works from anywhere." = "Je logt in met de gebruikersnaam en het wachtwoord die je al op de NAS hebt, en de eigen rechten van de NAS bepalen wat je kunt zien en wijzigen. Log de eerste keer thuis in. Daarna werkt Loft overal.";
+"You need a gateway" = "Je hebt een gateway nodig";
+"Loft doesn't work on its own. It needs a Loft gateway at home: a small program on a Linux machine next to the NAS. You set it up once, then pair this iPhone with the QR code or link it shows." = "Loft werkt niet op zichzelf. Het heeft thuis een Loft-gateway nodig: een klein programma op een Linux-machine naast de NAS. Je stelt hem één keer in en koppelt daarna deze iPhone met de QR-code of de link die hij toont.";
+"Loft is free and open source." = "Loft is gratis en open source.";
+"How it works" = "Hoe het werkt";
+"Privacy" = "Privacy";
+"Source" = "Broncode";
+"%@ of %@" = "%@ van %@";
+"Try again" = "Probeer opnieuw";

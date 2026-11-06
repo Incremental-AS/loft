@@ -135,6 +135,18 @@ enum Copy {
     static let pinField = String(localized: "Key fingerprint")
     static let pinPlaceholder = String(localized: "Base64, ends in =")
     static let usePairingLink = String(localized: "Use a pairing link instead")
+    // Help for people who have no gateway yet: the website's setup guide, in the app's language.
+    static let noGatewayYet = String(localized: "No gateway yet? Loft needs one at home, next to your NAS.")
+    static let setUpGateway = String(localized: "Set up a gateway")
+    /// https://loft.incremental.no/<prefix>/gateway/ for the language the app is showing (website/build.py LANGUAGES).
+    static var gatewayGuideURL: URL {
+        let prefix: [String: String] = ["nb": "/no", "de": "/de", "es": "/es", "fr": "/fr", "it": "/it", "nl": "/nl",
+                                        "pt-BR": "/pt", "ja": "/ja", "ko": "/ko", "zh-Hans": "/zh"]
+        let lang = Bundle.main.preferredLocalizations.first ?? "en"
+        return URL(string: "https://loft.incremental.no\(prefix[lang] ?? "")/gateway/")!
+    }
+    static var appVersion: String { Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "?" }
+    static func versionLine(_ v: String) -> String { String(localized: "Loft \(v)") }
     static func confirmPairTitle(_ name: String) -> String { String(localized: "Pair with \u{201C}\(name)\u{201D}?") }
     static func atHome(_ host: String) -> String { String(localized: "At home: \(host)") }
     static func awayTunnel(_ host: String) -> String { String(localized: "Away from home: \(host), through a tunnel. Sign in at home first.") }

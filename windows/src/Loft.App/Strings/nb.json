@@ -29,6 +29,8 @@
   "pair.link_field": "Paringslenke",
   "common.continue": "Fortsett",
   "pair.set_up_manually": "Sett opp manuelt",
+  "pair.no_gateway": "Har du ingen gateway ennå? Loft trenger en hjemme, ved siden av NAS-en.",
+  "pair.setup_gateway": "Sett opp en gateway",
   "pair.manual_body": "Skriv inn adressen til gatewayen og ett av fingeravtrykkene dens. Du finner begge i det loft-gateway pair viser. Med fingeravtrykket sjekker Loft at det virkelig er din gateway, så uten det kommer du ikke videre.",
   "pair.address_field": "Adresse, for eksempel nas-gateway.local:8443",
   "pair.pin_field": "Fingeravtrykk",

@@ -30,6 +30,8 @@
   "pair.link_field": "페어링 링크",
   "common.continue": "계속",
   "pair.set_up_manually": "수동으로 설정",
+  "pair.no_gateway": "아직 게이트웨이가 없나요? Loft를 쓰려면 집에 NAS 옆에 둘 게이트웨이가 있어야 해요.",
+  "pair.setup_gateway": "게이트웨이 설정",
   "pair.manual_body": "게이트웨이의 주소와 키 지문 중 하나를 입력하세요. 둘 다 loft-gateway pair에 표시돼요. Loft는 지문으로 정말 내 게이트웨이인지 확인하기 때문에, 지문 없이는 설정할 수 없어요.",
   "pair.address_field": "주소(예: nas-gateway.local:8443)",
   "pair.pin_field": "키 지문",

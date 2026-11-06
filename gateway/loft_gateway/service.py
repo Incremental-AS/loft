@@ -7,11 +7,16 @@ from __future__ import annotations
 
 import fnmatch
 import hashlib
+import io
+import ipaddress
+import logging
 import re
 import threading
 import time
 import unicodedata
 import uuid
+import weakref
+from collections import deque
 from dataclasses import dataclass
 from datetime import datetime
 
@@ -21,8 +26,12 @@ from .db import DB
 from .rootfs import (ALL_SHARES, Blocked, CrossShare, FixedItem, RootFS, is_blocked,
                      is_path_blocked, has_dot_parts)
 from .thumbs import Thumbnailer
+from .watch import Watches
 from .storage.base import (SFM_PRIVATE, AccessDenied, AuthFailed, Backend, Entry, Exists,
-                           NotFound, Session, StorageError, join, split, to_nas)
+                           NotFound, Session, StorageError, WrongShareOwner, join, split,
+                           to_nas)
+
+log = logging.getLogger("loft.rescan")
 
 # Names that never sync. The client excludes them too; the gateway
 # hides them from listings and refuses uploads of them, so a client bug cannot
@@ -30,6 +39,23 @@ from .storage.base import (SFM_PRIVATE, AccessDenied, AuthFailed, Backend, Entry
 EXCLUDED = ["~$*", ".~lock.*#", ".DS_Store", "._*", "Icon\r", "Thumbs.db",
             "desktop.ini", ".loft", ".loft-*"]
 CHANGES_KEEP_S = 30 * 86400
+
+def rate_ip(ip: str | None) -> str | None:
+    """The address that per-IP limits count: an IPv6 host gets a whole /64, so it counts
+    as its /64 (review of af68b8f). An IPv4 client on a dual-stack listener
+    (::ffff:a.b.c.d) counts as its IPv4 address. Audit and last_ip keep the full address."""
+    if ip and ":" in ip:
+        try:
+            a = ipaddress.IPv6Address(ip)
+        except ValueError:
+            return ip
+        if a.ipv4_mapped:
+            return str(a.ipv4_mapped)
+        return str(ipaddress.IPv6Network(f"{a}/64", strict=False).network_address) + "/64"
+    return ip
+
+
+UPLOAD_WRITE_PIECE = 4 << 20    # one SMB write; what an upload chunk holds in memory at once
 
 
 def name_key(name: str) -> str:
@@ -46,6 +72,13 @@ def valid_name(name: str) -> bool:
     return (bool(name) and name not in (".", "..") and len(to_nas(name).encode()) <= 255
             and not re.search(r'[/\\\x00]', name) and not SFM_PRIVATE & set(name)
             and not is_excluded(name))
+
+
+# expires_at of a token that doesn't expire (an MCP connection's): 9999-12-31.
+MCP_NEVER = 253402300799.0
+ASSISTANT_ACCESS_TTL = 2 * 3600     # an OAuth access token; a long upload fits inside one
+MCP_LIVE_ACCESS = 16                # live access tokens per OAuth connection (each device has its own)
+ASSISTANT_CODE_TTL = 600            # an approval code
 
 
 class ApiError(Exception):
@@ -105,13 +138,76 @@ class Gateway:
         self.thumbs = Thumbnailer(settings.thumb_socket, settings.thumb_concurrency,
                                   settings.thumb_cache_mb)
         self._share_cache: dict = {}
+        self.watches = Watches(self)
+        self._closed_sessions: weakref.WeakSet = weakref.WeakSet()   # rescans stop on these
+        self._full_start: dict[str, float] = {}     # root id -> start of its last full pass
+        self._scanning: dict[Session, int] = {}     # session -> rescans running on it
+        self._owner_unread: set[tuple[str, str]] = set()   # logged once per process
+        self._owner_audit: list[dict] = []           # mismatches seen inside a caller's tx
+        if hasattr(backend, "share_guard"):          # SMB: check every new tree connect
+            backend.share_guard = self.check_share_owner
+
+    def check_share_owner(self, user: str, share: str, sid: str | None):
+        """SMBSession's share guard. The first owner seen for (account, share) is kept;
+        a different one later is refused with WrongShareOwner, before any listing,
+        read or write in that share. A changed owner that is right (a NAS admin rebuilt
+        the folder) is accepted with `loft-admin share-owner-forget USER SHARE`."""
+        key = (user.casefold(), share.casefold())
+        with self.db.tx() as c:
+            nested = self.db._depth > 1              # inside this thread's own outer tx
+            row = c.execute("SELECT owner_sid FROM share_owners WHERE nas_user=? AND share=?",
+                            key).fetchone()
+            if row is None and sid is not None:
+                c.execute("INSERT INTO share_owners VALUES (?,?,?,?)", (*key, sid, time.time()))
+        if row is None:
+            if sid is not None:
+                log.info("share %s (%s): owner %s noted", share, user, sid)
+            elif key not in self._owner_unread:
+                self._owner_unread.add(key)
+                log.warning("share %s (%s): its owner can't be read; not checked", share, user)
+            return
+        if row["owner_sid"] != sid:
+            # sid None with an owner noted before: the root was readable and no longer
+            # is, which is itself a sign of another folder (review of 5fd6e34, S1).
+            got = sid or "unreadable"
+            log.error("share %s (%s): the NAS serves a folder owned by %s, not %s as before;"
+                      " refused", share, user, got, row["owner_sid"])
+            ev = dict(nas_user=user, share=share, expected=row["owner_sid"], got=got)
+            if nested:
+                # The refusal rolls the caller's tx back (an upload commit), and the
+                # audit row with it; the janitor writes it instead (the monitor reads it).
+                with self._sess_lock:
+                    self._owner_audit.append(ev)
+            else:
+                self.db.audit("share_owner_mismatch", **ev)
+            raise WrongShareOwner(f"{share}: the NAS serves another account's folder")
+
+    def _flush_owner_audit(self):
+        with self._sess_lock:
+            evs, self._owner_audit = self._owner_audit, []
+        for n, ev in enumerate(evs):
+            try:
+                self.db.audit("share_owner_mismatch", **ev)
+            except Exception:
+                # one failed write keeps it and the rest for the next pass
+                # (review of 39aa1d8)
+                log.exception("share_owner_mismatch audit not written; kept for the next pass")
+                with self._sess_lock:
+                    self._owner_audit[:0] = evs[n:]
+                return
+
+    def _stop_in_background(self):
+        try:
+            self._flush_owner_audit()       # queued mismatches, before the process ends
+        finally:
+            self.watches.stop_all()
 
     # ── devices, tokens, sessions ─────────────────────────────────────────
 
     def _check_rate(self, user: str, ip: str | None, first: str | None = None):
         cut = time.time() - self.s.login_window_s
         for k, cap in ((first or f"u:{user}", self.s.login_max_fail_user),
-                       (f"ip:{ip}", self.s.login_max_fail_ip)):
+                       (f"ip:{rate_ip(ip)}", self.s.login_max_fail_ip)):
             n = self.db.one("SELECT COUNT(*) n FROM login_failures WHERE k=? AND at>?",
                             (k, cut))["n"]
             if n >= cap:
@@ -134,7 +230,7 @@ class Gateway:
         try:
             sess = self.backend.authenticate(user, password)
         except AuthFailed:
-            self._record_failure(f"u:{user}", f"ip:{ip}")
+            self._record_failure(f"u:{user}", f"ip:{rate_ip(ip)}")
             self.db.audit("login_failed", nas_user=user, ip=ip, route=route)
             raise ApiError(401, "invalid_credentials")
         except StorageError as e:
@@ -148,21 +244,247 @@ class Gateway:
             c.execute("DELETE FROM login_failures WHERE at<?", (now - 86400,))
 
     def _new_device(self, user: str, password: str, sess: Session, device_name: str,
-                    ip: str | None, route: str, event: str, **detail) -> dict:
+                    ip: str | None, route: str, event: str, *, kind: str = "app",
+                    read_only: bool = False, client_id: str | None = None, **detail) -> dict:
         device_id = uuid.uuid4().hex
         tok, secret = crypto.new_token(device_id)
         now = time.time()
+        # A host-made MCP token lives in the assistant's settings and can't rotate, so it
+        # doesn't expire: it lasts until it is revoked. (OAuth ones are re-keyed at once.)
+        expires = MCP_NEVER if kind == "mcp" else now + self.s.token_ttl_days * 86400
         with self.db.tx() as c:
             c.execute("INSERT INTO devices (id, nas_user, device_name, token_hash, wrapped_cred,"
-                      " created_at, last_used_at, last_ip, expires_at) VALUES (?,?,?,?,?,?,?,?,?)",
+                      " created_at, last_used_at, last_ip, expires_at, kind, read_only, client_id)"
+                      " VALUES (?,?,?,?,?,?,?,?,?,?,?,?)",
                       (device_id, user, device_name[:100] or "Mac", crypto.token_hash(secret),
                        crypto.wrap_credential(self.master, secret, device_id, user, password),
-                       now, now, ip, now + self.s.token_ttl_days * 86400))
+                       now, now, ip, expires, kind, int(read_only), client_id))
         self._put_session(device_id, sess)
         self.db.audit(event, nas_user=user, device_id=device_id, ip=ip, route=route,
                       device_name=device_name, **detail)
-        return {"device_id": device_id, "token": tok, "nas_user": user,
-                "expires_at": now + self.s.token_ttl_days * 86400}
+        return {"device_id": device_id, "token": tok, "nas_user": user, "expires_at": expires}
+
+    # ── assistants (MCP): connections, approval codes, OAuth tokens ──────
+    #
+    # An assistant connection is a device of kind 'mcp' on the user's whole drive (the
+    # all-shares root). What it may open is narrowed by grants the user chooses
+    # (mcp_grants, mcp.py). It is made either on the gateway host (`loft-gateway mcp
+    # add`, a token that doesn't expire) or by the assistant signing in with OAuth
+    # (oauth.py): the user approves on Loft's sign-in page with an approval code from a
+    # Loft app or the gateway host, and the assistant gets a 2-hour access token and a
+    # refresh token that doesn't rotate (refresh_oauth says why).
+
+    def _assistant_user_ok(self, user: str) -> bool:
+        """Its own setting (assistant_users_re), and the account must also be allowed to
+        sign in at all; denied_users_re refuses either way."""
+        return (bool(self.s.assistant_users_re)
+                and bool(re.fullmatch(self.s.assistant_users_re, user, re.IGNORECASE))
+                and bool(re.fullmatch(self.s.allowed_users_re, user, re.IGNORECASE))
+                and not re.fullmatch(self.s.denied_users_re, user, re.IGNORECASE))
+
+    def _nas_check(self, user: str, password: str, event: str, route: str) -> Session:
+        try:
+            return self.backend.authenticate(user, password)
+        except AuthFailed:
+            self.db.audit(event, nas_user=user, route=route)
+            raise ApiError(401, "invalid_credentials")
+        except StorageError as e:
+            raise ApiError(503, "nas_unavailable", detail=str(e))
+
+    def _whole_drive(self, device_id: str, sess: Session, route: str):
+        d = dict(self.db.one("SELECT * FROM devices WHERE id=?", (device_id,)))
+        self.set_root(Caller(d, sess, None, route), ALL_SHARES, "")
+
+    def create_mcp_connection(self, user: str, password: str, name: str,
+                              read_only: bool = False) -> dict:
+        """A token for /mcp, made on the gateway host with the account's NAS password
+        (never sent over the network). It doesn't expire; revoking ends it. It opens
+        nothing until grants are set (mcp.set_access)."""
+        user = user.strip()
+        if not self._assistant_user_ok(user):
+            raise ApiError(403, "account_not_allowed")
+        sess = self._nas_check(user, password, "mcp_connection_refused", "cli")
+        out = self._new_device(user, password, sess, name, None, "cli", "mcp_connection_created",
+                               kind="mcp", read_only=read_only)
+        try:
+            self._whole_drive(out["device_id"], sess, "cli")
+        except Exception:
+            self.revoke(out["device_id"], by_user=user)   # no half-made connection left behind
+            raise
+        out["read_only"] = read_only
+        return out
+
+    def _store_assistant_code(self, user: str, password: str, created_by: str, ip, route) -> dict:
+        code, code_id, secret = crypto.new_assistant_code()
+        now = time.time()
+        with self.db.tx() as c:
+            c.execute("DELETE FROM signin_codes WHERE purpose='assistant' AND expires_at<?", (now,))
+            c.execute("INSERT INTO signin_codes (id, nas_user, code_hash, wrapped_cred, created_by,"
+                      " created_at, expires_at, max_uses, purpose) VALUES (?,?,?,?,?,?,?,1,'assistant')",
+                      (code_id, user, crypto.token_hash(secret),
+                       crypto.wrap_credential(self.master, secret, "code:" + code_id, user, password),
+                       created_by, now, now + ASSISTANT_CODE_TTL))
+        self.db.audit("assistant_code_minted", nas_user=user, ip=ip, route=route, code_id=code_id,
+                      created_by=created_by)
+        return {"code": code, "nas_user": user, "expires_at": now + ASSISTANT_CODE_TTL}
+
+    def mint_assistant_code(self, tok: str, ip: str | None, route: str) -> dict:
+        """A signed-in Loft app makes a code that approves an assistant's sign-in to its
+        account. Home network only unless `assistant_codes_over_internet`."""
+        if route != "direct" and not self.s.assistant_codes_over_internet:
+            raise ApiError(403, "codes_direct_only")
+        d, secret, blob = self._device_for_token(tok)
+        if d["kind"] != "app":
+            raise ApiError(403, "token_not_for_this_api")
+        if not crypto.hash_matches(secret, d["token_hash"]):
+            raise ApiError(401, "token_superseded")
+        if not self._assistant_user_ok(d["nas_user"]):
+            raise ApiError(403, "account_not_allowed")
+        try:
+            pw = crypto.unwrap_credential(self.master, secret, d["id"], d["nas_user"], blob)
+        except crypto.CryptoError:
+            raise ApiError(401, "invalid_token")
+        try:
+            return self._store_assistant_code(d["nas_user"], pw, d["id"], ip, route)
+        finally:
+            pw = None  # noqa: F841
+
+    def mint_assistant_code_cli(self, user: str, password: str) -> dict:
+        user = user.strip()
+        if not self._assistant_user_ok(user):
+            raise ApiError(403, "account_not_allowed")
+        sess = self._nas_check(user, password, "assistant_code_refused", "cli")
+        self._close_session(sess)          # only proved the password (review of bef7c4a, N2)
+        return self._store_assistant_code(user, password, "cli", None, "cli")
+
+    def _check_acode_rate(self, code_id: str | None, ip: str | None):
+        self._check_rate("", ip, first=f"acode:{code_id}" if code_id else None)
+        n = self.db.one("SELECT COUNT(*) n FROM login_failures WHERE k='acode:*' AND at>?",
+                        (time.time() - self.s.login_window_s,))["n"]
+        if n >= self.s.assistant_code_max_fail_global:
+            raise ApiError(429, "too_many_attempts", retry_after=self.s.login_window_s)
+
+    def redeem_assistant_code(self, code: str, ip: str | None, route: str) -> tuple[str, str]:
+        """(NAS user, password) for a live approval code, which is used up."""
+        # Limits: per code (its first four characters), per IP, and a high one for
+        # everyone together. A single shared counter let five wrong codes from anyone
+        # lock every user out (review, S1).
+        try:
+            code_id, secret = crypto.parse_assistant_code(code)
+        except crypto.CryptoError:
+            self._check_acode_rate(None, ip)
+            self._record_failure("acode:*", f"ip:{rate_ip(ip)}")
+            raise ApiError(401, "invalid_code")
+        self._check_acode_rate(code_id, ip)
+        row = self.db.one("SELECT * FROM signin_codes WHERE id=? AND purpose='assistant'", (code_id,))
+        if not row or not crypto.hash_matches(secret, row["code_hash"]):
+            self._record_failure(f"acode:{code_id}", "acode:*", f"ip:{rate_ip(ip)}")
+            self.db.audit("assistant_code_failed", ip=ip, route=route, code_id=code_id)
+            raise ApiError(401, "invalid_code")
+        user = row["nas_user"]
+        if row["revoked_at"] or row["expires_at"] < time.time() or row["uses"] >= row["max_uses"]:
+            raise ApiError(401, "code_expired")
+        if not self._assistant_user_ok(user):
+            raise ApiError(403, "account_not_allowed")
+        try:
+            pw = crypto.unwrap_credential(self.master, secret, "code:" + code_id, user,
+                                          row["wrapped_cred"])
+        except crypto.CryptoError:
+            raise ApiError(401, "invalid_code")
+        with self.db.tx() as c:   # used up, and the wrapped password with it
+            n = c.execute("UPDATE signin_codes SET uses=uses+1, wrapped_cred=x'' WHERE id=?"
+                          " AND uses<max_uses AND revoked_at IS NULL", (code_id,)).rowcount
+        if not n:
+            raise ApiError(401, "code_expired")
+        self.db.audit("assistant_code_used", nas_user=user, ip=ip, route=route, code_id=code_id)
+        return user, pw
+
+    def _refresh_token(self, device_id: str) -> tuple[str, bytes]:
+        tok, secret = crypto.new_token(device_id)
+        return "nsr_" + tok[len(crypto.TOKEN_PREFIX):], secret
+
+    def _assistant_tokens(self, d: dict, pw: str, now: float) -> tuple[dict, tuple]:
+        """New access + refresh tokens for an OAuth connection, and the column values."""
+        access, a_secret = crypto.new_token(d["id"])
+        refresh, r_secret = self._refresh_token(d["id"])
+        cols = (crypto.token_hash(a_secret),
+                crypto.wrap_credential(self.master, a_secret, d["id"], d["nas_user"], pw),
+                now + ASSISTANT_ACCESS_TTL,
+                crypto.token_hash(r_secret),
+                crypto.wrap_credential(self.master, r_secret, "rt:" + d["id"], d["nas_user"], pw),
+                now + self.s.token_ttl_days * 86400)
+        return {"access_token": access, "refresh_token": refresh, "token_type": "Bearer",
+                "expires_in": ASSISTANT_ACCESS_TTL}, cols
+
+    def create_oauth_connection(self, user: str, pw: str, client_id: str, client_name: str,
+                                ip: str | None, route: str) -> dict:
+        """The token response for a sign-in the user approved (oauth.py)."""
+        if not self._assistant_user_ok(user):
+            raise ApiError(403, "account_not_allowed")
+        sess = self._nas_check(user, pw, "nas_credential_rejected", route)
+        out = self._new_device(user, pw, sess, client_name, ip, route, "assistant_signed_in",
+                               kind="mcp", client_id=client_id)
+        now = time.time()
+        d = dict(self.db.one("SELECT * FROM devices WHERE id=?", (out["device_id"],)))
+        resp, cols = self._assistant_tokens(d, pw, now)
+        with self.db.tx() as c:
+            c.execute("UPDATE devices SET token_hash=?, wrapped_cred=?, expires_at=?, refresh_hash=?,"
+                      " refresh_wrapped=?, refresh_expires_at=?, client_id=? WHERE id=?",
+                      (*cols, client_id, d["id"]))
+        try:
+            self._whole_drive(d["id"], sess, route)
+        except Exception:
+            self.revoke(d["id"], by_user=user)
+            raise
+        return resp
+
+    def refresh_oauth(self, refresh: str, client_id: str, ip: str | None, route: str) -> dict:
+        """A new access token for an OAuth connection. The refresh token doesn't rotate:
+        the response carries the same one, and it lasts token_ttl_days from its last use.
+        Jeevo syncs one connection to all of a user's devices and each refreshes by
+        itself, so rotation with reuse detection would end the connection the first time
+        a device refreshed with a token another device had already used (docs/mcp.md).
+        For the same reason the access tokens it replaces keep working until their own
+        expiry (oauth_access), at most MCP_LIVE_ACCESS of them."""
+        if not refresh.startswith("nsr_"):
+            raise ApiError(400, "invalid_grant")
+        try:
+            device_id, secret = crypto.parse_token(crypto.TOKEN_PREFIX + refresh[4:])
+        except crypto.CryptoError:
+            raise ApiError(400, "invalid_grant")
+        d = self.db.one("SELECT * FROM devices WHERE id=? AND kind='mcp'", (device_id,))
+        now = time.time()
+        if (not d or d["revoked_at"] or d["client_id"] != client_id
+                or not crypto.hash_matches(secret, d["refresh_hash"])
+                or (d["refresh_expires_at"] or 0) < now):
+            raise ApiError(400, "invalid_grant")
+        d = dict(d)
+        try:
+            pw = crypto.unwrap_credential(self.master, secret, "rt:" + d["id"], d["nas_user"],
+                                          d["refresh_wrapped"])
+        except crypto.CryptoError:
+            raise ApiError(400, "invalid_grant")
+        access, a_secret = crypto.new_token(d["id"])
+        wrapped = crypto.wrap_credential(self.master, a_secret, d["id"], d["nas_user"], pw)
+        pw = None  # noqa: F841
+        with self.db.tx() as c:
+            # The token being replaced is read inside the transaction: two refreshes at
+            # once would otherwise both keep the same stale one, and the first one's new
+            # token would end up in neither place (review of af68b8f).
+            c.execute("INSERT INTO oauth_access (device_id, token_hash, wrapped_cred, expires_at)"
+                      " SELECT id, token_hash, wrapped_cred, expires_at FROM devices"
+                      " WHERE id=? AND expires_at>? AND revoked_at IS NULL", (d["id"], now))
+            c.execute("DELETE FROM oauth_access WHERE device_id=? AND (expires_at<=? OR rowid NOT IN"
+                      " (SELECT rowid FROM oauth_access WHERE device_id=? ORDER BY expires_at DESC"
+                      " LIMIT ?))", (d["id"], now, d["id"], MCP_LIVE_ACCESS - 1))
+            if not c.execute("UPDATE devices SET token_hash=?, wrapped_cred=?, expires_at=?,"
+                             " refresh_expires_at=? WHERE id=? AND revoked_at IS NULL",
+                             (crypto.token_hash(a_secret), wrapped, now + ASSISTANT_ACCESS_TTL,
+                              now + self.s.token_ttl_days * 86400, d["id"])).rowcount:
+                raise ApiError(400, "invalid_grant")      # signed out meanwhile
+        self.db.audit("token_refresh", nas_user=d["nas_user"], device_id=d["id"], ip=ip, route=route)
+        return {"access_token": access, "refresh_token": refresh, "token_type": "Bearer",
+                "expires_in": ASSISTANT_ACCESS_TTL}
 
     # ── sign-in codes (App Review) ────────────────────────────────────────
 
@@ -178,6 +500,8 @@ class Gateway:
         if route != "direct":
             raise ApiError(403, "codes_direct_only")
         d, secret, blob = self._device_for_token(tok)
+        if d["kind"] != "app":
+            raise ApiError(403, "token_not_for_this_api")
         if not crypto.hash_matches(secret, d["token_hash"]):
             raise ApiError(401, "token_superseded")
         user = d["nas_user"]
@@ -211,13 +535,13 @@ class Gateway:
             code_id, csecret = crypto.parse_signin_code(code)
         except crypto.CryptoError:
             self._check_rate("", ip, first="code:-")
-            self._record_failure(f"ip:{ip}")
+            self._record_failure(f"ip:{rate_ip(ip)}")
             raise ApiError(401, "invalid_code")
         self._check_rate("", ip, first=f"code:{code_id}")
-        row = self.db.one("SELECT * FROM signin_codes WHERE id=?", (code_id,))
+        row = self.db.one("SELECT * FROM signin_codes WHERE id=? AND purpose='device'", (code_id,))
         now = time.time()
         if not row or not crypto.hash_matches(csecret, row["code_hash"]):
-            self._record_failure(f"code:{code_id}", f"ip:{ip}")
+            self._record_failure(f"code:{code_id}", f"ip:{rate_ip(ip)}")
             self.db.audit("code_failed", ip=ip, route=route, code_id=code_id)
             raise ApiError(401, "invalid_code")
         user = row["nas_user"]
@@ -276,6 +600,13 @@ class Gateway:
         elif (d["prev_valid_until"] and d["prev_valid_until"] > now
                 and crypto.hash_matches(secret, d["prev_token_hash"])):
             blob = d["prev_wrapped_cred"]
+        elif d["kind"] == "mcp" and (a := self._earlier_access(d["id"], secret)):
+            # an OAuth access token a refresh (maybe on another device) has replaced
+            if d["revoked_at"]:
+                raise ApiError(401, "device_revoked")
+            if a["expires_at"] < now:
+                raise ApiError(401, "token_expired")
+            return dict(d), secret, a["wrapped_cred"]
         else:
             raise ApiError(401, "invalid_token")
         # Only a caller holding the real secret learns WHY it is dead, so the
@@ -287,29 +618,87 @@ class Gateway:
             raise ApiError(401, "token_expired")
         return dict(d), secret, blob
 
+    def _earlier_access(self, device_id: str, secret: bytes):
+        for a in self.db.all("SELECT * FROM oauth_access WHERE device_id=?", (device_id,)):
+            if crypto.hash_matches(secret, a["token_hash"]):
+                return a
+        return None
+
+    def _close_session(self, sess: Session):
+        self.watches.forget(sess)          # a watch never outlives its session
+        try:
+            self._closed_sessions.add(sess)
+        except TypeError:                  # not weak-referenceable: rescans just run out
+            pass
+        sess.close()
+
+    def session_live(self, sess: Session) -> bool:
+        with self._sess_lock:
+            return any(s is sess for s, _ in self._sessions.values())
+
     def _put_session(self, device_id: str, sess: Session):
         with self._sess_lock:
             old = self._sessions.pop(device_id, None)
             self._sessions[device_id] = (sess, time.time())
         if old:
-            old[0].close()
+            self._close_session(old[0])
+
+    def _adopt_session(self, device_id: str, sess: Session) -> Session:
+        """Keep the session this request made, unless another request for the same device
+        made one first (parallel Range slices, or a Mac's burst, after a restart or 30 min
+        idle). Then use that one and close ours, which nothing has used yet. Replacing it
+        instead closed a session another request was reading through (2026-11-06)."""
+        with self._sess_lock:
+            hit = self._sessions.get(device_id)
+            if hit is None:
+                self._sessions[device_id] = (sess, time.time())
+                return sess
+        sess.close()                        # its own connection: the kept one is untouched
+        return hit[0]
 
     def _drop_session(self, device_id: str):
         with self._sess_lock:
             old = self._sessions.pop(device_id, None)
         if old:
-            old[0].close()
+            self._close_session(old[0])
 
     def expire_sessions(self):
-        cut = time.time() - self.s.session_idle_s
+        """Run every minute (main._janitor). Drops idle sessions, and sessions of
+        devices revoked from another process (`loft-admin revoke`, `loft-gateway mcp
+        revoke`): that revoke can't reach this process's cache, so without this the
+        session and its watches lived on until idle (review of bef7c4a, N1)."""
+        self._flush_owner_audit()
+        now = time.time()
+        cut = now - self.s.session_idle_s
+        # A full pass of a big root outlasts session_idle_s (ohh: ~75 min), and one
+        # stopped half-way keeps nothing it deferred: a Mac left idle never finished
+        # one (2026-11-06). A session with a rescan running stays up to
+        # rescan_keeps_session_s after its last request.
+        scan_cut = now - max(self.s.rescan_keeps_session_s, self.s.session_idle_s)
         with self._sess_lock:
-            dead = [k for k, (_, t) in self._sessions.items() if t < cut]
+            ids = list(self._sessions)
+        known, live = set(ids), set()
+        for i in range(0, len(ids), 500):
+            part = ids[i:i + 500]
+            live |= {r["id"] for r in self.db.all(
+                "SELECT id FROM devices WHERE revoked_at IS NULL AND id IN (%s)"
+                % ",".join("?" * len(part)), tuple(part))}
+        with self._sess_lock:
+            dead = [k for k, (s, t) in self._sessions.items()
+                    if (k in known and k not in live)
+                    or (t < cut and (t < scan_cut or s not in self._scanning))]
             gone = [self._sessions.pop(k)[0] for k in dead]
         for s in gone:
-            s.close()
+            self._close_session(s)
 
-    def authenticate(self, tok: str, ip: str | None, route: str) -> Caller:
+    def authenticate(self, tok: str, ip: str | None, route: str, kind: str = "app") -> Caller:
         d, secret, blob = self._device_for_token(tok)
+        if d["kind"] != kind:
+            # An MCP token never opens the REST API, and an app token never opens /mcp.
+            raise ApiError(403, "token_not_for_this_api")
+        if kind == "mcp" and not self._assistant_user_ok(d["nas_user"]):
+            # the account was taken out of assistant_users_re after it connected
+            raise ApiError(403, "account_not_allowed")
         with self._sess_lock:
             hit = self._sessions.get(d["id"])
             if hit:
@@ -332,7 +721,7 @@ class Gateway:
                 raise ApiError(503, "nas_unavailable", detail=str(e))
             finally:
                 pw = None  # noqa: F841
-            self._put_session(d["id"], sess)
+            sess = self._adopt_session(d["id"], sess)
         with self.db.tx() as c:
             c.execute("UPDATE devices SET last_used_at=?, last_ip=? WHERE id=?",
                       (time.time(), ip, d["id"]))
@@ -340,6 +729,8 @@ class Gateway:
 
     def refresh(self, tok: str, ip: str | None, route: str) -> dict:
         d, secret, blob = self._device_for_token(tok)
+        if d["kind"] != "app":
+            raise ApiError(403, "token_not_for_this_api")
         if not crypto.hash_matches(secret, d["token_hash"]):
             raise ApiError(401, "token_superseded")   # only the current token may rotate
         try:
@@ -363,7 +754,7 @@ class Gateway:
 
     def list_devices(self, user: str) -> list[dict]:
         rows = self.db.all("SELECT id, device_name, created_at, last_used_at, last_ip,"
-                           " expires_at, revoked_at FROM devices WHERE nas_user=?"
+                           " expires_at, revoked_at, kind, read_only FROM devices WHERE nas_user=?"
                            " ORDER BY created_at", (user,))
         return [dict(r) for r in rows]
 
@@ -375,8 +766,10 @@ class Gateway:
             # Wipe the credential, not just flag the row: a revoked device must
             # leave nothing behind that could ever decrypt to the password.
             c.execute("UPDATE devices SET revoked_at=?, wrapped_cred=x'', prev_wrapped_cred=NULL,"
-                      " prev_token_hash=NULL, prev_valid_until=NULL WHERE id=?",
+                      " prev_token_hash=NULL, prev_valid_until=NULL, refresh_hash=NULL,"
+                      " refresh_wrapped=NULL WHERE id=?",
                       (time.time(), device_id))
+            c.execute("DELETE FROM oauth_access WHERE device_id=?", (device_id,))
         self._drop_session(device_id)
         self.db.audit("device_revoked", nas_user=d["nas_user"], device_id=device_id, ip=ip,
                       route=route, by=by_user or "admin")
@@ -510,6 +903,8 @@ class Gateway:
         uvicorn isn't left waiting up to longpoll_max_s for them to close."""
         self._closing = True
         self._notify()
+        # Closing the watches is a round trip per share: not in the signal handler.
+        threading.Thread(target=self._stop_in_background, daemon=True).start()
 
     def _new_item(self, c, root_id, parent_id, e: Entry, sha256=None) -> str:
         iid = uuid.uuid4().hex
@@ -534,7 +929,7 @@ class Gateway:
     # ── reconcile: the NAS is the truth, the index follows ────────────────
 
     def reconcile(self, root, session: Session, start_id: str | None = None,
-                  max_depth: int | None = None) -> int:
+                  max_depth: int | None = None, defer: dict | None = None) -> int:
         """Walk the NAS under `start_id` (default: root), bring the index in line,
         and record a change for every difference. Returns the number of changes.
 
@@ -542,6 +937,14 @@ class Gateway:
         server file id are MOVES (same item id, meta_version+1), not
         delete+create, so an external rename in Finder-over-SMB keeps the
         File Provider identity and any local state attached to it.
+
+        With max_depth, an entry new to this folder whose file id belongs to an item
+        elsewhere in the root is that item, moved here, if its old path is gone (one
+        stat to check). `defer` (rescan() only): an item missing here is not deleted
+        but put in `defer`, since a folder listed later may be where it went.
+
+        A subfolder that can't be read for any reason but "gone" or "denied" (a
+        timeout, a lock, a dropped connection) leaves its index rows alone.
         """
         start_id = start_id or root["id"]
         fs = self._fs(root, session)
@@ -556,9 +959,10 @@ class Gateway:
 
         # 1. the NAS side, breadth-first, shallowest first
         found: list[tuple[str, int, Entry]] = []     # (parent rel-path, depth, entry)
-        queue = [("", 1)]
+        unread: set[str] = set()                     # rel-paths whose rows stay as they are
+        queue = deque([("", 1)])
         while queue:
-            rel, depth = queue.pop(0)
+            rel, depth = queue.popleft()
             try:
                 ents = fs.scandir(join(start_path, rel))
             except AccessDenied:
@@ -571,6 +975,13 @@ class Gateway:
             except NotFound:
                 if not rel and start_id == root["id"]:
                     raise
+                if not rel and defer is not None:
+                    return 0             # rescan: the folder's own parent decides about it
+                continue
+            except StorageError:
+                if not rel:
+                    raise
+                unread.add(rel)
                 continue
             for e in ents:
                 if is_excluded(e.name):
@@ -578,6 +989,12 @@ class Gateway:
                 found.append((rel, depth, e))
                 if e.is_dir and (max_depth is None or depth < max_depth):
                     queue.append((join(rel, e.name), depth + 1))
+
+        at_multi_root = root["share"] == ALL_SHARES and start_id == root["id"]
+        start_share = "" if at_multi_root else self._share_key(self.db.one, root, start_id)
+        xmoves = (self._cross_folder_moves(root, fs, start_id, start_share, found)
+                  if max_depth and not at_multi_root else {})
+        unread_keys = {"/".join(name_key(x) for x in u.split("/")) for u in unread}
 
         n = 0
         with self.db.tx() as c:
@@ -594,16 +1011,21 @@ class Gateway:
                 frontier = [r["id"] for r in rows if r["is_dir"]]
             by_parent: dict[tuple, str] = {(r["parent_id"], r["name_key"]): i
                                            for i, r in items.items()}
-            by_fid: dict[tuple, str] = {(r["file_id"], r["is_dir"]): i
-                                        for i, r in items.items() if r["file_id"] is not None}
             seen: set[str] = set()
             dir_ids = {"": start_id}
 
-            fresh = c.execute("SELECT id, parent_id, name_key, file_id, is_dir FROM items"
-                              " WHERE root_id=? AND updated_seq>?", (root["id"], seq0)).fetchall()
+            # Rows written since seq0 = rows with a change since seq0 (_record sets
+            # updated_seq to its change's seq). Asked through the changes index:
+            # items has none on updated_seq, so this was a scan of every row in the
+            # index, once per folder listed.
+            fresh = c.execute("SELECT id, parent_id, name_key, file_id, is_dir FROM items WHERE id IN"
+                              " (SELECT item_id FROM changes WHERE root_id=? AND seq>?)",
+                              (root["id"], seq0)).fetchall()
             fresh_ids = {r["id"] for r in fresh}
             fresh_names = {(r["parent_id"], r["name_key"]) for r in fresh}
-            fresh_fids = {(r["file_id"], r["is_dir"]) for r in fresh if r["file_id"] is not None}
+            q = lambda sql, a: c.execute(sql, a).fetchone()           # noqa: E731
+            fresh_fids = {(self._share_key(q, root, r["id"]), r["file_id"], r["is_dir"])
+                          for r in fresh if r["file_id"] is not None}
 
             def under_fresh(iid: str) -> bool:
                 """The item or a folder above it was written after the listing."""
@@ -626,6 +1048,23 @@ class Gateway:
                     memo[iid] = join(old_rel(r["parent_id"]), r["name_key"])
                 return memo[iid]
             old_paths = {iid: old_rel(iid) for iid in items}
+
+            # File ids are only unique within one share: on a NAS where every share
+            # is its own btrfs subvolume, Samba hands out the raw inode number, so an
+            # all-shares root has the same id in several shares (tens of thousands on
+            # a large NAS). Every file-id match is keyed by share; an id that is
+            # still ambiguous within its share matches nothing.
+            def item_share(iid: str) -> str:
+                return old_paths[iid].split("/")[0] if at_multi_root else start_share
+
+            def ent_share(rel: str, e: Entry) -> str:
+                return name_key((rel or e.name).split("/")[0]) if at_multi_root else start_share
+
+            by_fid: dict[tuple, str | None] = {}
+            for i, r in items.items():
+                if r["file_id"] is not None:
+                    key = (item_share(i), r["file_id"], r["is_dir"])
+                    by_fid[key] = None if key in by_fid else i
             now_paths = {(join(name_key(rel) if rel else "", name_key(e.name)), e.is_dir)
                          for rel, _, e in found}
 
@@ -642,12 +1081,12 @@ class Gateway:
                         dir_ids[join(rel, e.name)] = cur["id"]
                     continue
                 if cur is None and ((pid, k) in fresh_names
-                                    or (e.file_id, int(e.is_dir)) in fresh_fids):
+                                    or (ent_share(rel, e), e.file_id, int(e.is_dir)) in fresh_fids):
                     continue             # its row moved, was renamed or deleted since
                 if cur and bool(cur["is_dir"]) != e.is_dir:
                     cur = None           # file <-> folder: old one goes, new one comes
                 if cur is None and e.file_id is not None:
-                    mid = by_fid.get((e.file_id, int(e.is_dir)))
+                    mid = by_fid.get((ent_share(rel, e), e.file_id, int(e.is_dir)))
                     if (mid and mid not in seen
                             and (old_paths[mid], bool(items[mid]["is_dir"])) not in now_paths):
                         moved = items[mid]
@@ -660,6 +1099,20 @@ class Gateway:
                         self._record(c, root["id"], mid, "upsert")
                         n += 1
                         cur = moved
+                if cur is None and not rel and (e.file_id, int(e.is_dir)) in xmoves:
+                    xm = xmoves[(e.file_id, int(e.is_dir))]
+                    row = c.execute("SELECT * FROM items WHERE id=? AND deleted=0", (xm,)).fetchone()
+                    if row and xm not in fresh_ids and xm not in seen:
+                        c.execute("UPDATE items SET parent_id=?, name=?, name_key=?,"
+                                  " meta_version=meta_version+1 WHERE id=?", (pid, e.name, k, xm))
+                        cur = dict(row, parent_id=pid, name=e.name, name_key=k,
+                                   meta_version=row["meta_version"] + 1)
+                        items[xm] = cur
+                        by_parent[(pid, k)] = xm
+                        self._record(c, root["id"], xm, "upsert")
+                        n += 1
+                        if defer is not None:
+                            defer.pop(xm, None)
                 if cur is None:
                     iid = self._new_item(c, root["id"], pid, e)
                     items[iid] = dict(c.execute("SELECT * FROM items WHERE id=?",
@@ -686,10 +1139,17 @@ class Gateway:
                 if e.is_dir:
                     dir_ids[join(rel, e.name)] = iid
 
+            def under_unread(iid: str) -> bool:
+                p = old_paths.get(iid)
+                return p is not None and any(p.startswith(u + "/") for u in unread_keys)
+
             for iid, r in items.items():
-                if iid not in seen and not under_fresh(iid):
+                if iid not in seen and not under_fresh(iid) and not under_unread(iid):
                     still = c.execute("SELECT deleted FROM items WHERE id=?", (iid,)).fetchone()
                     if still and not still["deleted"]:
+                        if defer is not None and r["file_id"] is not None:
+                            defer[iid] = (r["parent_id"], r["name_key"], r["updated_seq"])
+                            continue
                         self._mark_deleted(c, root["id"], iid)
                         n += 1
             if start_id == root["id"] and max_depth is None:
@@ -698,13 +1158,158 @@ class Gateway:
             self._notify()
         return n
 
+    def _share_key(self, q, root, item_id: str) -> str:
+        """name_key of the share an item is in, for an all-shares root ("" for a
+        one-share root, where every item is in the same share). q(sql, args) -> row."""
+        if root["share"] != ALL_SHARES or item_id == root["id"]:
+            return ""
+        cur = q("SELECT id, parent_id, name_key FROM items WHERE id=?", (item_id,))
+        while cur and cur["parent_id"] not in (None, root["id"]):
+            cur = q("SELECT id, parent_id, name_key FROM items WHERE id=?", (cur["parent_id"],))
+        return cur["name_key"] if cur and cur["parent_id"] == root["id"] else ""
+
+    def _cross_folder_moves(self, root, fs: RootFS, start_id: str, start_share: str,
+                            found) -> dict:
+        """{(file_id, is_dir): item id} for entries new to `start_id` whose file id
+        is an indexed item elsewhere IN THE SAME SHARE (no SMB move crosses a share;
+        ids repeat across shares) that is no longer at its old path: moved in from
+        there (Finder over SMB, a bot's mv). More than one such item: no match.
+        Runs before the index transaction, since it may stat the NAS."""
+        out: dict = {}
+        above, cur = set(), start_id
+        while cur:                        # never move a folder into its own subtree
+            above.add(cur)
+            r = self.db.one("SELECT parent_id FROM items WHERE id=?", (cur,))
+            cur = r["parent_id"] if r else None
+        for rel, _d, e in found:
+            if rel or e.file_id is None:
+                continue
+            if self.db.one("SELECT 1 FROM items WHERE parent_id=? AND name_key=? AND deleted=0",
+                           (start_id, name_key(e.name))):
+                continue
+            gone = []
+            for cand in self.db.all("SELECT * FROM items WHERE root_id=? AND file_id=? AND is_dir=?"
+                                    " AND deleted=0 AND parent_id IS NOT ?",
+                                    (root["id"], e.file_id, int(e.is_dir), start_id)):
+                if (cand["id"] in above or cand["parent_id"] is None
+                        or self._share_key(self.db.one, root, cand["id"]) != start_share):
+                    continue
+                try:
+                    there = fs.stat(self._relpath(root, cand))
+                except NotFound:
+                    there = None
+                except (StorageError, Blocked, FixedItem):
+                    gone = None           # can't tell: leave it for the next pass
+                    break
+                if there is None or there.file_id != e.file_id:
+                    gone.append(cand["id"])
+            if gone and len(gone) == 1:
+                out[(e.file_id, int(e.is_dir))] = gone[0]
+        return out
+
+    def rescan(self, root, session: Session, start_id: str | None = None) -> dict:
+        """_rescan, with the session marked as scanning: the janitor keeps it while
+        the pass runs (expire_sessions, rescan_keeps_session_s)."""
+        with self._sess_lock:
+            self._scanning[session] = self._scanning.get(session, 0) + 1
+        try:
+            return self._rescan(root, session, start_id)
+        finally:
+            with self._sess_lock:
+                n = self._scanning.pop(session) - 1
+                if n:
+                    self._scanning[session] = n
+
+    def _rescan(self, root, session: Session, start_id: str | None = None) -> dict:
+        """Whole root (or the subtree under start_id: a share whose change watch
+        overflowed), one folder at a time, breadth-first: each folder is listed
+        and committed on its own (reconcile, max_depth=1), so what it finds shows
+        up on the Macs while the pass is still going, and a folder that fails is
+        logged and skipped instead of ending the pass. Items missing from where
+        they were are deleted at the end, unless a later folder turned out to be
+        where they went (a move keeps its id)."""
+        t0 = time.time()
+        start_id = start_id or root["id"]
+        whole = start_id == root["id"]
+        defer: dict[str, tuple] = {}
+        st = {"folders": 0, "changes": 0, "skipped": 0}
+        queue = deque([start_id])
+        while queue:
+            if self._closing:
+                log.info("rescan %s stopped: gateway shutting down", root["id"][:8])
+                return st
+            if session in self._closed_sessions:
+                # signed out, revoked or idle: every folder left would only fail
+                # (review of 3027669, n2). The next request's session starts a new pass.
+                log.info("rescan %s stopped: its session was closed", root["id"][:8])
+                return st
+            fid = queue.popleft()
+            try:
+                st["changes"] += self.reconcile(root, session, fid, max_depth=1, defer=defer)
+            except (StorageError, Blocked, FixedItem) as e:
+                if fid == start_id:
+                    raise
+                st["skipped"] += 1
+                log.warning("rescan %s: folder %s skipped, its index rows left as they were: %s",
+                            root["id"][:8], fid[:8], e)
+                continue
+            st["folders"] += 1
+            queue.extend(r["id"] for r in self.db.all(
+                "SELECT id FROM items WHERE parent_id=? AND deleted=0 AND is_dir=1", (fid,))
+                if r["id"] not in defer)
+        st["changes"] += self.finish_deferred(root, defer, scanned=whole)
+        if whole:
+            self._full_start[root["id"]] = t0
+        st["seconds"] = round(time.time() - t0, 1)
+        log.info("rescan %s (%s)%s done: %s", root["id"][:8], root["nas_user"],
+                 "" if whole else f" from {start_id[:8]}", st)
+        return st
+
+    def finish_deferred(self, root, defer: dict, scanned: bool = False) -> int:
+        """Delete the items a pass found missing from their folder, unless they
+        were found elsewhere since (a move) or written to. scanned: a whole-root
+        pass ends here, so the root's last_scan_at is set in the same commit."""
+        gone = 0
+        if not defer and not scanned:
+            return 0
+        with self.db.tx() as c:
+            for iid, (pid, k, useq) in defer.items():
+                r = c.execute("SELECT parent_id, name_key, deleted, updated_seq FROM items"
+                              " WHERE id=?", (iid,)).fetchone()
+                if (r and not r["deleted"] and r["parent_id"] == pid and r["name_key"] == k
+                        and r["updated_seq"] == useq):
+                    self._mark_deleted(c, root["id"], iid)
+                    gone += 1
+            if scanned:
+                c.execute("UPDATE roots SET last_scan_at=? WHERE id=?", (time.time(), root["id"]))
+        if gone:
+            self._notify()
+        return gone
+
+    def rescan_interval(self, root) -> int:
+        """rescan_interval_watched_s while the NAS reports every change for this
+        root: all its watches are up, and a full pass has started since they came
+        up (so nothing from before the watch is still unseen). Otherwise the
+        short interval, as before change notify."""
+        since = self.watches.since(root["id"]) if self.s.notify else None
+        if since is not None and self._full_start.get(root["id"], 0) >= since:
+            return self.s.rescan_interval_watched_s
+        return self.s.rescan_interval_s
+
     def maybe_rescan(self, caller: Caller):
-        """Full-root rescan in the background if the last one is stale. Runs as
-        the calling user, so it never sees more than that user can."""
+        """Start the root's change watches if they aren't running, and a full-root
+        rescan in the background if the last one is stale. Both run as the calling
+        user, so they never see more than that user can."""
         root = self._root(caller)
+        if self.s.notify:
+            try:
+                self.watches.ensure(root, caller.session)
+            except Exception:  # noqa: BLE001  (the rescan still covers it)
+                log.exception("notify %s (%s): starting the watches failed", root["id"][:8],
+                              root["nas_user"])
         if not self.s.background_rescan:
             return
-        if root["last_scan_at"] and time.time() - root["last_scan_at"] < self.s.rescan_interval_s:
+        if root["last_scan_at"] and time.time() - root["last_scan_at"] < self.rescan_interval(root):
             return
         lock = self._scan_locks.setdefault(root["id"], threading.Lock())
         if not lock.acquire(blocking=False):
@@ -712,10 +1317,11 @@ class Gateway:
 
         def run():
             try:
-                self.reconcile(root, caller.session)
+                self.rescan(root, caller.session)
                 self.housekeeping(root, caller.session)
             except Exception:  # noqa: BLE001  (next request retries)
-                pass
+                log.exception("rescan %s (%s) failed; the next request retries",
+                              root["id"][:8], root["nas_user"])
             finally:
                 lock.release()
         threading.Thread(target=run, daemon=True, name=f"rescan-{root['id'][:8]}").start()
@@ -869,22 +1475,41 @@ class Gateway:
         u = self._upload(caller, uid)
         return {"upload_id": uid, "received": u["received"], "size": u["size"]}
 
-    def upload_chunk(self, caller: Caller, uid: str, offset: int, data: bytes,
+    def upload_chunk(self, caller: Caller, uid: str, offset: int, data,
                      chunk_sha256: str | None) -> dict:
+        """`data`: the bytes, or a seekable file holding them (the HTTP route spools a
+        chunk to local disk instead of holding up to chunk_max in memory). It goes to
+        the NAS in UPLOAD_WRITE_PIECE pieces. Bytes written past `received` by a chunk
+        that then fails are overwritten by the next one, and commit checks the whole
+        file's SHA-256 anyway."""
+        if not hasattr(data, "read"):
+            data = io.BytesIO(data)
+        n = data.seek(0, io.SEEK_END)
         u = self._upload(caller, uid)
         if offset != u["received"]:
             # Resumable: the client re-reads `received` and continues from there.
             raise ApiError(409, "wrong_offset", received=u["received"])
-        if len(data) > self.s.upload_chunk_max or offset + len(data) > u["size"]:
+        if n > self.s.upload_chunk_max or offset + n > u["size"]:
             raise ApiError(413, "chunk_too_large")
-        if chunk_sha256 and hashlib.sha256(data).hexdigest() != chunk_sha256.lower():
-            raise ApiError(422, "chunk_hash_mismatch")
-        root = self._root(caller)
-        self._fs(root, caller.session).write_at(u["temp_path"], offset, data)
+        if chunk_sha256:
+            h = hashlib.sha256()
+            data.seek(0)
+            while piece := data.read(UPLOAD_WRITE_PIECE):
+                h.update(piece)
+            if h.hexdigest() != chunk_sha256.lower():
+                raise ApiError(422, "chunk_hash_mismatch")
+        fs = self._fs(self._root(caller), caller.session)
+        data.seek(0)
+        pos = 0
+        while piece := data.read(UPLOAD_WRITE_PIECE):
+            fs.write_at(u["temp_path"], offset + pos, piece)
+            pos += len(piece)
+        if n == 0:
+            fs.write_at(u["temp_path"], offset, b"")
         with self.db.tx() as c:
             c.execute("UPDATE uploads SET received=? WHERE id=? AND received=?",
-                      (offset + len(data), uid, offset))
-        return {"upload_id": uid, "received": offset + len(data), "size": u["size"]}
+                      (offset + n, uid, offset))
+        return {"upload_id": uid, "received": offset + n, "size": u["size"]}
 
     def _conflict_name(self, name: str, device_name: str) -> str:
         stem, dot, ext = name.rpartition(".")

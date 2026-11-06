@@ -16,6 +16,8 @@
 "Key fingerprint" = "Fingeravtrykk";
 "Base64, ends in =" = "Base64, slutter på =";
 "Use a pairing link instead" = "Bruk en paringslenke i stedet";
+"No gateway yet? Loft needs one at home, next to your NAS." = "Har du ingen gateway ennå? Loft trenger en hjemme, ved siden av NAS-en.";
+"Set up a gateway" = "Sett opp en gateway";
 "Pair with “%@”?" = "Pare med «%@»?";
 "At home: %@" = "Hjemme: %@";
 "Away from home: %@, through a tunnel. Sign in at home first." = "Borte: %@, gjennom en tunnel. Logg inn hjemme først.";
@@ -46,5 +48,6 @@
 
 /* Update check */
 "Loft %@ is available…" = "Loft %@ er tilgjengelig …";
+"Loft %@" = "Loft %@";
 "Check for updates" = "Se etter oppdateringer";
 "Once a day, Loft asks loft.incremental.no if there's a newer version. It sends nothing about you, this Mac or your files." = "Én gang i døgnet spør Loft loft.incremental.no om det finnes en nyere versjon. Den sender ingenting om deg, denne Macen eller filene dine.";

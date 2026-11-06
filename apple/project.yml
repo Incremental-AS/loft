@@ -16,8 +16,8 @@ settings:
       ONLY_ACTIVE_ARCH: YES
   base:
     DEVELOPMENT_TEAM: 5A3JX4D37B
-    MARKETING_VERSION: 0.2.0
-    CURRENT_PROJECT_VERSION: 14         # Mac and iPhone share the build counter
+    MARKETING_VERSION: 0.2.1
+    CURRENT_PROJECT_VERSION: 16         # Mac and iPhone share the build counter
     ARCHS: "arm64 x86_64"          # one universal dmg
     ONLY_ACTIVE_ARCH: NO
     ENABLE_HARDENED_RUNTIME: YES

@@ -68,6 +68,12 @@ class CodeMinted(BaseModel):
     expires_at: float
 
 
+class AssistantCode(BaseModel):
+    code: str = Field(description="Shown once: `XXXX-XXXX-XXXX`. Works once, within 10 minutes.")
+    nas_user: str
+    expires_at: float
+
+
 class Device(_Open):
     id: str
     device_name: str
@@ -76,6 +82,9 @@ class Device(_Open):
     last_ip: str | None
     expires_at: float
     revoked_at: float | None
+    kind: str = Field("app", description="`app` (a Loft app) or `mcp` (an assistant connected "
+                                         "over MCP; its token never expires, only revocation ends it).")
+    read_only: bool = False
 
 
 class Devices(BaseModel):

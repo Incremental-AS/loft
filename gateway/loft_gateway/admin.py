@@ -8,6 +8,8 @@
     loft-admin gen-master-key        # prints a base64 key for systemd-creds
     loft-admin pair                  # pairing link + QR code for the Loft apps
     loft-admin config --effective    # every setting as the gateway reads it, defaults included (JSON)
+    loft-admin share-owners [--user U]           # each account's shares and the owner first seen
+    loft-admin share-owner-forget USER SHARE     # accept a share's new owner (after a mismatch)
 """
 from __future__ import annotations
 
@@ -46,6 +48,11 @@ def main(argv=None):
     pr.add_argument("--no-qr", action="store_true")
     cf = sub.add_parser("config")
     cf.add_argument("--effective", action="store_true", required=True)
+    so = sub.add_parser("share-owners")
+    so.add_argument("--user")
+    sf = sub.add_parser("share-owner-forget")
+    sf.add_argument("user")
+    sf.add_argument("share")
     args = ap.parse_args(argv)
 
     if args.cmd == "gen-master-key":
@@ -76,15 +83,19 @@ def main(argv=None):
             print(f"{row['id']}  {row['nas_user']:<16} {row['device_name']:<24} {state:<8}"
                   f" last {_t(row['last_used_at'])} from {row['last_ip'] or '-'}")
     elif args.cmd == "revoke":
-        # Same effect as the API path: credential blob wiped, session dropped on
-        # the next request (the running process re-reads the row every request).
+        # Same effect as the API path: credential blob wiped, and every request with
+        # the token is refused at once (the server re-reads the row each request).
+        # The server's cached NAS session and its watches go within a minute
+        # (Gateway.expire_sessions).
         row = db.one("SELECT nas_user FROM devices WHERE id=?", (args.device_id,))
         if not row:
             raise SystemExit("no such device")
         with db.tx() as c:
             c.execute("UPDATE devices SET revoked_at=?, wrapped_cred=x'', prev_wrapped_cred=NULL,"
-                      " prev_token_hash=NULL, prev_valid_until=NULL WHERE id=?",
+                      " prev_token_hash=NULL, prev_valid_until=NULL, refresh_hash=NULL,"
+                      " refresh_wrapped=NULL WHERE id=?",
                       (time.time(), args.device_id))
+            c.execute("DELETE FROM oauth_access WHERE device_id=?", (args.device_id,))
         db.audit("device_revoked", nas_user=row["nas_user"], device_id=args.device_id, by="admin-cli")
         print("revoked", args.device_id)
     elif args.cmd == "codes":
@@ -105,6 +116,24 @@ def main(argv=None):
         db.audit("code_revoked", nas_user=row["nas_user"], code_id=args.code_id.upper(),
                  by="admin-cli")
         print("revoked", args.code_id.upper())
+    elif args.cmd == "share-owners":
+        q, p = "SELECT * FROM share_owners", ()
+        if args.user:
+            q, p = q + " WHERE nas_user=?", (args.user.casefold(),)
+        for row in db.all(q + " ORDER BY nas_user, share", p):
+            print(f"{row['nas_user']:<16} {row['share']:<24} {row['owner_sid']:<48}"
+                  f" since {_t(row['first_seen'])}")
+    elif args.cmd == "share-owner-forget":
+        # Only after checking on the NAS that the share's new owner is right. The
+        # gateway notes the owner it sees next; a session already refused stays
+        # refused until it ends (sign-in again, or session_idle_s).
+        key = (args.user.casefold(), args.share.casefold())
+        with db.tx() as c:
+            n = c.execute("DELETE FROM share_owners WHERE nas_user=? AND share=?", key).rowcount
+        if not n:
+            raise SystemExit("no owner noted for that account and share")
+        db.audit("share_owner_forgotten", nas_user=args.user, share=args.share, by="admin-cli")
+        print("forgotten", *key)
     elif args.cmd == "audit":
         q, p = "SELECT * FROM audit", ()
         if args.user:

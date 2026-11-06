@@ -387,14 +387,15 @@ class SiteTest(unittest.TestCase):
         self.assertIn('<code class="short">smb_encryption = "server"</code>', (DIST / "no/gateway/index.html").read_text())
 
     def test_coming_soon_platform_has_no_downloads(self):
-        # The gateway .deb and image are built but not released: its Download card offers nothing to download.
+        # A coming_soon card offers nothing to download; the released ones (Mac and gateway since 0.2.0) do.
         r = build.Renderer("en", {"x": {"on": True, "off": False}}, {}, release=False)
         self.assertEqual(r.render("{{#unless x.on}}a{{/unless}}{{#unless x.off}}b{{/unless}}{{#unless x.none}}c{{/unless}}"), "bc")
         for lang in built():
             prefix = prefix_dir(lang)
             copy = build.tomllib.loads((ROOT / f"content/{lang}.toml").read_text())
             soon = [p["id"] for p in copy["platforms"] if p.get("coming_soon")]
-            self.assertIn("gateway", soon, lang)
+            self.assertNotIn("gateway", soon, lang)
+            self.assertNotIn("mac", soon, lang)
             doc = (DIST / f"{prefix}download/index.html").read_text()
             for pid in soon:
                 card = re.search(rf'<article class="card download" id="{pid}">(.*?)</article>', doc, re.S).group(1)
@@ -405,6 +406,8 @@ class SiteTest(unittest.TestCase):
             # The other cards still get theirs.
             for pid in (p["id"] for p in copy["platforms"] if not p.get("coming_soon") and p.get("downloads")):
                 self.assertIn("btn", re.search(rf'id="{pid}">(.*?)</article>', doc, re.S).group(1), f"{lang}/{pid}")
+            gw = re.search(r'id="gateway">(.*?)</article>', doc, re.S).group(1)
+            self.assertEqual(gw.count('class="btn'), 4, f"{lang}: gateway card should offer the four .debs")
 
     def test_gateway_step_text_before_the_command(self):
         for prefix in ("", "no/"):       # the Coming-soon wording is checked in the two languages written in-house

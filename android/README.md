@@ -35,7 +35,7 @@ disk, and that deleted or renamed ones are gone. The camera upload tests switch 
 
 ## What is tested
 
-Unit tests (JVM): `core` 51 (pairing payload, SPKI pins, route choice, the API client against MockWebServer,
+Unit tests (JVM): `core` 52 (pairing payload, SPKI pins, route choice, the API client against MockWebServer incl. code sign-in,
 change feed, the releases.json parser incl. the `platforms` form), `app` 9 (`QrDecoderTest`: the decoder the
 scan screen feeds camera frames to, on generated QR codes of a pairing link in padded Y planes; `CameraLedgerTest`).
 

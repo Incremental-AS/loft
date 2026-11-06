@@ -90,6 +90,21 @@ def parse_signin_code(code: str) -> tuple[str, bytes]:
     return raw[:8], raw[8:].encode()
 
 
+def new_assistant_code() -> tuple[str, str, bytes]:
+    """A code that approves an assistant's sign-in: short enough to type, because it
+    lives 10 minutes, works once, and wrong guesses hit the sign-in rate limits.
+    Return (code as shown, code id, secret bytes)."""
+    raw = "".join(secrets.choice(CODE_ALPHABET) for _ in range(12))
+    return "-".join(raw[i:i + 4] for i in range(0, 12, 4)), "a" + raw[:4], raw[4:].encode()
+
+
+def parse_assistant_code(code: str) -> tuple[str, bytes]:
+    raw = "".join(ch for ch in code.upper() if ch.isalnum())
+    if len(raw) != 12 or any(ch not in CODE_ALPHABET for ch in raw):
+        raise CryptoError("malformed code")
+    return "a" + raw[:4], raw[4:].encode()
+
+
 def token_hash(secret: bytes) -> bytes:
     # 256 random bits: a fast hash is enough, a KDF would only cost latency.
     return hashlib.sha256(secret).digest()

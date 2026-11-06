@@ -12,6 +12,8 @@
 "Key fingerprint" = "Huella de la clave";
 "Base64, ends in =" = "Base64, termina en =";
 "Use a pairing link instead" = "Usar un enlace de vinculación";
+"No gateway yet? Loft needs one at home, next to your NAS." = "¿Todavía no tienes un gateway? Loft necesita uno en casa, junto a tu NAS.";
+"Set up a gateway" = "Configurar un gateway";
 "Pair with “%@”?" = "¿Vincular con «%@»?";
 "At home: %@" = "En casa: %@";
 "Away from home: %@, through a tunnel. Sign in at home first." = "Fuera de casa: %@, a través de un túnel. Inicia sesión primero en casa.";
@@ -36,5 +38,6 @@
 "Too many tries. Wait 15 minutes, then try again." = "Demasiados intentos. Espera 15 minutos y vuelve a intentarlo.";
 "Something went wrong. Try again." = "Algo salió mal. Vuelve a intentarlo.";
 "Loft %@ is available…" = "Loft %@ está disponible…";
+"Loft %@" = "Loft %@";
 "Check for updates" = "Buscar actualizaciones";
 "Once a day, Loft asks loft.incremental.no if there's a newer version. It sends nothing about you, this Mac or your files." = "Una vez al día, Loft pregunta a loft.incremental.no si hay una versión más reciente. No envía nada sobre ti, tu Mac ni tus archivos.";

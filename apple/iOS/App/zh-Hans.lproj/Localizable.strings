@@ -4,6 +4,8 @@
 "On the gateway, run loft-gateway pair. Scan the QR code it shows, or open its link on this iPhone. The code carries the gateway's address and its keys, so Loft talks to your gateway from the very first connection." = "在网关上运行 loft-gateway pair。扫描它显示的二维码，或在这部 iPhone 上打开它显示的链接。二维码中包含网关的地址和密钥，因此从第一次连接起，Loft 连接的就是你的网关。";
 "Scan QR code" = "扫描二维码";
 "Pairing link" = "配对链接";
+"Set up a gateway" = "设置网关";
+"No gateway yet? Loft needs one at home, next to your NAS." = "还没有网关？Loft 需要在家里的 NAS 旁边有一个网关。";
 "Everything after the # stays on this iPhone." = "# 后面的所有内容都只保留在这部 iPhone 上。";
 "Continue" = "继续";
 "Set up manually" = "手动设置";
@@ -23,6 +25,7 @@
 "Pair" = "配对";
 "Pair with another gateway" = "与另一个网关配对";
 "Pairing with another gateway signs you out of this one." = "与另一个网关配对会让你从当前网关退出登录。";
+"Version" = "版本";
 "This iPhone isn't paired with a gateway yet." = "这部 iPhone 尚未与网关配对。";
 "That isn't a Loft pairing link. Use the whole link or QR code that loft-gateway pair shows." = "这不是 Loft 配对链接。请使用 loft-gateway pair 显示的完整链接或二维码。";
 "This pairing code is from a newer gateway. Update Loft, then try again." = "此配对码来自较新版本的网关。请更新 Loft 后重试。";
@@ -84,3 +87,16 @@
 "Couldn't save. Tap to try again." = "无法保存。轻点以重试。";
 "Open Loft and sign in first." = "请先打开 Loft 并登录。";
 "Save to Loft" = "保存到 Loft";
+"About Loft" = "关于 Loft";
+"How Loft works" = "Loft 的工作原理";
+"Loft shows the shared folders on your NAS on this iPhone. Your files stay on the NAS, at home. No one else stores them." = "Loft 会在这部 iPhone 上显示你 NAS 上的共享文件夹。你的文件留在家里的 NAS 上。其他任何人都不会存储它们。";
+"Loft has two parts: this app, and a gateway that runs at home, next to your NAS. The app only ever talks to your gateway, and the gateway only ever talks to your NAS." = "Loft 由两部分组成：这个 App，以及在家里你的 NAS 旁边运行的网关。App 只与你的网关通信，网关只与你的 NAS 通信。";
+"You sign in with the username and password you already have on the NAS, and the NAS's own permissions decide what you can see and change. Sign in at home the first time. After that, Loft works from anywhere." = "你用 NAS 上已有的用户名和密码登录，能看到和更改哪些内容由 NAS 自身的权限决定。第一次请在家登录。之后在任何地方都能使用 Loft。";
+"You need a gateway" = "你需要一个网关";
+"Loft doesn't work on its own. It needs a Loft gateway at home: a small program on a Linux machine next to the NAS. You set it up once, then pair this iPhone with the QR code or link it shows." = "Loft 无法单独使用。它需要家里有一个 Loft 网关：在 NAS 旁边一台 Linux 机器上运行的小程序。只需设置一次，然后用网关显示的二维码或链接，将这部 iPhone 与网关配对。";
+"Loft is free and open source." = "Loft 免费且开源。";
+"How it works" = "工作原理";
+"Privacy" = "隐私";
+"Source" = "源代码";
+"%@ of %@" = "%@ / %@";
+"Try again" = "重试";

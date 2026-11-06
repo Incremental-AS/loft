@@ -66,16 +66,15 @@ href = "{APP_STORE_URL}"
 id = "mac"
 name = "Mac"
 shows = "Finderのサイドバー"
-get = "DMGダウンロード（近日公開）"
-coming_soon = true
+get = "DMGダウンロード"
 detail = "LoftはNASをFinderのサイドバーに追加します。ファイルは開いたときにダウンロードされ、保存すると自宅に戻ります。"
-version = "バージョン{VERSION}"
-after = "DMGを開き、Loftを「アプリケーション」フォルダにドラッグしてください。"
-sha256 = "{SHA256}"
+version = "macOS 14以降 · バージョン0.2.0"
+after = "DMGを開き、Loftを「アプリケーション」フォルダにドラッグしてください。以降、Loftは自動で最新の状態を保ち、何かをインストールする前には必ず確認を求めます。"
+sha256 = "d35c0eb67fb0a2c62633efc54cb920882d4ade2db4426ff44253a7d70e573fb6"
 
 [[platforms.downloads]]
 label = "Mac版をダウンロード（.dmg）"
-href = "{DOWNLOAD_URL}"
+href = "https://github.com/Incremental-AS/loft/releases/download/v0.2.0/Loft-0.2.0-14.dmg"
 
 [[platforms]]
 id = "android"
@@ -139,10 +138,27 @@ href = "{DOWNLOAD_URL}"
 id = "gateway"
 name = "Loftゲートウェイ"
 shows = "自宅のLinuxで動作（x86_64またはarm64。64ビットのRaspberry Piでも可）"
-get = ".debまたはコンテナイメージ（近日公開）"
-coming_soon = true
+get = ".debまたはコンテナイメージ"
 detail = "自宅のLinux（x86_64またはarm64。64ビットのRaspberry Piでも可）で、Python 3.12以降を使って動作します。Debian 13、Ubuntu 24.04、最新のRaspberry Pi OSには含まれています。古いシステムではコンテナを使ってください。"
-list = "<ul><li><strong>Debian 13とUbuntu 24.04：</strong>x86_64用の<code>.deb</code>をこのページからダウンロードできます。arm64用パッケージは準備中です。→ <a href=\"/gateway/\">ゲートウェイの設定</a></li><li><strong>コンテナ：</strong>x86_64とarm64に対応したマルチアーキテクチャイメージです。→ <a href=\"/gateway/\">ゲートウェイの設定</a></li></ul>"
+list = "<ul><li><strong>Debian 13とUbuntu 24.04：</strong>x86_64用とarm64用の<code>.deb</code>があります。Raspberry Piでは、Debian 13のarm64版を選んでください。→ <a href=\"/gateway/#debian\">ゲートウェイの設定</a></li><li><strong>コンテナ：</strong><code>ghcr.io/incremental-as/loft-gateway:0.2.0</code>。x86_64とarm64に対応したマルチアーキテクチャイメージです。→ <a href=\"/gateway/#container\">ゲートウェイの設定</a></li></ul>"
+version = "バージョン0.2.0"
+note = "どれを選べばよいか分からない場合は、<code>dpkg --print-architecture</code>を実行してください。x86_64なら<code>amd64</code>、そうでなければ<code>arm64</code>と表示されます。<code>armhf</code>と表示された場合、そのRaspberry Piでは32ビット版のシステムが動いています。64ビット版のRaspberry Pi OSを使ってください。4つのファイルすべてのSHA-256チェックサムは、GitHubのリリースページにあります。→ <a href=\"https://github.com/Incremental-AS/loft/releases/tag/v0.2.0\">GitHub上のチェックサム</a>"
+
+[[platforms.downloads]]
+label = "Debian 13（x86_64）"
+href = "https://github.com/Incremental-AS/loft/releases/download/v0.2.0/loft-gateway_0.2.0-1.debian13_amd64.deb"
+
+[[platforms.downloads]]
+label = "Debian 13（arm64、Raspberry Pi）"
+href = "https://github.com/Incremental-AS/loft/releases/download/v0.2.0/loft-gateway_0.2.0-1.debian13_arm64.deb"
+
+[[platforms.downloads]]
+label = "Ubuntu 24.04（x86_64）"
+href = "https://github.com/Incremental-AS/loft/releases/download/v0.2.0/loft-gateway_0.2.0-1.ubuntu24_amd64.deb"
+
+[[platforms.downloads]]
+label = "Ubuntu 24.04（arm64）"
+href = "https://github.com/Incremental-AS/loft/releases/download/v0.2.0/loft-gateway_0.2.0-1.ubuntu24_arm64.deb"
 
 [pages]
 
@@ -209,7 +225,7 @@ title = "ダウンロード · Loft by Incremental"
 description = "iPhone、iPad、Mac、Android、Windows、Linux向けのLoftと、Loftゲートウェイをダウンロード。無料のオープンソースです。"
 kicker = "ダウンロード"
 h1 = "Loftを入手。"
-lead = "Loftはどのプラットフォームでも無料です。自宅にLoftゲートウェイも必要です。まだない場合は、<a href=\"/gateway/\">先にゲートウェイを設定してください</a>。必要なのはコマンド1つとQRコード1つだけです。"
+lead = "Loftはどのプラットフォームでも無料です。自宅にLoftゲートウェイも必要です。まだない場合は、<a href=\"/gateway/\">先にゲートウェイを設定してください</a>。所要時間は10分ほどで、必要なのはQRコード1つだけです。"
 
 [pages.download.updates]
 title = "アップデートの確認"
@@ -228,34 +244,33 @@ items = ["常に電源が入っていて、NASと同じネットワークにあ�
 
 [[pages.gateway.steps]]
 title = "インストール"
-body = "<p><strong>近日公開。</strong>ゲートウェイはまだダウンロードできません。公開されたら、<code>.deb</code>とコンテナイメージは<a href=\"/download/#gateway\">ダウンロード</a>ページに置かれ、インストール用のコマンドはここに載せます。</p>"
 
-[[pages.gateway.steps.parts_at_release]]
+[[pages.gateway.steps.parts]]
 id = "debian"
 title = "Debian 13とUbuntu 24.04"
-before = "<p><strong>近日公開。</strong><a href=\"/download/#gateway\">ダウンロード</a>ページから<code>.deb</code>をダウンロードしてインストールします。パッケージリポジトリはまだないため、新しいバージョンも新たにダウンロードしてください。</p>"
-code = "sudo apt install ./loft-gateway_*_amd64.deb"
-after = "<p>Raspberry Pi向けのarm64パッケージは準備中です。それまでは、arm64ではコンテナを使ってください。</p>"
+before = "<p><a href=\"/download/#gateway\">ダウンロード</a>ページから、お使いのシステム用の<code>.deb</code>をダウンロードしてインストールします。パッケージリポジトリはまだないため、新しいバージョンも新たにダウンロードしてください。</p>"
+code = "sudo apt install ./loft-gateway_*.deb"
+after = "<p>このコマンドは、ファイルがあるフォルダで実行してください。Raspberry Piでは、Debian 13（arm64）用のパッケージを使ってください。</p>"
 
-[[pages.gateway.steps.parts_at_release]]
+[[pages.gateway.steps.parts]]
 id = "container"
 title = "コンテナ"
-before = "<p><strong>近日公開。</strong>x86_64とarm64に対応したマルチアーキテクチャイメージです。初回起動時にペアリングコードが出力されます（<code>docker logs loft</code>）。</p>"
-code = "docker run -d --name loft --restart unless-stopped \\\n  -p 8443:8443 \\\n  -e LOFT_SMB_SERVER=&lt;nas-address&gt; \\\n  -e LOFT_LAN_URL=https://&lt;gateway-address&gt;:8443 \\\n  -v loft-etc:/etc/loft -v loft-state:/var/lib/loft \\\n  loft-gateway:0.2.0\ndocker logs loft\ndocker exec -it loft loft-container loft-gateway doctor --user alice\ndocker exec loft loft-container loft-gateway pair"
-after = "<p>コンテナでは、サムネイル作成処理は<code>.deb</code>版が使うsystemdのサンドボックスではなく、権限を持たない別プロセスとして動きます。サムネイルの動作は同じです。</p>"
+before = "<p>x86_64とarm64に対応したマルチアーキテクチャイメージで、GitHubのコンテナレジストリから取得します。ゲートウェイはコンテナが自動で起動します。初回起動時には、指定したアドレスを使って<code>loft-gateway init</code>が実行され、ペアリングコードが出力されます（<code>docker logs loft</code>）。</p>"
+code = "docker run -d --name loft --restart unless-stopped \\\n  -p 8443:8443 \\\n  -e LOFT_SMB_SERVER=&lt;nas-address&gt; \\\n  -e LOFT_LAN_URL=https://&lt;gateway-address&gt;:8443 \\\n  -v loft-etc:/etc/loft -v loft-state:/var/lib/loft \\\n  ghcr.io/incremental-as/loft-gateway:0.2.0\ndocker logs loft\ndocker exec -it loft loft-container loft-gateway doctor --user &lt;nas-username&gt;\ndocker exec loft loft-container loft-gateway pair"
+after = "<p>コンテナでは、サムネイル作成処理は<code>.deb</code>版が使うsystemdのサンドボックスではなく、権限を持たない別プロセスとして動きます。サムネイルの動作は同じです。両方のボリュームをバックアップしてください。<code>loft-etc</code>には設定と鍵が、<code>loft-state</code>にはインデックスとデバイスの情報が入っています。</p>"
 
 [[pages.gateway.steps]]
 title = "NASを指定する"
-body = "<p><code>loft-gateway init</code>を実行します。NASのアドレスを尋ね、設定ファイルを書き出し、ゲートウェイの鍵を作成します。最後にペアリングコードが表示されます。</p>\n<p>続いて<code>loft-gateway doctor</code>を実行します。ゲートウェイからNASに接続できるか、NASが対応しているSMBのバージョンと暗号化、時刻が正しいか、証明書が有効かを確認します。問題があれば、何がおかしいのかを教えてくれます。<code>--user</code>とNASのユーザー名を付けると、サインインと共有フォルダも確認します。パスワードの入力を求めますが、パスワードを表示することはありません。</p>\n<p><strong>SMB暗号化に対応していない古いNASの場合は？</strong>初期設定では、ゲートウェイは暗号化なしでの接続を拒否します。設定ファイルで<code>smb_encryption = \"server\"</code>とすると、代わりにNASが判断し、ホームネットワーク内の接続はNASが求めた場合にのみ暗号化されます。どうするかはあなたが決められます。</p>"
+body = "<p><code>.deb</code>版では、<code>sudo loft-gateway init</code>を実行します。NASのアドレスから順にいくつか質問し、設定ファイルを<code>/etc/loft</code>に書き出し、ゲートウェイの鍵を作成します。最後にペアリングコードが表示されます。これはステップ3で使います。あわせて予備の鍵も作成されます。この鍵はマシンの外に移して、安全に保管してください。ゲートウェイの鍵をなくしたり、外部に漏れたりしても、予備の鍵をインストールすれば、アプリは引き続きそのゲートウェイを信頼します。コンテナでは、初回起動時にこの作業が済んでいます。</p>\n<p>続いて<code>sudo loft-gateway doctor</code>を実行します（コンテナでは、上の<code>docker exec … doctor</code>の行）。ゲートウェイからNASに接続できるか、NASが対応しているSMBのバージョンと暗号化、時刻が正しいか、証明書が有効かを確認します。問題があれば、何がおかしいのかを教えてくれます。<code>--user</code>とNASのユーザー名を付けると、サインインと共有フォルダも確認します。パスワードの入力を求めますが、パスワードを表示することはありません。</p>\n<p>次に、ゲートウェイを起動し、マシンの起動時にも自動で起動するようにします。</p>\n<pre><code>sudo systemctl enable --now loft-gateway</code></pre>\n<p>コンテナはすでに動いていて、<code>--restart unless-stopped</code>により再起動後も自動で立ち上がります。</p>\n<p><strong>SMB暗号化に対応していない古いNASの場合は？</strong>初期設定では、ゲートウェイは暗号化なしでの接続を拒否します。設定ファイルで<code>smb_encryption = \"server\"</code>とすると、代わりにNASが判断し、ホームネットワーク内の接続はNASが求めた場合にのみ暗号化されます。どうするかはあなたが決められます。</p>\n<p>あとで設定ファイルを変更したら、ゲートウェイを再起動して読み込ませてください。<code>sudo systemctl restart loft-gateway</code>または<code>docker restart loft</code>を実行します。</p>"
 
 [[pages.gateway.steps]]
 title = "アプリとペアリングする"
-body = "<p><code>loft-gateway pair</code>を実行し、表示されたQRコードをLoftアプリでスキャンするか、リンクをデバイスで開きます。コードにはゲートウェイのアドレスと鍵が含まれているため、アプリは最初の接続から<em>あなたの</em>ゲートウェイと通信していることを確認できます。あとはNASのユーザー名とパスワードでサインインするだけです。</p>\n<p>ゲートウェイのアドレスを入力する欄は、あえて設けていません。手入力のアドレスは、パスワードを集める偽のゲートウェイへの入り口になりかねないからです。どうしても必要な場合は、アプリのペアリング画面に<em>手動で設定</em>があります。</p>"
+body = "<p><code>sudo loft-gateway pair</code>（コンテナでは<code>docker exec loft loft-container loft-gateway pair</code>）を実行し、表示されたQRコードをLoftアプリでスキャンするか、リンクをデバイスで開きます。コードにはゲートウェイのアドレスと鍵が含まれているため、アプリは最初の接続から<em>あなたの</em>ゲートウェイと通信していることを確認できます。あとはNASのユーザー名とパスワードでサインインするだけです。</p>\n<p>ゲートウェイのアドレスを入力する欄は、あえて設けていません。手入力のアドレスは、パスワードを集める偽のゲートウェイへの入り口になりかねないからです。どうしても必要な場合は、アプリのペアリング画面に<em>手動で設定</em>があります。</p>"
 
 [[pages.gateway.steps]]
 id = "outside"
 title = "外出先で使う（任意）"
-body = "<p>自宅で使うだけなら、これ以上の設定は不要です。外出先でもLoftを使うには、次のどちらかを選びます。</p>\n<ul><li><strong>トンネル</strong>：Cloudflare Tunnelなど。ルーターのポートを開放する必要はありませんが、トンネル事業者は通信を読み取れます。サインインは自宅で行います。</li><li><strong>直接接続</strong>：ルーターでゲートウェイへのポート転送を設定します。エンドツーエンドで暗号化され、どこからでもサインインできます。ゲートウェイがサインインの試行回数を制限します。</li></ul>\n<p>違いは<a href=\"/how-it-works/#security\">仕組み</a>で説明しています。設定を変えたら<code>loft-gateway pair</code>をもう一度実行し、新しいアドレスをコードに含めてください。</p>"
+body = "<p>自宅で使うだけなら、これ以上の設定は不要です。外出先でもLoftを使うには、次のどちらかを選びます。</p>\n<ul><li><strong>トンネル</strong>：Cloudflare Tunnelなど。ルーターのポートを開放する必要はありませんが、トンネル事業者は通信を読み取れます。サインインは自宅で行います。</li><li><strong>直接接続</strong>：ルーターでゲートウェイへのポート転送を設定します。エンドツーエンドで暗号化され、どこからでもサインインできます。ゲートウェイがサインインの試行回数を制限します。</li></ul>\n<p>違いは<a href=\"/how-it-works/#security\">仕組み</a>で説明しています。設定を変えたらペアリングのコマンドをもう一度実行し、新しいアドレスをコードに含めてください。</p>"
 
 [[pages.gateway.sections]]
 id = "limit"
@@ -383,7 +398,7 @@ lead = "Loftは無料で、小さなチームが作っています。ヘルプ�
 
 [[pages.support.sections]]
 title = "まず確認すること"
-body = "<ul>\n<li><strong>ゲートウェイで<code>loft-gateway doctor</code>を実行する。</strong>問題の多くはゲートウェイとNASの間で起きていて、たいていは何が悪いのかを教えてくれます。</li>\n<li><strong>Mac：FinderのサイドバーにLoftがない。</strong>macOSがオフにしている可能性があります。Finderに<em>“Loft”が有効になっていません</em>と表示されていたら<em>有効にする</em>を選ぶか、システム設定 › 一般 › ログイン項目と機能拡張 › ファイルプロバイダでLoftをオンにしてください。</li>\n<li><strong>NAS上で直接行った変更は、反映まで数分かかります。</strong>Loftからの変更は数秒で反映されます。</li>\n<li><strong>外出先でサインインできない？</strong>トンネル経由の場合、サインインは自宅でしかできません。これは意図した仕様です。<a href=\"/how-it-works/#security\">仕組み</a>をご覧ください。</li>\n<li><strong>アプリがゲートウェイを見つけられない？</strong>もう一度ペアリングしてください。<code>loft-gateway pair</code>を実行し、新しいコードをスキャンします。</li>\n</ul>"
+body = "<ul>\n<li><strong>ゲートウェイで<code>sudo loft-gateway doctor</code>を実行する</strong>（コンテナでは<code>docker exec -it loft loft-container loft-gateway doctor</code>）。問題の多くはゲートウェイとNASの間で起きていて、たいていは何が悪いのかを教えてくれます。</li>\n<li><strong>Mac：FinderのサイドバーにLoftがない。</strong>macOSがオフにしている可能性があります。Finderに<em>“Loft”が有効になっていません</em>と表示されていたら<em>有効にする</em>を選ぶか、システム設定 › 一般 › ログイン項目と機能拡張 › ファイルプロバイダでLoftをオンにしてください。</li>\n<li><strong>NAS上で直接行った変更は、反映まで数分かかります。</strong>Loftからの変更は数秒で反映されます。</li>\n<li><strong>外出先でサインインできない？</strong>トンネル経由の場合、サインインは自宅でしかできません。これは意図した仕様です。<a href=\"/how-it-works/#security\">仕組み</a>をご覧ください。</li>\n<li><strong>アプリがゲートウェイを見つけられない？</strong>ゲートウェイが動いているか確認してください。<code>sudo systemctl status loft-gateway</code>、コンテナなら<code>docker ps</code>で確認できます。それからもう一度ペアリングしてください。<code>sudo loft-gateway pair</code>を実行し、新しいコードをスキャンします。</li>\n</ul>"
 
 [[pages.support.sections]]
 title = "問題を報告する"

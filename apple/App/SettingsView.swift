@@ -73,6 +73,9 @@ struct SettingsView: View {
                 Text(Copy.updateCheckHelp).font(.callout).foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
             }
+            Text(Copy.versionLine(Copy.appVersion)).font(.callout).foregroundStyle(.secondary)
+                .textSelection(.enabled)
+                .accessibilityIdentifier("app-version")
         }
     }
 }

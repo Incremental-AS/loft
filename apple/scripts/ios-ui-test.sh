@@ -21,6 +21,7 @@ W=$(mktemp -d "${TMPDIR:-/var/tmp}/loft-ui.XXXXXX")
 trap 'kill $SRV 2>/dev/null || true; rm -rf "$W"' EXIT
 mkdir -p "$W/nas/home/Documents"
 echo "Hello from the dev gateway." > "$W/nas/home/Documents/Welcome.txt"
+head -c 41943040 /dev/urandom > "$W/nas/home/Documents/Large file.bin"     # 40 MiB: five 8 MiB slices, four at a time
 "$PY" gateway/scripts/dev_server.py "$W/nas" "$W/work" $DP $PP > "$W/server.log" 2>&1 &
 SRV=$!
 for _ in $(seq 50); do curl -sf http://127.0.0.1:$PP/healthz >/dev/null && break; sleep 0.2; done
@@ -32,6 +33,7 @@ SHOTS=()
 env TEST_RUNNER_LOFT_PAIR_LINK="$LINK" TEST_RUNNER_LOFT_GATEWAY_NAME="Dev gateway" \
     TEST_RUNNER_LOFT_ADDRESS="127.0.0.1:$DP" TEST_RUNNER_LOFT_PIN="$PIN" \
     TEST_RUNNER_LOFT_USER=loft-dev TEST_RUNNER_LOFT_PASSWORD=dev-password \
-    TEST_RUNNER_LOFT_SHARE=home TEST_RUNNER_LOFT_OPEN=Documents/Welcome.txt ${SHOTS[@]+"${SHOTS[@]}"} \
+    TEST_RUNNER_LOFT_SHARE=home TEST_RUNNER_LOFT_OPEN=Documents/Welcome.txt \
+    TEST_RUNNER_LOFT_LARGE="Documents/Large file.bin" ${SHOTS[@]+"${SHOTS[@]}"} \
   xcodebuild test -project apple/Loft.xcodeproj -scheme LoftPhone \
     -destination "platform=iOS Simulator,name=$SIM" -derivedDataPath build/DerivedData-iossim "$@"

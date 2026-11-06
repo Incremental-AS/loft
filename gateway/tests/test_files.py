@@ -386,3 +386,32 @@ def test_nas_down_behind_gateway_is_nas_unavailable(env, monkeypatch):
     monkeypatch.setattr(LocalSession, "stat", down)
     r = env.public.get("/v1/changes", params={"anchor": anchor}, headers=h)
     assert r.status_code == 503 and r.json()["error"] == "nas_unavailable"
+
+
+def test_download_nas_error_is_a_json_error_not_a_cut_stream(env, monkeypatch):
+    """The file is opened before the response starts, so a NAS refusal is a 502 nas_error."""
+    h, root = rooted(env)
+    docs = child(env.public, h, root["root_item_id"], "Docs")
+    a = child(env.public, h, docs["id"], "a.txt")
+
+    def refuse(self, *a, **kw):
+        raise StorageError("home/alice/Docs/a.txt: sharing violation")
+    monkeypatch.setattr(LocalSession, "read", refuse)
+    r = env.public.get(f"/v1/items/{a['id']}/content", headers={**h, "Range": "bytes=0-1"})
+    assert r.status_code == 502 and r.json()["error"] == "nas_error"
+
+
+def test_download_slices_in_parallel(env):
+    h, root = rooted(env)
+    docs = child(env.public, h, root["root_item_id"], "Docs")
+    a = child(env.public, h, docs["id"], "a.txt")
+    out = {}
+
+    def get(lo, hi):
+        r = env.public.get(f"/v1/items/{a['id']}/content", headers={**h, "Range": f"bytes={lo}-{hi}"})
+        out[lo] = (r.status_code, r.content)
+    ts = [threading.Thread(target=get, args=(i, i)) for i in range(5)]
+    [t.start() for t in ts]
+    [t.join() for t in ts]
+    assert b"".join(out[i][1] for i in range(5)) == b"hello"
+    assert {c for c, _ in out.values()} == {206}

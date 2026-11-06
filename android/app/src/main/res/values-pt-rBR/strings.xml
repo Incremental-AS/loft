@@ -6,6 +6,8 @@
     <string name="pair_scan">Escanear código</string>
     <string name="pair_paste">Colar link</string>
     <string name="pair_manual">Configurar manualmente</string>
+    <string name="pair_no_gateway">Ainda não tem um gateway? O Loft precisa de um em casa, ao lado do seu NAS.</string>
+    <string name="pair_setup_gateway">Configurar um gateway</string>
     <string name="pair_paste_title">Cole o link de pareamento</string>
     <string name="pair_paste_hint">https://loft.incremental.no/pair#…</string>
     <string name="pair_manual_title">Configurar manualmente</string>
@@ -41,6 +43,12 @@
     <string name="signin_too_many">Muitas tentativas. Aguarde 15 minutos e tente novamente.</string>
     <string name="signin_nas_down">O gateway respondeu, mas não consegue acessar o NAS. Tente novamente daqui a pouco.</string>
     <string name="signin_failed">Algo deu errado. Tente novamente.</string>
+    <string name="signin_code_label">Código de login</string>
+    <string name="signin_code_help">Um código de login é gerado na rede de casa para uma conta específica.</string>
+    <string name="signin_use_code">Tenho um código de login</string>
+    <string name="signin_use_password">Entrar com senha</string>
+    <string name="signin_code_invalid">Esse código não é válido. Verifique e tente novamente.</string>
+    <string name="signin_code_expired">Esse código expirou ou já foi usado.</string>
     <string name="forget_gateway">Esquecer este gateway</string>
     <string name="pick_title">Escolha sua pasta do Loft</string>
     <string name="pick_body">Esta pasta no NAS vira o Loft neste celular. Você pode mudar isso depois em Configurações.</string>

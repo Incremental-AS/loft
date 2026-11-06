@@ -6,6 +6,8 @@
     <string name="pair_scan">コードをスキャン</string>
     <string name="pair_paste">リンクを貼り付け</string>
     <string name="pair_manual">手動で設定</string>
+    <string name="pair_no_gateway">まだゲートウェイがありませんか？Loftを使うには、自宅のNASのそばにゲートウェイが必要です。</string>
+    <string name="pair_setup_gateway">ゲートウェイの設定</string>
     <string name="pair_paste_title">ペアリングリンクを貼り付け</string>
     <string name="pair_paste_hint">https://loft.incremental.no/pair#…</string>
     <string name="pair_manual_title">手動で設定</string>
@@ -41,6 +43,12 @@
     <string name="signin_too_many">試行回数が多すぎます。15分待ってからもう一度お試しください。</string>
     <string name="signin_nas_down">ゲートウェイは応答しましたが、NASに接続できません。しばらくしてからもう一度お試しください。</string>
     <string name="signin_failed">問題が発生しました。もう一度お試しください。</string>
+    <string name="signin_code_label">サインインコード</string>
+    <string name="signin_code_help">サインインコードは、特定のアカウント用にホームネットワーク上で作成されます。</string>
+    <string name="signin_use_code">サインインコードを持っている</string>
+    <string name="signin_use_password">パスワードでサインイン</string>
+    <string name="signin_code_invalid">コードが無効です。確認してもう一度お試しください。</string>
+    <string name="signin_code_expired">このコードは有効期限切れか、すでに使用済みです。</string>
     <string name="forget_gateway">このゲートウェイの登録を解除</string>
     <string name="pick_title">Loftフォルダを選択</string>
     <string name="pick_body">NAS上のこのフォルダが、このスマートフォンのLoftになります。あとから設定で変更できます。</string>

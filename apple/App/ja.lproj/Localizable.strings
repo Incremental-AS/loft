@@ -12,6 +12,8 @@
 "Key fingerprint" = "鍵のフィンガープリント";
 "Base64, ends in =" = "Base64（末尾は =）";
 "Use a pairing link instead" = "ペアリングリンクを使う";
+"No gateway yet? Loft needs one at home, next to your NAS." = "まだゲートウェイがありませんか？Loftを使うには、自宅のNASのそばにゲートウェイが必要です。";
+"Set up a gateway" = "ゲートウェイの設定";
 "Pair with “%@”?" = "「%@」とペアリングしますか？";
 "At home: %@" = "自宅：%@";
 "Away from home: %@, through a tunnel. Sign in at home first." = "外出先：%@（トンネル経由）。最初は自宅でサインインしてください。";
@@ -36,5 +38,6 @@
 "Too many tries. Wait 15 minutes, then try again." = "試行回数が多すぎます。15分待ってからもう一度お試しください。";
 "Something went wrong. Try again." = "問題が発生しました。もう一度お試しください。";
 "Loft %@ is available…" = "Loft %@を利用できます…";
+"Loft %@" = "Loft %@";
 "Check for updates" = "アップデートを確認";
 "Once a day, Loft asks loft.incremental.no if there's a newer version. It sends nothing about you, this Mac or your files." = "Loftは1日に1回、新しいバージョンがあるかを loft.incremental.no に問い合わせます。あなた自身、このMac、ファイルに関する情報は一切送信しません。";

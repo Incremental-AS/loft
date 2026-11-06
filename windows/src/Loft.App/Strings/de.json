@@ -30,6 +30,8 @@
   "pair.link_field": "Kopplungslink",
   "common.continue": "Weiter",
   "pair.set_up_manually": "Manuell einrichten",
+  "pair.no_gateway": "Noch kein Gateway? Loft braucht eins zu Hause, neben deinem NAS.",
+  "pair.setup_gateway": "Gateway einrichten",
   "pair.manual_body": "Gib die Adresse des Gateways und einen seiner Schlüssel-Fingerabdrücke ein. loft-gateway pair zeigt beides an. Mit dem Fingerabdruck prüft Loft, dass es wirklich dein Gateway ist, deshalb geht die Einrichtung nicht ohne ihn.",
   "pair.address_field": "Adresse, z. B. nas-gateway.local:8443",
   "pair.pin_field": "Schlüssel-Fingerabdruck",

@@ -11,6 +11,8 @@
     <string name="pair_scan">Scan code</string>
     <string name="pair_paste">Paste link</string>
     <string name="pair_manual">Set up manually</string>
+    <string name="pair_no_gateway">No gateway yet? Loft needs one at home, next to your NAS.</string>
+    <string name="pair_setup_gateway">Set up a gateway</string>
     <string name="pair_paste_title">Paste the pairing link</string>
     <string name="pair_paste_hint">https://loft.incremental.no/pair#…</string>
     <string name="pair_manual_title">Set up manually</string>
@@ -48,6 +50,12 @@
     <string name="signin_too_many">Too many tries. Wait 15 minutes, then try again.</string>
     <string name="signin_nas_down">The gateway answered, but it can\'t reach the NAS. Try again in a moment.</string>
     <string name="signin_failed">Something went wrong. Try again.</string>
+    <string name="signin_code_label">Sign-in code</string>
+    <string name="signin_code_help">A sign-in code is made on the home network for a specific account.</string>
+    <string name="signin_use_code">I have a sign-in code</string>
+    <string name="signin_use_password">Sign in with a password instead</string>
+    <string name="signin_code_invalid">That code isn\'t valid. Check it and try again.</string>
+    <string name="signin_code_expired">That code has expired or been used up.</string>
     <string name="forget_gateway">Forget this gateway</string>
 
     <!-- Choose folder -->

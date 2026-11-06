@@ -23,6 +23,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material3.AlertDialog
@@ -33,6 +35,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
@@ -55,7 +58,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
@@ -91,6 +96,14 @@ fun PairScreen(vm: MainViewModel) {
             }
             TextButton(onClick = { vm.pairError = null; dialog = "manual" }, Modifier.fillMaxWidth()) {
                 Text(stringResource(R.string.pair_manual))
+            }
+            HorizontalDivider()
+            Text(stringResource(R.string.pair_no_gateway), style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant)
+            val uri = LocalUriHandler.current
+            val guide = gatewayGuideUrl(LocalConfiguration.current.locales[0])
+            OutlinedButton(onClick = { uri.openUri(guide) }, Modifier.fillMaxWidth().testTag("gatewayGuide")) {
+                Text(stringResource(R.string.pair_setup_gateway))
             }
         }
     }
@@ -154,6 +167,8 @@ private fun ManualDialog(vm: MainViewModel, close: () -> Unit) {
 fun SignInScreen(vm: MainViewModel) {
     var user by rememberSaveable { mutableStateOf(vm.loft.prefs.nasUser ?: "") }
     var password by remember { mutableStateOf("") }
+    var code by rememberSaveable { mutableStateOf("") }
+    var useCode by rememberSaveable { mutableStateOf(false) }
     Column(
         Modifier.fillMaxSize().systemBarsPadding().imePadding().verticalScroll(rememberScrollState()).padding(24.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
@@ -164,22 +179,37 @@ fun SignInScreen(vm: MainViewModel) {
                 color = MaterialTheme.colorScheme.primary)
         }
         Text(stringResource(R.string.signin_body), style = MaterialTheme.typography.bodyLarge)
-        OutlinedTextField(user, { user = it }, Modifier.fillMaxWidth().testTag("user"), singleLine = true,
-            label = { Text(stringResource(R.string.signin_user)) },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Ascii, imeAction = ImeAction.Next, autoCorrectEnabled = false))
-        OutlinedTextField(password, { password = it }, Modifier.fillMaxWidth().testTag("password"), singleLine = true,
-            label = { Text(stringResource(R.string.signin_password)) },
-            visualTransformation = PasswordVisualTransformation(),
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = ImeAction.Done))
-        Text(stringResource(R.string.signin_help), style = MaterialTheme.typography.bodySmall)
+        if (useCode) {
+            OutlinedTextField(code, { code = it.uppercase() }, Modifier.fillMaxWidth().testTag("code"), singleLine = true,
+                label = { Text(stringResource(R.string.signin_code_label)) },
+                placeholder = { Text("XXXX-XXXX-XXXX-XXXX-XXXX-XXXX", fontFamily = FontFamily.Monospace) },
+                textStyle = LocalTextStyle.current.copy(fontFamily = FontFamily.Monospace),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Ascii, imeAction = ImeAction.Done,
+                    capitalization = KeyboardCapitalization.Characters, autoCorrectEnabled = false))
+            Text(stringResource(R.string.signin_code_help), style = MaterialTheme.typography.bodySmall)
+        } else {
+            OutlinedTextField(user, { user = it }, Modifier.fillMaxWidth().testTag("user"), singleLine = true,
+                label = { Text(stringResource(R.string.signin_user)) },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Ascii, imeAction = ImeAction.Next, autoCorrectEnabled = false))
+            OutlinedTextField(password, { password = it }, Modifier.fillMaxWidth().testTag("password"), singleLine = true,
+                label = { Text(stringResource(R.string.signin_password)) },
+                visualTransformation = PasswordVisualTransformation(),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = ImeAction.Done))
+            Text(stringResource(R.string.signin_help), style = MaterialTheme.typography.bodySmall)
+        }
         vm.signInError?.let { Text(it, color = MaterialTheme.colorScheme.error, modifier = Modifier.testTag("signInError")) }
         Button(
-            onClick = { vm.signIn(user, password); password = "" },
-            enabled = !vm.busy && user.isNotBlank() && password.isNotEmpty(),
+            onClick = {
+                if (useCode) vm.signIn(code = code) else { vm.signIn(user, password); password = "" }
+            },
+            enabled = !vm.busy && (if (useCode) code.trim().length >= 24 else user.isNotBlank() && password.isNotEmpty()),
             modifier = Modifier.fillMaxWidth().testTag("signIn"),
         ) {
             if (vm.busy) CircularProgressIndicator(Modifier.height(20.dp), strokeWidth = 2.dp)
             else Text(stringResource(R.string.signin_button))
+        }
+        TextButton(onClick = { useCode = !useCode; vm.signInError = null }, Modifier.fillMaxWidth().testTag("toggleCode")) {
+            Text(stringResource(if (useCode) R.string.signin_use_password else R.string.signin_use_code))
         }
         TextButton(onClick = { vm.forgetGateway() }, Modifier.fillMaxWidth()) { Text(stringResource(R.string.forget_gateway)) }
     }
@@ -275,4 +305,16 @@ fun ChooseRootScreen(vm: MainViewModel) {
             }
         }
     }
+}
+
+/** https://loft.incremental.no/<prefix>/gateway/ for the app's language (website/build.py LANGUAGES); English otherwise. */
+fun gatewayGuideUrl(l: java.util.Locale): String {
+    val prefix = when (l.language) {
+        "nb", "no", "nn" -> "/no"
+        "de", "es", "fr", "it", "nl", "ja", "ko" -> "/" + l.language
+        "pt" -> "/pt"
+        "zh" -> if (l.script == "Hans" || (l.script.isEmpty() && l.country in setOf("CN", "SG", ""))) "/zh" else ""
+        else -> ""
+    }
+    return "https://loft.incremental.no$prefix/gateway/"
 }

@@ -69,6 +69,16 @@ public static class S
     public static string PairField => T("pair.link_field");
     public static string Continue => T("common.continue");
     public static string SetUpManually => T("pair.set_up_manually");
+    public static string NoGatewayYet => T("pair.no_gateway");
+    public static string SetUpGateway => T("pair.setup_gateway");
+
+    /// <summary>https://loft.incremental.no/&lt;prefix&gt;/gateway/ for the catalog in use (website/build.py LANGUAGES).</summary>
+    public static string GatewayGuideUrl => "https://loft.incremental.no" + Language switch
+    {
+        "nb" => "/no", "pt-BR" => "/pt", "zh-Hans" => "/zh",
+        "de" or "es" or "fr" or "it" or "nl" or "ja" or "ko" => "/" + Language,
+        _ => "",
+    } + "/gateway/";
     public static string ManualBody => T("pair.manual_body");
     public static string AddressField => T("pair.address_field");
     public static string PinField => T("pair.pin_field");

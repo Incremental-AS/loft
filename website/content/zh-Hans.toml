@@ -66,16 +66,15 @@ href = "{APP_STORE_URL}"
 id = "mac"
 name = "Mac"
 shows = "访达边栏"
-get = "下载 DMG（即将推出）"
-coming_soon = true
+get = "下载 DMG"
 detail = "Loft 会把你的 NAS 放进访达边栏。文件在你打开时下载，保存时传回家中。"
-version = "版本 {VERSION}"
-after = "打开 DMG，将 Loft 拖到“应用程序”文件夹中。"
-sha256 = "{SHA256}"
+version = "macOS 14 或更高版本 · 版本 0.2.0"
+after = "打开 DMG，将 Loft 拖到“应用程序”文件夹中。此后，Loft 会自动保持最新，并且在安装任何内容之前都会先征求你的同意。"
+sha256 = "d35c0eb67fb0a2c62633efc54cb920882d4ade2db4426ff44253a7d70e573fb6"
 
 [[platforms.downloads]]
 label = "下载 Mac 版（.dmg）"
-href = "{DOWNLOAD_URL}"
+href = "https://github.com/Incremental-AS/loft/releases/download/v0.2.0/Loft-0.2.0-14.dmg"
 
 [[platforms]]
 id = "android"
@@ -139,10 +138,27 @@ href = "{DOWNLOAD_URL}"
 id = "gateway"
 name = "Loft 网关"
 shows = "在家中的 Linux 上运行（x86_64 或 arm64，64 位树莓派即可）"
-get = ".deb 或容器镜像（即将推出）"
-coming_soon = true
+get = ".deb 或容器镜像"
 detail = "在家中的 Linux 上运行，支持 x86_64 或 arm64（64 位树莓派即可），需要 Python 3.12 或更高版本。Debian 13、Ubuntu 24.04 和当前版本的 Raspberry Pi OS 都已自带。在较旧的系统上，请使用容器。"
-list = "<ul><li><strong>Debian 13 和 Ubuntu 24.04：</strong>适用于 x86_64 的 <code>.deb</code>，可从本页面下载。arm64 软件包即将推出。→ <a href=\"/gateway/\">设置网关</a></li><li><strong>容器：</strong>多架构镜像，支持 x86_64 和 arm64。→ <a href=\"/gateway/\">设置网关</a></li></ul>"
+list = "<ul><li><strong>Debian 13 和 Ubuntu 24.04：</strong>适用于 x86_64 和 arm64 的 <code>.deb</code> 各一个。树莓派请选择 Debian 13 arm64。→ <a href=\"/gateway/#debian\">设置网关</a></li><li><strong>容器：</strong><code>ghcr.io/incremental-as/loft-gateway:0.2.0</code>，多架构镜像，支持 x86_64 和 arm64。→ <a href=\"/gateway/#container\">设置网关</a></li></ul>"
+version = "版本 0.2.0"
+note = "不确定选哪个？<code>dpkg --print-architecture</code> 在 x86_64 上会输出 <code>amd64</code>，否则输出 <code>arm64</code>。如果输出的是 <code>armhf</code>，说明你的树莓派运行的是 32 位系统：请改用 64 位的 Raspberry Pi OS。全部四个文件的 SHA-256 校验和都在 GitHub 的发布页面上。→ <a href=\"https://github.com/Incremental-AS/loft/releases/tag/v0.2.0\">GitHub 上的校验和</a>"
+
+[[platforms.downloads]]
+label = "Debian 13（x86_64）"
+href = "https://github.com/Incremental-AS/loft/releases/download/v0.2.0/loft-gateway_0.2.0-1.debian13_amd64.deb"
+
+[[platforms.downloads]]
+label = "Debian 13（arm64，树莓派）"
+href = "https://github.com/Incremental-AS/loft/releases/download/v0.2.0/loft-gateway_0.2.0-1.debian13_arm64.deb"
+
+[[platforms.downloads]]
+label = "Ubuntu 24.04（x86_64）"
+href = "https://github.com/Incremental-AS/loft/releases/download/v0.2.0/loft-gateway_0.2.0-1.ubuntu24_amd64.deb"
+
+[[platforms.downloads]]
+label = "Ubuntu 24.04（arm64）"
+href = "https://github.com/Incremental-AS/loft/releases/download/v0.2.0/loft-gateway_0.2.0-1.ubuntu24_arm64.deb"
 
 [pages]
 
@@ -209,7 +225,7 @@ title = "下载 · Loft by Incremental"
 description = "下载适用于 iPhone、iPad、Mac、Android、Windows 和 Linux 的 Loft，以及 Loft 网关。免费且开源。"
 kicker = "下载"
 h1 = "获取 Loft。"
-lead = "Loft 在所有平台上都免费。你还需要在家里运行一个 Loft 网关。如果还没有，请<a href=\"/gateway/\">先设置网关</a>：只需一条命令和一个二维码。"
+lead = "Loft 在所有平台上都免费。你还需要在家里运行一个 Loft 网关。如果还没有，请<a href=\"/gateway/\">先设置网关</a>：只需大约十分钟和一个二维码。"
 
 [pages.download.updates]
 title = "检查更新"
@@ -228,34 +244,33 @@ items = ["一台始终开机、与 NAS 在同一网络中的 Linux 机器：x86_
 
 [[pages.gateway.steps]]
 title = "安装"
-body = "<p><strong>即将推出。</strong>网关暂时还不能下载。届时，<code>.deb</code> 和容器镜像会出现在<a href=\"/download/#gateway\">下载</a>页面，安装命令也会放在这里。</p>"
 
-[[pages.gateway.steps.parts_at_release]]
+[[pages.gateway.steps.parts]]
 id = "debian"
 title = "Debian 13 和 Ubuntu 24.04"
-before = "<p><strong>即将推出。</strong>从<a href=\"/download/#gateway\">下载</a>页面下载 <code>.deb</code> 并安装。目前还没有软件包仓库，所以每个新版本也需要重新下载。</p>"
-code = "sudo apt install ./loft-gateway_*_amd64.deb"
-after = "<p>适用于树莓派的 arm64 软件包即将推出。在此之前，arm64 上请使用容器。</p>"
+before = "<p>从<a href=\"/download/#gateway\">下载</a>页面下载适合你系统的 <code>.deb</code> 并安装。目前还没有软件包仓库，所以每个新版本也需要重新下载。</p>"
+code = "sudo apt install ./loft-gateway_*.deb"
+after = "<p>请在文件所在的文件夹中运行。树莓派请使用 Debian 13（arm64）软件包。</p>"
 
-[[pages.gateway.steps.parts_at_release]]
+[[pages.gateway.steps.parts]]
 id = "container"
 title = "容器"
-before = "<p><strong>即将推出。</strong>多架构镜像，支持 x86_64 和 arm64。首次启动时会输出配对码（<code>docker logs loft</code>）。</p>"
-code = "docker run -d --name loft --restart unless-stopped \\\n  -p 8443:8443 \\\n  -e LOFT_SMB_SERVER=&lt;nas-address&gt; \\\n  -e LOFT_LAN_URL=https://&lt;gateway-address&gt;:8443 \\\n  -v loft-etc:/etc/loft -v loft-state:/var/lib/loft \\\n  loft-gateway:0.2.0\ndocker logs loft\ndocker exec -it loft loft-container loft-gateway doctor --user alice\ndocker exec loft loft-container loft-gateway pair"
-after = "<p>在容器中，缩略图工作进程作为无特权的独立进程运行，而不是像 <code>.deb</code> 那样运行在 systemd 沙盒中。缩略图功能完全相同。</p>"
+before = "<p>多架构镜像，支持 x86_64 和 arm64，来自 GitHub 容器镜像仓库。容器会自行启动网关。首次启动时，它会用你提供的地址运行 <code>loft-gateway init</code>，并输出配对码（<code>docker logs loft</code>）。</p>"
+code = "docker run -d --name loft --restart unless-stopped \\\n  -p 8443:8443 \\\n  -e LOFT_SMB_SERVER=&lt;nas-address&gt; \\\n  -e LOFT_LAN_URL=https://&lt;gateway-address&gt;:8443 \\\n  -v loft-etc:/etc/loft -v loft-state:/var/lib/loft \\\n  ghcr.io/incremental-as/loft-gateway:0.2.0\ndocker logs loft\ndocker exec -it loft loft-container loft-gateway doctor --user &lt;nas-username&gt;\ndocker exec loft loft-container loft-gateway pair"
+after = "<p>在容器中，缩略图工作进程作为无特权的独立进程运行，而不是像 <code>.deb</code> 那样运行在 systemd 沙盒中。缩略图功能完全相同。请备份这两个卷：<code>loft-etc</code> 存放配置和密钥，<code>loft-state</code> 存放索引和你的设备信息。</p>"
 
 [[pages.gateway.steps]]
 title = "让它指向你的 NAS"
-body = "<p>运行 <code>loft-gateway init</code>。它会询问 NAS 的地址，写入配置文件并生成网关的密钥。最后，它会显示一个配对码。</p>\n<p>然后运行 <code>loft-gateway doctor</code>。它会检查网关能否连接到 NAS、NAS 提供哪个 SMB 版本和哪种加密、系统时钟是否准确，以及证书是否有效。如果有问题，它会告诉你问题出在哪里。加上 <code>--user</code> 和你的 NAS 用户名，还能检查登录和共享文件夹。它会询问密码，但从不显示出来。</p>\n<p><strong>较旧的 NAS 不支持 SMB 加密？</strong>默认情况下，网关会拒绝建立未加密的连接。在配置文件中设置 <code>smb_encryption = \"server\"</code> 后，改由 NAS 决定：只有 NAS 要求加密时，家庭网络上的连接才会加密。这由你自己决定。</p>"
+body = "<p>使用 <code>.deb</code> 时，运行 <code>sudo loft-gateway init</code>。它会问几个问题，首先是 NAS 的地址，然后把配置文件写入 <code>/etc/loft</code> 并生成网关的密钥。最后，它会显示一个配对码：第 3 步会用到它。它还会生成一个备用密钥。请把它移出这台机器并妥善保管：万一网关的密钥丢失或泄露，只需安装备用密钥，你的应用就会继续信任这个网关。在容器中，首次启动时已经完成了这一步。</p>\n<p>然后运行 <code>sudo loft-gateway doctor</code>（在容器中，运行上面那行 <code>docker exec … doctor</code>）。它会检查网关能否连接到 NAS、NAS 提供哪个 SMB 版本和哪种加密、系统时钟是否准确，以及证书是否有效。如果有问题，它会告诉你问题出在哪里。加上 <code>--user</code> 和你的 NAS 用户名，还能检查登录和共享文件夹。它会询问密码，但从不显示出来。</p>\n<p>然后启动网关，并让它在机器每次启动时自动启动：</p>\n<pre><code>sudo systemctl enable --now loft-gateway</code></pre>\n<p>容器已经在运行，<code>--restart unless-stopped</code> 会让它在重启后自动恢复运行。</p>\n<p><strong>较旧的 NAS 不支持 SMB 加密？</strong>默认情况下，网关会拒绝建立未加密的连接。在配置文件中设置 <code>smb_encryption = \"server\"</code> 后，改由 NAS 决定：只有 NAS 要求加密时，家庭网络上的连接才会加密。这由你自己决定。</p>\n<p>之后修改了配置文件？请重启网关，让它重新读取：<code>sudo systemctl restart loft-gateway</code>，或 <code>docker restart loft</code>。</p>"
 
 [[pages.gateway.steps]]
 title = "配对你的应用"
-body = "<p>运行 <code>loft-gateway pair</code>，用 Loft 应用扫描二维码，或在设备上打开链接。二维码中包含网关的地址和密钥，因此从第一次连接起，应用就知道它连接的是<em>你的</em>网关。然后用你的 NAS 用户名和密码登录。</p>\n<p>应用特意没有提供输入网关地址的输入框：手动输入的地址可能把你引向骗取密码的假冒网关。如果确实需要，可以在应用的配对界面上找到<em>手动设置</em>。</p>"
+body = "<p>运行 <code>sudo loft-gateway pair</code>（在容器中：<code>docker exec loft loft-container loft-gateway pair</code>），用 Loft 应用扫描二维码，或在设备上打开链接。二维码中包含网关的地址和密钥，因此从第一次连接起，应用就知道它连接的是<em>你的</em>网关。然后用你的 NAS 用户名和密码登录。</p>\n<p>应用特意没有提供输入网关地址的输入框：手动输入的地址可能把你引向骗取密码的假冒网关。如果确实需要，可以在应用的配对界面上找到<em>手动设置</em>。</p>"
 
 [[pages.gateway.steps]]
 id = "outside"
 title = "在外使用（可选）"
-body = "<p>在家使用无需额外设置。要在外使用 Loft，请选择其中一种方式：</p>\n<ul><li><strong>隧道</strong>，例如 Cloudflare Tunnel。路由器上无需开放端口，但隧道服务商可以读取流量，而且你需要在家登录。</li><li><strong>直连</strong>，在路由器上把一个端口转发到网关。端到端加密，可以在任何地方登录。网关会限制登录尝试次数。</li></ul>\n<p>两者的区别详见<a href=\"/how-it-works/#security\">工作原理</a>。更改后请重新运行 <code>loft-gateway pair</code>，让配对码包含新的地址。</p>"
+body = "<p>在家使用无需额外设置。要在外使用 Loft，请选择其中一种方式：</p>\n<ul><li><strong>隧道</strong>，例如 Cloudflare Tunnel。路由器上无需开放端口，但隧道服务商可以读取流量，而且你需要在家登录。</li><li><strong>直连</strong>，在路由器上把一个端口转发到网关。端到端加密，可以在任何地方登录。网关会限制登录尝试次数。</li></ul>\n<p>两者的区别详见<a href=\"/how-it-works/#security\">工作原理</a>。更改后请重新运行配对命令，让配对码包含新的地址。</p>"
 
 [[pages.gateway.sections]]
 id = "limit"
@@ -383,7 +398,7 @@ lead = "Loft 是免费的，由一个小团队开发。我们没有客服中心�
 
 [[pages.support.sections]]
 title = "先检查这些"
-body = "<ul>\n<li><strong>在网关上运行 <code>loft-gateway doctor</code>。</strong>大多数问题出在网关和 NAS 之间，它通常能指出问题所在。</li>\n<li><strong>Mac：访达边栏中没有 Loft。</strong>macOS 可能把它关闭了。在访达中留意<em>“Loft”未启用</em>的提示并选择<em>启用</em>，或者前往“系统设置 › 通用 › 登录项与扩展 › 文件提供程序”打开 Loft。</li>\n<li><strong>在 NAS 上做的更改需要几分钟才会显示。</strong>通过 Loft 做的更改几秒内就会显示。</li>\n<li><strong>在外无法登录？</strong>使用隧道时，只能在家登录。这是有意为之，参见<a href=\"/how-it-works/#security\">工作原理</a>。</li>\n<li><strong>应用找不到网关？</strong>重新配对：运行 <code>loft-gateway pair</code> 并扫描新的二维码。</li>\n</ul>"
+body = "<ul>\n<li><strong>在网关上运行 <code>sudo loft-gateway doctor</code></strong>（在容器中：<code>docker exec -it loft loft-container loft-gateway doctor</code>）。大多数问题出在网关和 NAS 之间，它通常能指出问题所在。</li>\n<li><strong>Mac：访达边栏中没有 Loft。</strong>macOS 可能把它关闭了。在访达中留意<em>“Loft”未启用</em>的提示并选择<em>启用</em>，或者前往“系统设置 › 通用 › 登录项与扩展 › 文件提供程序”打开 Loft。</li>\n<li><strong>在 NAS 上做的更改需要几分钟才会显示。</strong>通过 Loft 做的更改几秒内就会显示。</li>\n<li><strong>在外无法登录？</strong>使用隧道时，只能在家登录。这是有意为之，参见<a href=\"/how-it-works/#security\">工作原理</a>。</li>\n<li><strong>应用找不到网关？</strong>先检查它是否在运行：<code>sudo systemctl status loft-gateway</code>，容器则用 <code>docker ps</code>。然后重新配对：运行 <code>sudo loft-gateway pair</code> 并扫描新的二维码。</li>\n</ul>"
 
 [[pages.support.sections]]
 title = "报告问题"

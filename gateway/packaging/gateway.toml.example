@@ -13,6 +13,7 @@ blocked_paths = []                      # e.g. ["Family/Paperwork/Passwords"]
 allowed_users_re = "[A-Za-z0-9._-]+"    # who may sign in (full match)
 denied_users_re = "guest"               # add service accounts that can open everything
 code_users_re = ""                      # who may make sign-in codes ("" = nobody)
+# assistant_return_hosts = ["api.jeevo.ai"]  # assistants (MCP) may only return to these hosts; [] = any https
 
 # Pairing (docs/pairing.md). `loft-gateway init` makes the live and standby keys.
 gateway_name = "Home"

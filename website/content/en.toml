@@ -6,8 +6,7 @@
 
 # build.py --release refuses while this list has entries. Each is copy that reads finished but isn't true yet.
 [release]
-# Pre-launch (2026-10-30): every download is coming_soon. The repo is public (since 2026-10-30), so the GitHub
-# links are back. The first release (Mac 0.2.0, 2026-10-31) is on GitHub; its card stays coming_soon until the gateway ships.
+# 0.2.0 (2026-10-31): the Mac app and the gateway are released; the other apps are coming_soon.
 hold = []
 
 [site]
@@ -76,15 +75,14 @@ href = "{APP_STORE_URL}"
 id = "mac"
 name = "Mac"
 shows = "Finder, in the sidebar"
-get = "DMG download (coming soon)"
-coming_soon = true
+get = "DMG download"
 detail = "Loft puts your NAS in the Finder sidebar. Files download when you open them and go back home when you save."
-version = "version {VERSION}"
-after = "Open the DMG and drag Loft into Applications."
-sha256 = "{SHA256}"
+version = "macOS 14 or newer · version 0.2.0"
+after = "Open the DMG and drag Loft into Applications. From then on, Loft keeps itself up to date, and asks before it installs anything."
+sha256 = "d35c0eb67fb0a2c62633efc54cb920882d4ade2db4426ff44253a7d70e573fb6"
 [[platforms.downloads]]
 label = "Download for Mac (.dmg)"
-href = "{DOWNLOAD_URL}"
+href = "https://github.com/Incremental-AS/loft/releases/download/v0.2.0/Loft-0.2.0-14.dmg"
 
 [[platforms]]
 id = "android"
@@ -149,14 +147,26 @@ href = "{DOWNLOAD_URL}"
 id = "gateway"
 name = "Loft gateway"
 shows = "runs at home on Linux (x86_64 or arm64, so a 64-bit Raspberry Pi will do)"
-get = ".deb or container image (coming soon)"
-# The .deb and the container image are built but not released. While coming_soon is set, the Download page
-# renders no download buttons, version or checksum for this card (templates/pages/download.html).
-# Drop it, and the "Coming soon." lead-ins here and on Set up a gateway, with --release. There is no apt repository.
-coming_soon = true
+get = ".deb or container image"
+# No apt repository: each version is a new download. Bump the version in the hrefs, the container tag here and on
+# Set up a gateway, and the release link in the note, with every gateway release. GitHub turns the "~" in the
+# .deb file names into ".". The checksums for all four are on the GitHub release (one sha256 line can't hold four).
 detail = "Runs at home on Linux, x86_64 or arm64 (a 64-bit Raspberry Pi will do), with Python 3.12 or newer. Debian 13, Ubuntu 24.04 and current Raspberry Pi OS have it. On an older system, use the container."
-# Until --release the container part of Set up a gateway is hidden, so this links to the page; at release: /gateway/#container
-list = "<ul><li><strong>Debian 13 and Ubuntu 24.04:</strong> a <code>.deb</code> for x86_64, downloaded from this page. The arm64 package is on its way. → <a href=\"/gateway/\">Set up a gateway</a></li><li><strong>Container:</strong> a multi-arch image, for x86_64 and arm64. → <a href=\"/gateway/\">Set up a gateway</a></li></ul>"
+list = "<ul><li><strong>Debian 13 and Ubuntu 24.04:</strong> a <code>.deb</code> for x86_64 and one for arm64. On a Raspberry Pi, take Debian 13 arm64. → <a href=\"/gateway/#debian\">Set up a gateway</a></li><li><strong>Container:</strong> <code>ghcr.io/incremental-as/loft-gateway:0.2.0</code>, a multi-arch image for x86_64 and arm64. → <a href=\"/gateway/#container\">Set up a gateway</a></li></ul>"
+version = "version 0.2.0"
+note = "Not sure which one? <code>dpkg --print-architecture</code> prints <code>amd64</code> for x86_64, or <code>arm64</code>. If it prints <code>armhf</code>, your Raspberry Pi runs the 32-bit system: use the 64-bit Raspberry Pi OS. The SHA-256 checksums for all four files are on the release page on GitHub. → <a href=\"https://github.com/Incremental-AS/loft/releases/tag/v0.2.0\">Checksums on GitHub</a>"
+[[platforms.downloads]]
+label = "Debian 13 (x86_64)"
+href = "https://github.com/Incremental-AS/loft/releases/download/v0.2.0/loft-gateway_0.2.0-1.debian13_amd64.deb"
+[[platforms.downloads]]
+label = "Debian 13 (arm64, Raspberry Pi)"
+href = "https://github.com/Incremental-AS/loft/releases/download/v0.2.0/loft-gateway_0.2.0-1.debian13_arm64.deb"
+[[platforms.downloads]]
+label = "Ubuntu 24.04 (x86_64)"
+href = "https://github.com/Incremental-AS/loft/releases/download/v0.2.0/loft-gateway_0.2.0-1.ubuntu24_amd64.deb"
+[[platforms.downloads]]
+label = "Ubuntu 24.04 (arm64)"
+href = "https://github.com/Incremental-AS/loft/releases/download/v0.2.0/loft-gateway_0.2.0-1.ubuntu24_arm64.deb"
 
 # ---------------------------------------------------------------- home
 
@@ -288,7 +298,7 @@ title = "Download · Loft by Incremental"
 description = "Download Loft for iPhone, iPad, Mac, Android, Windows and Linux, and the Loft gateway. Free and open source."
 kicker = "Download"
 h1 = "Get Loft."
-lead = "Loft is free on every platform. You also need a Loft gateway at home. If you don't have one yet, <a href=\"/gateway/\">set it up first</a>: it takes one command and one QR code."
+lead = "Loft is free on every platform. You also need a Loft gateway at home. If you don't have one yet, <a href=\"/gateway/\">set it up first</a>: it takes about ten minutes and one QR code."
 [pages.download.updates]
 title = "Checking for updates"
 # Same as the update-check paragraph on Privacy (which adds Apple's privacy terms). Every app that doesn't come from an
@@ -319,40 +329,41 @@ items = [
 
 [[pages.gateway.steps]]
 title = "Install"
-# Until --release: only this paragraph. At release, rename parts_at_release back to parts and
-# drop this body and the "Coming soon." lead-ins in the parts.
-body = "<p><strong>Coming soon.</strong> The gateway isn't available to download yet. When it is, the <code>.deb</code> and the container image will be on <a href=\"/download/#gateway\">Download</a>, and the commands to install them will be right here.</p>"
-[[pages.gateway.steps.parts_at_release]]
+[[pages.gateway.steps.parts]]
 id = "debian"
 title = "Debian 13 and Ubuntu 24.04"
-# Not released yet: step 1 stays "Coming soon" until --release. No package repository exists.
-before = "<p><strong>Coming soon.</strong> Download the <code>.deb</code> from <a href=\"/download/#gateway\">Download</a> and install it. There's no package repository yet, so a new version is a new download too.</p>"
-code = "sudo apt install ./loft-gateway_*_amd64.deb"
-after = "<p>The arm64 package, for a Raspberry Pi, is on its way. Until then, use the container on arm64.</p>"
-[[pages.gateway.steps.parts_at_release]]
+# No package repository exists.
+before = "<p>Download the <code>.deb</code> for your system from <a href=\"/download/#gateway\">Download</a> and install it. There's no package repository yet, so a new version is a new download too.</p>"
+code = "sudo apt install ./loft-gateway_*.deb"
+after = "<p>Run it in the folder the file is in. On a Raspberry Pi, use the Debian 13 (arm64) package.</p>"
+[[pages.gateway.steps.parts]]
 id = "container"
 title = "Container"
-before = "<p><strong>Coming soon.</strong> A multi-arch image, for x86_64 and arm64. The first start prints the pairing code (<code>docker logs loft</code>).</p>"
+before = "<p>A multi-arch image for x86_64 and arm64, from the GitHub container registry. The container starts the gateway by itself. The first start runs <code>loft-gateway init</code> with the addresses you give it, and prints the pairing code (<code>docker logs loft</code>).</p>"
 code = """docker run -d --name loft --restart unless-stopped \\
   -p 8443:8443 \\
   -e LOFT_SMB_SERVER=&lt;nas-address&gt; \\
   -e LOFT_LAN_URL=https://&lt;gateway-address&gt;:8443 \\
   -v loft-etc:/etc/loft -v loft-state:/var/lib/loft \\
-  loft-gateway:0.2.0
+  ghcr.io/incremental-as/loft-gateway:0.2.0
 docker logs loft
-docker exec -it loft loft-container loft-gateway doctor --user alice
+docker exec -it loft loft-container loft-gateway doctor --user &lt;nas-username&gt;
 docker exec loft loft-container loft-gateway pair"""
-after = "<p>In the container, the thumbnail worker runs as a separate process without privileges, instead of in the systemd sandbox the <code>.deb</code> uses. Thumbnails work the same way.</p>"
+after = "<p>In the container, the thumbnail worker runs as a separate process without privileges, instead of in the systemd sandbox the <code>.deb</code> uses. Thumbnails work the same way. Back up both volumes: <code>loft-etc</code> holds the settings and the keys, <code>loft-state</code> the index and your devices.</p>"
 
 [[pages.gateway.steps]]
 title = "Point it at your NAS"
-body = '''<p>Run <code>loft-gateway init</code>. It asks for your NAS address, writes the settings file and creates the gateway's keys. At the end, it shows a pairing code.</p>
-<p>Then run <code>loft-gateway doctor</code>. It checks that the gateway can reach the NAS, which SMB version and encryption the NAS offers, that the clock is right, and that the certificate is valid. If something is wrong, it tells you what. Add <code>--user</code> and your NAS username to check sign-in and the shared folders too. It asks for the password and never prints it.</p>
-<p><strong>An older NAS without SMB encryption?</strong> By default the gateway refuses to connect without it. With <code>smb_encryption = "server"</code> in the settings file, the NAS decides instead, and the connection on your home network is encrypted only if the NAS asks for it. It's your choice.</p>'''
+body = '''<p>With the <code>.deb</code>, run <code>sudo loft-gateway init</code>. It asks a few questions, starting with your NAS address, writes the settings file to <code>/etc/loft</code> and creates the gateway's keys. At the end, it shows a pairing code: you'll need it in step 3. It also makes a standby key. Move it off the machine and keep it safe: if the gateway's key is ever lost or exposed, you install the standby key and your apps go on trusting the gateway. In the container, the first start has already done this.</p>
+<p>Then run <code>sudo loft-gateway doctor</code> (in the container, the <code>docker exec … doctor</code> line above). It checks that the gateway can reach the NAS, which SMB version and encryption the NAS offers, that the clock is right, and that the certificate is valid. If something is wrong, it tells you what. Add <code>--user</code> and your NAS username to check sign-in and the shared folders too. It asks for the password and never prints it.</p>
+<p>Then start the gateway, and have it start again whenever the machine does:</p>
+<pre><code>sudo systemctl enable --now loft-gateway</code></pre>
+<p>The container is already running, and <code>--restart unless-stopped</code> brings it back after a reboot.</p>
+<p><strong>An older NAS without SMB encryption?</strong> By default the gateway refuses to connect without it. With <code>smb_encryption = "server"</code> in the settings file, the NAS decides instead, and the connection on your home network is encrypted only if the NAS asks for it. It's your choice.</p>
+<p>Changed the settings file later? Restart the gateway so it reads it: <code>sudo systemctl restart loft-gateway</code>, or <code>docker restart loft</code>.</p>'''
 
 [[pages.gateway.steps]]
 title = "Pair your apps"
-body = '''<p>Run <code>loft-gateway pair</code> and scan the QR code with the Loft app, or open the link on the device. The code carries the gateway's address and its keys, so the app knows it's talking to <em>your</em> gateway from the very first connection. Then sign in with your NAS username and password.</p>
+body = '''<p>Run <code>sudo loft-gateway pair</code> (in the container: <code>docker exec loft loft-container loft-gateway pair</code>) and scan the QR code with the Loft app, or open the link on the device. The code carries the gateway's address and its keys, so the app knows it's talking to <em>your</em> gateway from the very first connection. Then sign in with your NAS username and password.</p>
 <p>There's no field for typing in a gateway address, on purpose: a typed address could lead you to a fake gateway that collects passwords. If you really need it, <em>Set up manually</em> is on the app's pairing screen.</p>'''
 
 [[pages.gateway.steps]]
@@ -360,7 +371,7 @@ id = "outside"
 title = "Away from home (optional)"
 body = '''<p>At home, nothing more is needed. To use Loft away from home, choose one:</p>
 <ul><li><strong>A tunnel</strong>, for example Cloudflare Tunnel. No open port on your router, but the tunnel provider can read the traffic, and you sign in at home.</li><li><strong>Direct</strong>, with a port forwarded on your router to the gateway. Encrypted end to end, and you can sign in from anywhere. The gateway limits sign-in attempts.</li></ul>
-<p>The differences are explained in <a href="/how-it-works/#security">How it works</a>. Run <code>loft-gateway pair</code> again after changing it, so the code includes the new address.</p>'''
+<p>The differences are explained in <a href="/how-it-works/#security">How it works</a>. Run the pairing command again after changing it, so the code includes the new address.</p>'''
 
 [[pages.gateway.sections]]
 id = "limit"
@@ -486,11 +497,11 @@ title = "Check these first"
 # Finder's banner and the Settings path are macOS 27.2's own strings (FinderKit NE99/NE100, LoginItems.appex), checked on a Mac 2026-10-30.
 # The NAS line is true for 0.1 and current code (rescan every 300 s); change it when change notify ships.
 body = '''<ul>
-<li><strong>Run <code>loft-gateway doctor</code> on the gateway.</strong> Most problems are between the gateway and the NAS, and it will usually say what's wrong.</li>
+<li><strong>Run <code>sudo loft-gateway doctor</code> on the gateway</strong> (in the container: <code>docker exec -it loft loft-container loft-gateway doctor</code>). Most problems are between the gateway and the NAS, and it will usually say what's wrong.</li>
 <li><strong>Mac: Loft isn't in the Finder sidebar.</strong> macOS may have switched it off. Look for <em>“Loft” is not enabled</em> in Finder and choose <em>Enable</em>, or turn Loft on under System Settings › General › Login Items &amp; Extensions › File Providers.</li>
 <li><strong>Changes made on the NAS take a few minutes to show up.</strong> Changes from Loft show up within seconds.</li>
 <li><strong>Can't sign in away from home?</strong> On a tunnel, sign-in only works at home. That's on purpose: see <a href="/how-it-works/#security">How it works</a>.</li>
-<li><strong>The app can't find the gateway?</strong> Pair again: run <code>loft-gateway pair</code> and scan the new code.</li>
+<li><strong>The app can't find the gateway?</strong> Check that it's running: <code>sudo systemctl status loft-gateway</code>, or <code>docker ps</code> for the container. Then pair again: run <code>sudo loft-gateway pair</code> and scan the new code.</li>
 </ul>'''
 [[pages.support.sections]]
 title = "Report a problem"

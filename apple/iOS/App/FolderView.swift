@@ -250,6 +250,10 @@ struct AccountView: View {
                 } footer: {
                     Text("Pairing with another gateway signs you out of this one.")
                 }
+                Section {
+                    NavigationLink(PhoneCopy.aboutTitle) { AboutContent() }
+                    LabeledContent("Version", value: PhoneCopy.appVersion)
+                }
             }
             .navigationTitle("Account")
             .toolbar { ToolbarItem(placement: .confirmationAction) { Button("Done") { dismiss() } } }

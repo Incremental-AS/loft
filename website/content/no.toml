@@ -67,15 +67,14 @@ href = "{APP_STORE_URL}"
 id = "mac"
 name = "Mac"
 shows = "Finder, i sidepanelet"
-get = "DMG-nedlasting (kommer snart)"
-coming_soon = true
+get = "DMG-nedlasting"
 detail = "Loft legger NAS-en i sidepanelet i Finder. Filene lastes ned når du åpner dem, og går hjem igjen når du lagrer."
-version = "versjon {VERSION}"
-after = "Åpne DMG-filen og dra Loft til Programmer."
-sha256 = "{SHA256}"
+version = "macOS 14 eller nyere · versjon 0.2.0"
+after = "Åpne DMG-filen og dra Loft til Programmer. Etter det holder Loft seg oppdatert selv, og spør før den installerer noe."
+sha256 = "d35c0eb67fb0a2c62633efc54cb920882d4ade2db4426ff44253a7d70e573fb6"
 [[platforms.downloads]]
 label = "Last ned for Mac (.dmg)"
-href = "{DOWNLOAD_URL}"
+href = "https://github.com/Incremental-AS/loft/releases/download/v0.2.0/Loft-0.2.0-14.dmg"
 
 [[platforms]]
 id = "android"
@@ -140,14 +139,24 @@ href = "{DOWNLOAD_URL}"
 id = "gateway"
 name = "Loft-gateway"
 shows = "står hjemme på Linux (x86_64 eller arm64, så en 64-biters Raspberry Pi holder)"
-get = ".deb eller containerbilde (kommer snart)"
-# .deb-pakken og containerbildet er bygget, men ikke utgitt. Så lenge coming_soon er satt, viser Last ned ingen
-# nedlastingsknapper, versjon eller sjekksum for dette kortet (templates/pages/download.html).
-# Fjern den, og «Kommer snart.» her og på Sett opp en gateway, ved --release. Det finnes ikke noe apt-depot.
-coming_soon = true
+get = ".deb eller containerbilde"
+# Se en.toml: versjonen i lenkene, containertaggen og utgivelseslenken følger hver gateway-utgivelse.
 detail = "Står hjemme på Linux, x86_64 eller arm64 (en 64-biters Raspberry Pi holder), med Python 3.12 eller nyere. Debian 13, Ubuntu 24.04 og nyeste Raspberry Pi OS har det. På et eldre system bruker du containeren."
-# Til --release: lenker til siden, ikke #container (delen er skjult). Ved release: /no/gateway/#container
-list = "<ul><li><strong>Debian 13 og Ubuntu 24.04:</strong> en <code>.deb</code> for x86_64, som du laster ned her. Pakken for arm64 er på vei. → <a href=\"/no/gateway/\">Sett opp en gateway</a></li><li><strong>Container:</strong> et multiarkitektur-bilde for x86_64 og arm64. → <a href=\"/no/gateway/\">Sett opp en gateway</a></li></ul>"
+list = "<ul><li><strong>Debian 13 og Ubuntu 24.04:</strong> En <code>.deb</code> for x86_64 og en for arm64. Til Raspberry Pi tar du Debian 13 arm64. → <a href=\"/no/gateway/#debian\">Sett opp en gateway</a></li><li><strong>Container:</strong> <code>ghcr.io/incremental-as/loft-gateway:0.2.0</code>, et multiarkitektur-bilde for x86_64 og arm64. → <a href=\"/no/gateway/#container\">Sett opp en gateway</a></li></ul>"
+version = "versjon 0.2.0"
+note = "Usikker på hvilken? <code>dpkg --print-architecture</code> skriver <code>amd64</code> for x86_64, eller <code>arm64</code>. Skriver den <code>armhf</code>, kjører Raspberry Pi-en 32-biterssystemet: Bruk 64-biters Raspberry Pi OS. SHA-256-sjekksummene for alle fire filene står på utgivelsessiden på GitHub. → <a href=\"https://github.com/Incremental-AS/loft/releases/tag/v0.2.0\">Sjekksummer på GitHub</a>"
+[[platforms.downloads]]
+label = "Debian 13 (x86_64)"
+href = "https://github.com/Incremental-AS/loft/releases/download/v0.2.0/loft-gateway_0.2.0-1.debian13_amd64.deb"
+[[platforms.downloads]]
+label = "Debian 13 (arm64, Raspberry Pi)"
+href = "https://github.com/Incremental-AS/loft/releases/download/v0.2.0/loft-gateway_0.2.0-1.debian13_arm64.deb"
+[[platforms.downloads]]
+label = "Ubuntu 24.04 (x86_64)"
+href = "https://github.com/Incremental-AS/loft/releases/download/v0.2.0/loft-gateway_0.2.0-1.ubuntu24_amd64.deb"
+[[platforms.downloads]]
+label = "Ubuntu 24.04 (arm64)"
+href = "https://github.com/Incremental-AS/loft/releases/download/v0.2.0/loft-gateway_0.2.0-1.ubuntu24_arm64.deb"
 
 # ---------------------------------------------------------------- forside
 
@@ -279,7 +288,7 @@ title = "Last ned · Loft by Incremental"
 description = "Last ned Loft for iPhone, iPad, Mac, Android, Windows og Linux, og Loft-gatewayen. Gratis og åpen kildekode."
 kicker = "Last ned"
 h1 = "Hent Loft."
-lead = "Loft er gratis på alle plattformer. Du trenger også en Loft-gateway hjemme. Har du ikke det ennå, <a href=\"/no/gateway/\">sett den opp først</a>: Det tar én kommando og én QR-kode."
+lead = "Loft er gratis på alle plattformer. Du trenger også en Loft-gateway hjemme. Har du ikke det ennå, <a href=\"/no/gateway/\">sett den opp først</a>: Det tar rundt ti minutter og én QR-kode."
 [pages.download.updates]
 title = "Sjekk etter oppdateringer"
 # Samme som avsnittet om oppdateringssjekk på Personvern (som i tillegg nevner Apples personvernvilkår). Alle appene
@@ -308,40 +317,41 @@ items = [
 
 [[pages.gateway.steps]]
 title = "Installer"
-# Until --release: only this paragraph. At release, rename parts_at_release back to parts and
-# drop this body and the "Coming soon." lead-ins in the parts.
-body = "<p><strong>Kommer snart.</strong> Gatewayen kan ikke lastes ned ennå. Når den kan det, ligger <code>.deb</code>-filen og containerbildet under <a href=\"/no/download/#gateway\">Last ned</a>, og kommandoene for å installere dem står her.</p>"
-[[pages.gateway.steps.parts_at_release]]
+[[pages.gateway.steps.parts]]
 id = "debian"
 title = "Debian 13 og Ubuntu 24.04"
-# Ikke utgitt ennå: steg 1 er «Kommer snart» til --release. Det finnes ikke noe pakkedepot.
-before = "<p><strong>Kommer snart.</strong> Last ned <code>.deb</code>-filen fra <a href=\"/no/download/#gateway\">Last ned</a> og installer den. Det finnes ikke noe pakkedepot ennå, så en ny versjon er også en ny nedlasting.</p>"
-code = "sudo apt install ./loft-gateway_*_amd64.deb"
-after = "<p>Pakken for arm64, til Raspberry Pi, er på vei. Til da bruker du containeren på arm64.</p>"
-[[pages.gateway.steps.parts_at_release]]
+# Det finnes ikke noe pakkedepot.
+before = "<p>Last ned <code>.deb</code>-filen for systemet ditt fra <a href=\"/no/download/#gateway\">Last ned</a> og installer den. Det finnes ikke noe pakkedepot ennå, så en ny versjon er også en ny nedlasting.</p>"
+code = "sudo apt install ./loft-gateway_*.deb"
+after = "<p>Kjør kommandoen i mappen der filen ligger. Til Raspberry Pi bruker du pakken for Debian 13 (arm64).</p>"
+[[pages.gateway.steps.parts]]
 id = "container"
 title = "Container"
-before = "<p><strong>Kommer snart.</strong> Et multiarkitektur-bilde for x86_64 og arm64. Første gang den starter, skriver den ut paringskoden (<code>docker logs loft</code>).</p>"
+before = "<p>Et multiarkitektur-bilde for x86_64 og arm64, fra GitHubs containerregister. Containeren starter gatewayen selv. Første gang kjører den <code>loft-gateway init</code> med adressene du gir den, og skriver ut paringskoden (<code>docker logs loft</code>).</p>"
 code = """docker run -d --name loft --restart unless-stopped \\
   -p 8443:8443 \\
   -e LOFT_SMB_SERVER=&lt;nas-address&gt; \\
   -e LOFT_LAN_URL=https://&lt;gateway-address&gt;:8443 \\
   -v loft-etc:/etc/loft -v loft-state:/var/lib/loft \\
-  loft-gateway:0.2.0
+  ghcr.io/incremental-as/loft-gateway:0.2.0
 docker logs loft
-docker exec -it loft loft-container loft-gateway doctor --user alice
+docker exec -it loft loft-container loft-gateway doctor --user &lt;nas-username&gt;
 docker exec loft loft-container loft-gateway pair"""
-after = "<p>I containeren kjører miniatyrbilde-prosessen for seg selv uten rettigheter, i stedet for i systemd-sandkassen som <code>.deb</code>-pakken bruker. Miniatyrbildene virker likt.</p>"
+after = "<p>I containeren kjører miniatyrbilde-prosessen for seg selv uten rettigheter, i stedet for i systemd-sandkassen som <code>.deb</code>-pakken bruker. Miniatyrbildene virker likt. Ta sikkerhetskopi av begge volumene: <code>loft-etc</code> har innstillingene og nøklene, <code>loft-state</code> indeksen og enhetene dine.</p>"
 
 [[pages.gateway.steps]]
 title = "Pek den mot NAS-en"
-body = '''<p>Kjør <code>loft-gateway init</code>. Den spør etter adressen til NAS-en, skriver innstillingsfilen og lager gatewayens nøkler. Til slutt viser den en paringskode.</p>
-<p>Kjør så <code>loft-gateway doctor</code>. Den sjekker at gatewayen når NAS-en, hvilken SMB-versjon og kryptering NAS-en tilbyr, at klokka går riktig og at sertifikatet er gyldig. Er noe galt, sier den hva. Legg til <code>--user</code> og brukernavnet ditt på NAS-en, så sjekker den innloggingen og de delte mappene også. Den spør etter passordet og skriver det aldri ut.</p>
-<p><strong>Eldre NAS uten SMB-kryptering?</strong> Som standard nekter gatewayen å koble til uten. Med <code>smb_encryption = "server"</code> i innstillingsfilen bestemmer NAS-en i stedet, og forbindelsen på hjemmenettet krypteres bare hvis NAS-en ber om det. Det er ditt valg.</p>'''
+body = '''<p>Med <code>.deb</code>-pakken kjører du <code>sudo loft-gateway init</code>. Den stiller noen spørsmål, først om adressen til NAS-en, skriver innstillingsfilen i <code>/etc/loft</code> og lager gatewayens nøkler. Til slutt viser den en paringskode: Den trenger du i steg 3. Den lager også en reservenøkkel. Flytt den av maskinen og ta godt vare på den: Blir gatewayens nøkkel borte eller kommer på avveie, installerer du reservenøkkelen, og appene stoler fortsatt på gatewayen. I containeren har første oppstart allerede gjort dette.</p>
+<p>Kjør så <code>sudo loft-gateway doctor</code> (i containeren: <code>docker exec … doctor</code>-linjen over). Den sjekker at gatewayen når NAS-en, hvilken SMB-versjon og kryptering NAS-en tilbyr, at klokka går riktig og at sertifikatet er gyldig. Er noe galt, sier den hva. Legg til <code>--user</code> og brukernavnet ditt på NAS-en, så sjekker den innloggingen og de delte mappene også. Den spør etter passordet og skriver det aldri ut.</p>
+<p>Start så gatewayen, og sørg for at den starter igjen når maskinen gjør det:</p>
+<pre><code>sudo systemctl enable --now loft-gateway</code></pre>
+<p>Containeren kjører allerede, og <code>--restart unless-stopped</code> starter den igjen etter en omstart.</p>
+<p><strong>Eldre NAS uten SMB-kryptering?</strong> Som standard nekter gatewayen å koble til uten. Med <code>smb_encryption = "server"</code> i innstillingsfilen bestemmer NAS-en i stedet, og forbindelsen på hjemmenettet krypteres bare hvis NAS-en ber om det. Det er ditt valg.</p>
+<p>Endret innstillingsfilen senere? Start gatewayen på nytt, så leser den filen: <code>sudo systemctl restart loft-gateway</code>, eller <code>docker restart loft</code>.</p>'''
 
 [[pages.gateway.steps]]
 title = "Koble til appene"
-body = '''<p>Kjør <code>loft-gateway pair</code> og skann QR-koden med Loft-appen, eller åpne lenken på enheten. Koden inneholder gatewayens adresse og nøkler, så appen vet at den snakker med <em>din</em> gateway fra aller første tilkobling. Logg så inn med brukernavnet og passordet ditt på NAS-en.</p>
+body = '''<p>Kjør <code>sudo loft-gateway pair</code> (i containeren: <code>docker exec loft loft-container loft-gateway pair</code>) og skann QR-koden med Loft-appen, eller åpne lenken på enheten. Koden inneholder gatewayens adresse og nøkler, så appen vet at den snakker med <em>din</em> gateway fra aller første tilkobling. Logg så inn med brukernavnet og passordet ditt på NAS-en.</p>
 <p>Det finnes ikke noe felt for å skrive inn en gateway-adresse, og det er med vilje: En adresse du skriver selv, kan lede deg til en falsk gateway som samler inn passord. Trenger du det likevel, ligger <em>Sett opp manuelt</em> på skjermen der du parer appen.</p>'''
 
 [[pages.gateway.steps]]
@@ -349,7 +359,7 @@ id = "utenfra"
 title = "Borte fra hjemmet (valgfritt)"
 body = '''<p>Hjemme trengs ikke noe mer. Vil du bruke Loft når du er ute, velger du ett av to:</p>
 <ul><li><strong>En tunnel</strong>, for eksempel Cloudflare Tunnel. Ingen åpen port på ruteren, men tunnelleverandøren kan lese trafikken, og du logger inn hjemme.</li><li><strong>Direkte</strong>, med en port på ruteren videresendt til gatewayen. Kryptert hele veien, og du kan logge inn hvor som helst. Gatewayen begrenser antall innloggingsforsøk.</li></ul>
-<p>Forskjellen står forklart i <a href="/no/how-it-works/#sikkerhet">Slik virker det</a>. Kjør <code>loft-gateway pair</code> på nytt etter at du har endret dette, så koden får med den nye adressen.</p>'''
+<p>Forskjellen står forklart i <a href="/no/how-it-works/#sikkerhet">Slik virker det</a>. Kjør paringskommandoen på nytt etter at du har endret dette, så koden får med den nye adressen.</p>'''
 
 [[pages.gateway.sections]]
 id = "begrens"
@@ -475,11 +485,11 @@ title = "Sjekk dette først"
 # Finder-banneret og stien i Systeminnstillinger er macOS 27.2 sine egne tekster (FinderKit NE99/NE100, LoginItems.appex), sjekket på en Mac 2026-10-30.
 # NAS-linjen stemmer for 0.1 og dagens kode (ny skanning hvert 300. sekund); endres når endringsvarsling kommer.
 body = '''<ul>
-<li><strong>Kjør <code>loft-gateway doctor</code> på gatewayen.</strong> De fleste problemer ligger mellom gatewayen og NAS-en, og den sier som regel hva som er galt.</li>
+<li><strong>Kjør <code>sudo loft-gateway doctor</code> på gatewayen</strong> (i containeren: <code>docker exec -it loft loft-container loft-gateway doctor</code>). De fleste problemer ligger mellom gatewayen og NAS-en, og den sier som regel hva som er galt.</li>
 <li><strong>Mac: Loft vises ikke i Finder-sidepanelet.</strong> macOS kan ha slått den av. Se etter <em>«Loft» er ikke aktivert</em> i Finder og velg <em>Aktiver</em>, eller slå på Loft under Systeminnstillinger › Generelt › Påloggingsobjekter og utvidelser › Filleverandører.</li>
 <li><strong>Endringer gjort på NAS-en tar noen minutter før de vises.</strong> Endringer fra Loft vises i løpet av sekunder.</li>
 <li><strong>Får du ikke logget inn hjemmefra?</strong> Med tunnel virker innlogging bare hjemme. Det er med vilje: Se <a href="/no/how-it-works/#sikkerhet">Slik virker det</a>.</li>
-<li><strong>Finner ikke appen gatewayen?</strong> Koble til på nytt: Kjør <code>loft-gateway pair</code> og skann den nye koden.</li>
+<li><strong>Finner ikke appen gatewayen?</strong> Sjekk at den kjører: <code>sudo systemctl status loft-gateway</code>, eller <code>docker ps</code> for containeren. Koble så til på nytt: Kjør <code>sudo loft-gateway pair</code> og skann den nye koden.</li>
 </ul>'''
 [[pages.support.sections]]
 title = "Meld fra om feil"

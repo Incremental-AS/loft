@@ -19,10 +19,17 @@ StateDirectoryMode=0700
 UMask=0077
 Restart=on-failure
 RestartSec=3
+# A ceiling, so a flood of requests can't take the host's memory with it: past it the
+# gateway is killed and restarts. Use grows with the NAS (the index, several shares) and
+# with uploads in flight; lower it on a small host with `systemctl edit loft-gateway`.
+MemoryMax=2G
 NoNewPrivileges=yes
 ProtectSystem=strict
 ProtectHome=yes
 PrivateTmp=yes
+# Upload chunks spool here (up to upload_chunk_max each). /tmp is a tmpfs on many systems
+# (Debian 13), i.e. memory; PrivateTmp's /var/tmp is on disk.
+Environment=TMPDIR=/var/tmp
 PrivateDevices=yes
 ProtectKernelTunables=yes
 ProtectKernelModules=yes

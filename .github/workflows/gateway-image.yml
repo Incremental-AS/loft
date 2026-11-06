@@ -46,3 +46,11 @@ jobs:
             org.opencontainers.image.source=https://github.com/${{ github.repository }}
             org.opencontainers.image.version=${{ steps.v.outputs.version }}
             org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.title=Loft gateway
+            org.opencontainers.image.description=Loft gateway: your NAS files on every device, kept at home.
+            org.opencontainers.image.url=https://loft.incremental.no/gateway/
+            org.opencontainers.image.licenses=Apache-2.0
+          # GitHub reads a multi-arch package's description from the index annotation, not the labels.
+          annotations: |
+            index:org.opencontainers.image.description=Loft gateway: your NAS files on every device, kept at home.
+            index:org.opencontainers.image.source=https://github.com/${{ github.repository }}

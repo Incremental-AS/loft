@@ -4,6 +4,8 @@
 "On the gateway, run loft-gateway pair. Scan the QR code it shows, or open its link on this iPhone. The code carries the gateway's address and its keys, so Loft talks to your gateway from the very first connection." = "Sur la passerelle, lancez loft-gateway pair. Scannez le code QR qu’elle affiche, ou ouvrez son lien sur cet iPhone. Le code contient l’adresse de la passerelle et ses clés : Loft communique ainsi avec votre passerelle dès la toute première connexion.";
 "Scan QR code" = "Scanner le code QR";
 "Pairing link" = "Lien d’association";
+"Set up a gateway" = "Installer une passerelle";
+"No gateway yet? Loft needs one at home, next to your NAS." = "Pas encore de passerelle ? Loft en a besoin d’une à la maison, à côté de votre NAS.";
 "Everything after the # stays on this iPhone." = "Tout ce qui suit le # reste sur cet iPhone.";
 "Continue" = "Continuer";
 "Set up manually" = "Configurer manuellement";
@@ -23,6 +25,7 @@
 "Pair" = "Associer";
 "Pair with another gateway" = "Associer à une autre passerelle";
 "Pairing with another gateway signs you out of this one." = "L’association à une autre passerelle vous déconnecte de celle-ci.";
+"Version" = "Version";
 "This iPhone isn't paired with a gateway yet." = "Cet iPhone n’est encore associé à aucune passerelle.";
 "That isn't a Loft pairing link. Use the whole link or QR code that loft-gateway pair shows." = "Ce n’est pas un lien d’association Loft. Utilisez le lien complet ou le code QR affiché par loft-gateway pair.";
 "This pairing code is from a newer gateway. Update Loft, then try again." = "Ce code d’association provient d’une passerelle plus récente. Mettez Loft à jour, puis réessayez.";
@@ -84,3 +87,16 @@
 "Couldn't save. Tap to try again." = "Échec de l’enregistrement. Touchez pour réessayer.";
 "Open Loft and sign in first." = "Ouvrez d’abord Loft et connectez-vous.";
 "Save to Loft" = "Enregistrer dans Loft";
+"About Loft" = "À propos de Loft";
+"How Loft works" = "Comment fonctionne Loft";
+"Loft shows the shared folders on your NAS on this iPhone. Your files stay on the NAS, at home. No one else stores them." = "Loft affiche sur cet iPhone les dossiers partagés de votre NAS. Vos fichiers restent sur le NAS, à la maison. Personne d’autre ne les stocke.";
+"Loft has two parts: this app, and a gateway that runs at home, next to your NAS. The app only ever talks to your gateway, and the gateway only ever talks to your NAS." = "Loft se compose de deux parties : cette app, et une passerelle qui tourne à la maison, à côté de votre NAS. L’app ne parle jamais qu’à votre passerelle, et la passerelle ne parle jamais qu’à votre NAS.";
+"You sign in with the username and password you already have on the NAS, and the NAS's own permissions decide what you can see and change. Sign in at home the first time. After that, Loft works from anywhere." = "Vous vous connectez avec le nom d’utilisateur et le mot de passe que vous avez déjà sur le NAS, et ce sont les autorisations du NAS lui-même qui décident de ce que vous pouvez voir et modifier. Connectez-vous à la maison la première fois. Ensuite, Loft fonctionne de n’importe où.";
+"You need a gateway" = "Il vous faut une passerelle";
+"Loft doesn't work on its own. It needs a Loft gateway at home: a small program on a Linux machine next to the NAS. You set it up once, then pair this iPhone with the QR code or link it shows." = "Loft ne fonctionne pas seul. Il lui faut une passerelle Loft à la maison : un petit programme sur une machine Linux à côté du NAS. Vous l’installez une fois, puis vous associez cet iPhone à l’aide du code QR ou du lien qu’elle affiche.";
+"Loft is free and open source." = "Loft est gratuit et open source.";
+"How it works" = "Fonctionnement";
+"Privacy" = "Confidentialité";
+"Source" = "Code source";
+"%@ of %@" = "%@ sur %@";
+"Try again" = "Réessayer";

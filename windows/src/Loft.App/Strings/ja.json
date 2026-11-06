@@ -30,6 +30,8 @@
   "pair.link_field": "ペアリングリンク",
   "common.continue": "続ける",
   "pair.set_up_manually": "手動で設定",
+  "pair.no_gateway": "まだゲートウェイがありませんか？Loftを使うには、自宅のNASのそばにゲートウェイが必要です。",
+  "pair.setup_gateway": "ゲートウェイの設定",
   "pair.manual_body": "ゲートウェイのアドレスと、鍵のフィンガープリントを1つ入力してください。どちらも loft-gateway pair で表示されます。Loftはフィンガープリントで本当にあなたのゲートウェイかどうかを確認するため、これがないと設定できません。",
   "pair.address_field": "アドレス（例：nas-gateway.local:8443）",
   "pair.pin_field": "鍵のフィンガープリント",

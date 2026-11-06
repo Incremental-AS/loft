@@ -6,6 +6,8 @@
     <string name="pair_scan">Escanear código</string>
     <string name="pair_paste">Pegar enlace</string>
     <string name="pair_manual">Configurar manualmente</string>
+    <string name="pair_no_gateway">¿Todavía no tienes un gateway? Loft necesita uno en casa, junto a tu NAS.</string>
+    <string name="pair_setup_gateway">Configurar un gateway</string>
     <string name="pair_paste_title">Pega el enlace de vinculación</string>
     <string name="pair_paste_hint">https://loft.incremental.no/pair#…</string>
     <string name="pair_manual_title">Configurar manualmente</string>
@@ -41,6 +43,12 @@
     <string name="signin_too_many">Demasiados intentos. Espera 15 minutos y vuelve a intentarlo.</string>
     <string name="signin_nas_down">El gateway respondió, pero no puede conectar con el NAS. Vuelve a intentarlo en un momento.</string>
     <string name="signin_failed">Algo salió mal. Vuelve a intentarlo.</string>
+    <string name="signin_code_label">Código de acceso</string>
+    <string name="signin_code_help">Un código de acceso se crea en la red de casa para una cuenta concreta.</string>
+    <string name="signin_use_code">Tengo un código de acceso</string>
+    <string name="signin_use_password">Iniciar sesión con contraseña</string>
+    <string name="signin_code_invalid">Ese código no es válido. Revísalo y vuelve a intentarlo.</string>
+    <string name="signin_code_expired">Ese código ha caducado o ya se ha usado.</string>
     <string name="forget_gateway">Olvidar este gateway</string>
     <string name="pick_title">Elige tu carpeta de Loft</string>
     <string name="pick_body">Esta carpeta del NAS será Loft en este teléfono. Puedes cambiarla más tarde en Ajustes.</string>

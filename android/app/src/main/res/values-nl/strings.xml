@@ -6,6 +6,8 @@
     <string name="pair_scan">Code scannen</string>
     <string name="pair_paste">Link plakken</string>
     <string name="pair_manual">Handmatig instellen</string>
+    <string name="pair_no_gateway">Nog geen gateway? Loft heeft er thuis een nodig, naast je NAS.</string>
+    <string name="pair_setup_gateway">Gateway instellen</string>
     <string name="pair_paste_title">Plak de koppellink</string>
     <string name="pair_paste_hint">https://loft.incremental.no/pair#…</string>
     <string name="pair_manual_title">Handmatig instellen</string>
@@ -41,6 +43,12 @@
     <string name="signin_too_many">Te veel pogingen. Wacht 15 minuten en probeer het dan opnieuw.</string>
     <string name="signin_nas_down">De gateway reageert, maar kan de NAS niet bereiken. Probeer het zo opnieuw.</string>
     <string name="signin_failed">Er ging iets mis. Probeer het opnieuw.</string>
+    <string name="signin_code_label">Inlogcode</string>
+    <string name="signin_code_help">Een inlogcode wordt op het thuisnetwerk gemaakt voor één bepaald account.</string>
+    <string name="signin_use_code">Ik heb een inlogcode</string>
+    <string name="signin_use_password">Liever inloggen met een wachtwoord</string>
+    <string name="signin_code_invalid">Die code is niet geldig. Controleer hem en probeer het opnieuw.</string>
+    <string name="signin_code_expired">Die code is verlopen of al gebruikt.</string>
     <string name="forget_gateway">Deze gateway vergeten</string>
     <string name="pick_title">Kies je Loft-map</string>
     <string name="pick_body">Deze map op de NAS wordt Loft op deze telefoon. Je kunt dit later wijzigen in Instellingen.</string>

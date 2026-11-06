@@ -199,6 +199,16 @@ class GatewayClient(
             auth = false, fixed = endpoint, timeoutMs = 30_000)
     }
 
+    @Serializable private data class CodeBody(val code: String, val device_name: String)
+
+    /**
+     * Sign in with a code made on the home network by a device of an account the gateway allows codes for
+     * (e.g. an app store reviewer's account). Works on either route, so it goes to the one the selector picks.
+     */
+    suspend fun codeLogin(code: String, deviceName: String): LoginResult =
+        call("POST", "v1/auth/code", json = LoftJson.encodeToString(CodeBody(code.trim(), deviceName)),
+            auth = false, timeoutMs = 30_000)
+
     /** Rotate the device token; stores the new one before returning it. */
     suspend fun rotateToken(): StoredToken {
         val r: LoginResult = call("POST", "v1/auth/refresh")

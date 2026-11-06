@@ -8,17 +8,24 @@ header, so no client can talk its way onto the direct route.
 """
 from __future__ import annotations
 
+import json
+import logging
 import re
+import tempfile
 
 from fastapi import FastAPI, Header, Query, Request
 from fastapi.responses import JSONResponse, Response, StreamingResponse
 from pydantic import BaseModel
+from starlette.concurrency import run_in_threadpool
 
-from . import __version__
+from . import __version__, mcp, oauth
+from .bodylimit import BodyLimit
 from . import schemas as S
 from .rootfs import Blocked, CrossShare, FixedItem
 from .service import ApiError, Caller, Gateway
 from .storage.base import AccessDenied, NotFound, StorageError
+
+log = logging.getLogger("loft.api")
 
 
 class LoginIn(BaseModel):
@@ -71,20 +78,21 @@ class PatchIn(BaseModel):
 
 # HTTP status of every error code. A code always comes with the same status.
 ERROR_STATUS = {
-    400: "bad_anchor bad_path bad_upload cannot_delete_root cannot_move_root is_a_folder "
+    400: "bad_anchor bad_path bad_upload cannot_delete_root cannot_move_root invalid_grant is_a_folder "
          "missing_credentials move_into_self near_id_required not_a_folder "
          "parent_and_name_required",
     401: "code_expired device_revoked invalid_code invalid_credentials invalid_token "
          "missing_token nas_credentials_invalid token_expired token_superseded",
     403: "access_denied account_not_allowed codes_direct_only edge_traffic_on_direct_listener "
-         "password_login_direct_only share_blocked share_is_fixed",
+         "origin_not_allowed password_login_direct_only share_blocked share_is_fixed "
+         "token_not_for_this_api",
     404: "no_such_code no_such_device no_such_share no_such_upload no_such_version not_found "
          "no_thumbnail root_missing",
     409: "cross_share_move name_exists name_exists_on_nas no_root_selected upload_incomplete "
          "wrong_offset",
     410: "anchor_expired",
     412: "content_etag_mismatch meta_etag_mismatch",
-    413: "chunk_too_large",
+    413: "chunk_too_large too_large",
     416: "bad_range range_not_satisfiable",
     422: "chunk_hash_mismatch file_hash_mismatch invalid_or_excluded_name",
     429: "too_many_attempts",
@@ -95,7 +103,7 @@ CODE_STATUS = {c: st for st, codes in ERROR_STATUS.items() for c in codes.split(
 
 # Every call with a device token can fail these ways.
 _TOKEN = ("missing_token invalid_token token_expired device_revoked nas_credentials_invalid "
-          "edge_traffic_on_direct_listener nas_unavailable")
+          "edge_traffic_on_direct_listener nas_unavailable token_not_for_this_api")
 # ... and every call inside the chosen root these.
 _ROOTED = _TOKEN + " no_root_selected not_found access_denied share_blocked nas_error"
 
@@ -119,11 +127,22 @@ def _doc(op: str, summary: str, tag: str, ok=None, errors: str = "", *, auth: bo
                 description=description, openapi_extra=oe, **extra)
 
 
+SMALL_BODY_MAX = 64 * 1024
+
+
 def create_app(gw: Gateway, route: str) -> FastAPI:
     assert route in ("direct", "public")
     # openapi_url=None: the schema is not served; api/openapi.yaml is the published copy.
     app = FastAPI(title="Loft gateway API", version=__version__,
                   docs_url=None, redoc_url=None, openapi_url=None)
+
+    def body_cap(method: str, path: str) -> tuple[int, str]:
+        if path == "/mcp":
+            return mcp.BODY_MAX, "too_large"
+        if method == "PUT" and path.startswith("/v1/uploads/"):
+            return gw.s.upload_chunk_max, "chunk_too_large"
+        return SMALL_BODY_MAX, "too_large"     # every other body is a small JSON or form
+    app.add_middleware(BodyLimit, cap_for=body_cap)
 
     @app.exception_handler(ApiError)
     async def _api_err(_req, e: ApiError):
@@ -151,7 +170,9 @@ def create_app(gw: Gateway, route: str) -> FastAPI:
         return JSONResponse({"error": "cross_share_move"}, status_code=409)
 
     @app.exception_handler(StorageError)
-    async def _se(_req, e):
+    async def _se(req, e):
+        # Logged: on the public route Cloudflare swaps a 502's body for its own page.
+        log.warning("nas_error %s %s: %s", req.method, req.url.path, e)
         return JSONResponse({"error": "nas_error", "detail": str(e)}, status_code=502)
 
     def ip_of(req: Request) -> str | None:
@@ -187,6 +208,75 @@ def create_app(gw: Gateway, route: str) -> FastAPI:
         # route. Same answer on both listeners.
         return {"direct_spki_sha256": gw.s.direct_spki_pins}
 
+    # ── MCP (assistants; mcp.py) ─────────────────────────────────────────
+
+    @app.post("/mcp", include_in_schema=False)
+    async def mcp_post(req: Request):
+        # Every refusal reads the body first: an early answer that leaves it unread
+        # poisons a proxy's pooled connection (cloudflared reuses origin sockets). Only
+        # a signed-in caller's body is kept; anyone else's is read and dropped, so an
+        # anonymous request holds no memory (BodyLimit caps both at BODY_MAX).
+        async def refuse(resp: Response) -> Response:
+            async for _ in req.stream():
+                pass
+            return resp
+
+        declared = req.headers.get("content-length") or "0"
+        if not declared.isdigit() or int(declared) > mcp.BODY_MAX:
+            return JSONResponse({"error": "too_large"}, status_code=413,
+                                headers={"Connection": "close"})
+        if req.headers.get("origin"):
+            # Assistants call from servers, never from a web page: an Origin means a
+            # browser, and a page must not drive a token it has no business holding.
+            return await refuse(JSONResponse({"error": "origin_not_allowed"}, status_code=403))
+        auth = req.headers.get("authorization") or ""
+        if not auth.startswith("Bearer "):
+            return await refuse(JSONResponse(
+                {"error": "missing_token"}, status_code=401,
+                headers={"WWW-Authenticate": oauth.www_authenticate(gw, route)}))
+        try:
+            if route == "direct" and "cf-connecting-ip" in req.headers:
+                raise ApiError(403, "edge_traffic_on_direct_listener")
+            c = await run_in_threadpool(gw.authenticate, auth[7:].strip(), ip_of(req), route, "mcp")
+        except ApiError as e:
+            return await refuse(JSONResponse(
+                {"error": e.code}, status_code=e.status,
+                headers={"WWW-Authenticate": oauth.www_authenticate(
+                    gw, route, "invalid_token")} if e.status == 401 else None))
+        raw = await req.body()
+        try:
+            msg = json.loads(raw)
+        except ValueError:
+            return JSONResponse(mcp._error(None, -32700, "Parse error"), status_code=400)
+        out = await run_in_threadpool(mcp.handle, gw, c, msg)
+        if out is None:
+            return Response(status_code=202)
+        return JSONResponse(out)
+
+    oauth.install(app, gw, route, ip_of)
+
+    @app.post("/v1/auth/assistant-codes", **_doc(
+        "mint_assistant_code", "Make a code that approves an assistant's sign-in", "auth",
+        S.AssistantCode,
+        "codes_direct_only missing_token invalid_token token_superseded token_expired "
+        "device_revoked account_not_allowed token_not_for_this_api",
+        description="For Settings › Connect an assistant. The user types the code on Loft's "
+                    "sign-in page that the assistant (an MCP client) opened; it works once, "
+                    "within 10 minutes, and signs the assistant in to this device's account "
+                    "(docs/mcp.md). Home network (direct listener) only unless the gateway "
+                    "sets `assistant_codes_over_internet`."))
+    def mint_assistant_code(req: Request, authorization: str | None = Header(None)):
+        if route == "direct" and "cf-connecting-ip" in req.headers:
+            raise ApiError(403, "edge_traffic_on_direct_listener")
+        if not authorization or not authorization.startswith("Bearer "):
+            raise ApiError(401, "missing_token")
+        return gw.mint_assistant_code(authorization[7:].strip(), ip_of(req), route)
+
+    @app.api_route("/mcp", methods=["GET", "DELETE"], include_in_schema=False)
+    def mcp_other():
+        # Stateless server: no SSE stream to open, no session to end.
+        return Response(status_code=405, headers={"Allow": "POST"})
+
     # ── auth ──────────────────────────────────────────────────────────────
 
     @app.post("/v1/auth/login", **_doc(
@@ -204,7 +294,7 @@ def create_app(gw: Gateway, route: str) -> FastAPI:
     @app.post("/v1/auth/codes", **_doc(
         "mint_code", "Make a sign-in code for this account", "auth", S.CodeMinted,
         "codes_direct_only missing_token invalid_token token_superseded token_expired "
-        "device_revoked account_not_allowed",
+        "device_revoked account_not_allowed token_not_for_this_api",
         description="Direct listener only, and only for accounts matching `code_users_re` "
                     "(empty by default: nobody)."))
     def mint_code(body: CodeIn, req: Request, authorization: str | None = Header(None)):
@@ -225,7 +315,8 @@ def create_app(gw: Gateway, route: str) -> FastAPI:
 
     @app.post("/v1/auth/refresh", **_doc(
         "refresh", "Rotate the device token", "auth", S.Token,
-        "missing_token invalid_token token_superseded token_expired device_revoked",
+        "missing_token invalid_token token_superseded token_expired device_revoked "
+        "token_not_for_this_api",
         description="Returns a new token and moves the expiry. The previous token keeps "
                     "working for a short grace period; only the current token may rotate."))
     def refresh(req: Request, authorization: str | None = Header(None)):
@@ -425,18 +516,25 @@ def create_app(gw: Gateway, route: str) -> FastAPI:
     async def upload_chunk(upload_id: str, req: Request, offset: int = Query(..., ge=0),
                            x_chunk_sha256: str | None = Header(None),
                            authorization: str | None = Header(None)):
-        from starlette.concurrency import run_in_threadpool
         declared = int(req.headers.get("content-length") or 0)
         if declared > gw.s.upload_chunk_max:
             raise ApiError(413, "chunk_too_large")
-        data = bytearray()
-        async for part in req.stream():
-            data += part
-            if len(data) > gw.s.upload_chunk_max:
-                raise ApiError(413, "chunk_too_large")
-        c = await run_in_threadpool(caller, req, authorization)
-        return await run_in_threadpool(gw.upload_chunk, c, upload_id, offset, bytes(data),
-                                       x_chunk_sha256)
+        # Token first, so an anonymous chunk is never kept (review of af68b8f,
+        # B1b); its body is still read, for cloudflared's pooled sockets.
+        try:
+            c = await run_in_threadpool(caller, req, authorization)
+        except ApiError:
+            async for _ in req.stream():
+                pass
+            raise
+        # Spooled: in memory up to 1 MiB, then a file in TMPDIR (the unit sets /var/tmp: on disk).
+        with tempfile.SpooledTemporaryFile(max_size=1 << 20) as spool:
+            async for part in req.stream():
+                spool.write(part)
+                if spool.tell() > gw.s.upload_chunk_max:
+                    raise ApiError(413, "chunk_too_large")
+            return await run_in_threadpool(gw.upload_chunk, c, upload_id, offset, spool,
+                                           x_chunk_sha256)
 
     @app.post("/v1/uploads/{upload_id}/commit", **_doc(
         "upload_commit", "Place a finished upload", "uploads", S.Commit,

@@ -117,6 +117,10 @@ public sealed class OnboardingWindow : Window
         page.Children.Add(next);
         page.Children.Add(manualToggle);
         page.Children.Add(manualPanel);
+        page.Children.Add(new TextBlock { Text = S.NoGatewayYet, TextWrapping = TextWrapping.Wrap, Opacity = 0.7, Margin = new Thickness(0, 12, 0, 0) });
+        var guide = new HyperlinkButton { Content = S.SetUpGateway, NavigateUri = new Uri(S.GatewayGuideUrl) };
+        Microsoft.UI.Xaml.Automation.AutomationProperties.SetAutomationId(guide, "gateway-guide");
+        page.Children.Add(guide);
         return page;
     }
 

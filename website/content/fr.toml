@@ -66,16 +66,15 @@ href = "{APP_STORE_URL}"
 id = "mac"
 name = "Mac"
 shows = "le Finder, dans la barre latérale"
-get = "Téléchargement DMG (bientôt disponible)"
-coming_soon = true
+get = "Téléchargement DMG"
 detail = "Loft met votre NAS dans la barre latérale du Finder. Les fichiers se téléchargent quand vous les ouvrez et repartent à la maison quand vous les enregistrez."
-version = "version {VERSION}"
-after = "Ouvrez le DMG et faites glisser Loft dans Applications."
-sha256 = "{SHA256}"
+version = "macOS 14 ou plus récent · version 0.2.0"
+after = "Ouvrez le DMG et faites glisser Loft dans Applications. Ensuite, Loft se tient à jour tout seul, et vous demande votre accord avant d’installer quoi que ce soit."
+sha256 = "d35c0eb67fb0a2c62633efc54cb920882d4ade2db4426ff44253a7d70e573fb6"
 
 [[platforms.downloads]]
 label = "Télécharger pour Mac (.dmg)"
-href = "{DOWNLOAD_URL}"
+href = "https://github.com/Incremental-AS/loft/releases/download/v0.2.0/Loft-0.2.0-14.dmg"
 
 [[platforms]]
 id = "android"
@@ -139,10 +138,27 @@ href = "{DOWNLOAD_URL}"
 id = "gateway"
 name = "Passerelle Loft"
 shows = "tourne chez vous sous Linux (x86_64 ou arm64 : un Raspberry Pi 64 bits fait l’affaire)"
-get = ".deb ou image de conteneur (bientôt disponible)"
-coming_soon = true
+get = ".deb ou image de conteneur"
 detail = "Tourne chez vous sous Linux, x86_64 ou arm64 (un Raspberry Pi 64 bits fait l’affaire), avec Python 3.12 ou plus récent. Debian 13, Ubuntu 24.04 et la version actuelle de Raspberry Pi OS l’incluent. Sur un système plus ancien, utilisez le conteneur."
-list = "<ul><li><strong>Debian 13 et Ubuntu 24.04 :</strong> un <code>.deb</code> pour x86_64, à télécharger sur cette page. Le paquet arm64 est en préparation. → <a href=\"/gateway/\">Installer une passerelle</a></li><li><strong>Conteneur :</strong> une image multi-architecture, pour x86_64 et arm64. → <a href=\"/gateway/\">Installer une passerelle</a></li></ul>"
+list = "<ul><li><strong>Debian 13 et Ubuntu 24.04 :</strong> un <code>.deb</code> pour x86_64 et un autre pour arm64. Sur un Raspberry Pi, prenez Debian 13 arm64. → <a href=\"/gateway/#debian\">Installer une passerelle</a></li><li><strong>Conteneur :</strong> <code>ghcr.io/incremental-as/loft-gateway:0.2.0</code>, une image multi-architecture pour x86_64 et arm64. → <a href=\"/gateway/#container\">Installer une passerelle</a></li></ul>"
+version = "version 0.2.0"
+note = "Vous ne savez pas lequel choisir ? <code>dpkg --print-architecture</code> affiche <code>amd64</code> pour x86_64, ou <code>arm64</code>. S’il affiche <code>armhf</code>, votre Raspberry Pi utilise le système 32 bits : installez Raspberry Pi OS en 64 bits. Les sommes de contrôle SHA-256 des quatre fichiers se trouvent sur la page de la version sur GitHub. → <a href=\"https://github.com/Incremental-AS/loft/releases/tag/v0.2.0\">Sommes de contrôle sur GitHub</a>"
+
+[[platforms.downloads]]
+label = "Debian 13 (x86_64)"
+href = "https://github.com/Incremental-AS/loft/releases/download/v0.2.0/loft-gateway_0.2.0-1.debian13_amd64.deb"
+
+[[platforms.downloads]]
+label = "Debian 13 (arm64, Raspberry Pi)"
+href = "https://github.com/Incremental-AS/loft/releases/download/v0.2.0/loft-gateway_0.2.0-1.debian13_arm64.deb"
+
+[[platforms.downloads]]
+label = "Ubuntu 24.04 (x86_64)"
+href = "https://github.com/Incremental-AS/loft/releases/download/v0.2.0/loft-gateway_0.2.0-1.ubuntu24_amd64.deb"
+
+[[platforms.downloads]]
+label = "Ubuntu 24.04 (arm64)"
+href = "https://github.com/Incremental-AS/loft/releases/download/v0.2.0/loft-gateway_0.2.0-1.ubuntu24_arm64.deb"
 
 [pages]
 
@@ -209,7 +225,7 @@ title = "Téléchargement · Loft by Incremental"
 description = "Téléchargez Loft pour iPhone, iPad, Mac, Android, Windows et Linux, ainsi que la passerelle Loft. Gratuit et open source."
 kicker = "Téléchargement"
 h1 = "Téléchargez Loft."
-lead = "Loft est gratuit sur toutes les plateformes. Il vous faut aussi une passerelle Loft à la maison. Si vous n’en avez pas encore, <a href=\"/gateway/\">installez-la d’abord</a> : il suffit d’une commande et d’un code QR."
+lead = "Loft est gratuit sur toutes les plateformes. Il vous faut aussi une passerelle Loft à la maison. Si vous n’en avez pas encore, <a href=\"/gateway/\">installez-la d’abord</a> : comptez une dizaine de minutes et un code QR."
 
 [pages.download.updates]
 title = "Recherche de mises à jour"
@@ -228,34 +244,33 @@ items = ["Une machine Linux toujours allumée et sur le même réseau que le NAS
 
 [[pages.gateway.steps]]
 title = "Installez-la"
-body = "<p><strong>Bientôt disponible.</strong> La passerelle n’est pas encore disponible au téléchargement. Dès qu’elle le sera, le <code>.deb</code> et l’image de conteneur se trouveront sur la page <a href=\"/download/#gateway\">Téléchargement</a>, et les commandes pour les installer figureront ici même.</p>"
 
-[[pages.gateway.steps.parts_at_release]]
+[[pages.gateway.steps.parts]]
 id = "debian"
 title = "Debian 13 et Ubuntu 24.04"
-before = "<p><strong>Bientôt disponible.</strong> Téléchargez le <code>.deb</code> sur la page <a href=\"/download/#gateway\">Téléchargement</a> et installez-le. Il n’y a pas encore de dépôt de paquets : une nouvelle version, c’est donc aussi un nouveau téléchargement.</p>"
-code = "sudo apt install ./loft-gateway_*_amd64.deb"
-after = "<p>Le paquet arm64, pour Raspberry Pi, est en préparation. D’ici là, utilisez le conteneur sur arm64.</p>"
+before = "<p>Téléchargez le <code>.deb</code> correspondant à votre système sur la page <a href=\"/download/#gateway\">Téléchargement</a> et installez-le. Il n’y a pas encore de dépôt de paquets : une nouvelle version, c’est donc aussi un nouveau téléchargement.</p>"
+code = "sudo apt install ./loft-gateway_*.deb"
+after = "<p>Lancez la commande dans le dossier où se trouve le fichier. Sur un Raspberry Pi, utilisez le paquet Debian 13 (arm64).</p>"
 
-[[pages.gateway.steps.parts_at_release]]
+[[pages.gateway.steps.parts]]
 id = "container"
 title = "Conteneur"
-before = "<p><strong>Bientôt disponible.</strong> Une image multi-architecture, pour x86_64 et arm64. Au premier démarrage, le code d’association s’affiche (<code>docker logs loft</code>).</p>"
-code = "docker run -d --name loft --restart unless-stopped \\\n  -p 8443:8443 \\\n  -e LOFT_SMB_SERVER=&lt;nas-address&gt; \\\n  -e LOFT_LAN_URL=https://&lt;gateway-address&gt;:8443 \\\n  -v loft-etc:/etc/loft -v loft-state:/var/lib/loft \\\n  loft-gateway:0.2.0\ndocker logs loft\ndocker exec -it loft loft-container loft-gateway doctor --user alice\ndocker exec loft loft-container loft-gateway pair"
-after = "<p>Dans le conteneur, le générateur de vignettes s’exécute dans un processus distinct sans privilèges, au lieu du bac à sable systemd qu’utilise le <code>.deb</code>. Les vignettes fonctionnent de la même façon.</p>"
+before = "<p>Une image multi-architecture pour x86_64 et arm64, sur le registre de conteneurs de GitHub. Le conteneur démarre la passerelle tout seul. Au premier démarrage, il lance <code>loft-gateway init</code> avec les adresses que vous lui donnez, et affiche le code d’association (<code>docker logs loft</code>).</p>"
+code = "docker run -d --name loft --restart unless-stopped \\\n  -p 8443:8443 \\\n  -e LOFT_SMB_SERVER=&lt;nas-address&gt; \\\n  -e LOFT_LAN_URL=https://&lt;gateway-address&gt;:8443 \\\n  -v loft-etc:/etc/loft -v loft-state:/var/lib/loft \\\n  ghcr.io/incremental-as/loft-gateway:0.2.0\ndocker logs loft\ndocker exec -it loft loft-container loft-gateway doctor --user &lt;nas-username&gt;\ndocker exec loft loft-container loft-gateway pair"
+after = "<p>Dans le conteneur, le générateur de vignettes s’exécute dans un processus distinct sans privilèges, au lieu du bac à sable systemd qu’utilise le <code>.deb</code>. Les vignettes fonctionnent de la même façon. Sauvegardez les deux volumes : <code>loft-etc</code> contient la configuration et les clés, <code>loft-state</code> l’index et vos appareils.</p>"
 
 [[pages.gateway.steps]]
 title = "Reliez-la à votre NAS"
-body = "<p>Lancez <code>loft-gateway init</code>. La commande demande l’adresse de votre NAS, écrit le fichier de configuration et crée les clés de la passerelle. À la fin, elle affiche un code d’association.</p>\n<p>Lancez ensuite <code>loft-gateway doctor</code>. Cette commande vérifie que la passerelle peut joindre le NAS, quelle version de SMB et quel chiffrement le NAS propose, que l’horloge est à l’heure et que le certificat est valide. En cas de problème, elle vous dit lequel. Ajoutez <code>--user</code> et votre nom d’utilisateur du NAS pour vérifier aussi la connexion et les dossiers partagés. Elle demande alors le mot de passe et ne l’affiche jamais.</p>\n<p><strong>Un NAS ancien sans chiffrement SMB ?</strong> Par défaut, la passerelle refuse de s’y connecter. Avec <code>smb_encryption = \"server\"</code> dans le fichier de configuration, c’est le NAS qui décide, et la connexion sur votre réseau domestique n’est chiffrée que si le NAS le demande. C’est à vous de choisir.</p>"
+body = "<p>Avec le <code>.deb</code>, lancez <code>sudo loft-gateway init</code>. La commande pose quelques questions, à commencer par l’adresse de votre NAS, écrit le fichier de configuration dans <code>/etc/loft</code> et crée les clés de la passerelle. À la fin, elle affiche un code d’association : vous en aurez besoin à l’étape 3. Elle crée aussi une clé de secours. Sortez-la de la machine et conservez-la en lieu sûr : si la clé de la passerelle est un jour perdue ou compromise, vous installez la clé de secours, et vos apps continuent de faire confiance à la passerelle. Dans le conteneur, le premier démarrage s’en est déjà chargé.</p>\n<p>Lancez ensuite <code>sudo loft-gateway doctor</code> (dans le conteneur, la ligne <code>docker exec … doctor</code> ci-dessus). Cette commande vérifie que la passerelle peut joindre le NAS, quelle version de SMB et quel chiffrement le NAS propose, que l’horloge est à l’heure et que le certificat est valide. En cas de problème, elle vous dit lequel. Ajoutez <code>--user</code> et votre nom d’utilisateur du NAS pour vérifier aussi la connexion et les dossiers partagés. Elle demande alors le mot de passe et ne l’affiche jamais.</p>\n<p>Démarrez ensuite la passerelle, et faites en sorte qu’elle redémarre à chaque démarrage de la machine :</p>\n<pre><code>sudo systemctl enable --now loft-gateway</code></pre>\n<p>Le conteneur tourne déjà, et <code>--restart unless-stopped</code> le relance après un redémarrage.</p>\n<p><strong>Un NAS ancien sans chiffrement SMB ?</strong> Par défaut, la passerelle refuse de s’y connecter. Avec <code>smb_encryption = \"server\"</code> dans le fichier de configuration, c’est le NAS qui décide, et la connexion sur votre réseau domestique n’est chiffrée que si le NAS le demande. C’est à vous de choisir.</p>\n<p>Vous avez modifié le fichier de configuration par la suite ? Redémarrez la passerelle pour qu’elle le relise : <code>sudo systemctl restart loft-gateway</code>, ou <code>docker restart loft</code>.</p>"
 
 [[pages.gateway.steps]]
 title = "Associez vos apps"
-body = "<p>Lancez <code>loft-gateway pair</code> et scannez le code QR avec l’app Loft, ou ouvrez le lien sur l’appareil. Le code contient l’adresse de la passerelle et ses clés : l’app sait ainsi qu’elle parle à <em>votre</em> passerelle dès la toute première connexion. Connectez-vous ensuite avec le nom d’utilisateur et le mot de passe de votre NAS.</p>\n<p>Il n’y a volontairement pas de champ pour saisir l’adresse d’une passerelle : une adresse saisie à la main pourrait vous mener vers une fausse passerelle qui récolte les mots de passe. Si vous en avez vraiment besoin, l’app propose <em>Configurer manuellement</em> sur l’écran d’association.</p>"
+body = "<p>Lancez <code>sudo loft-gateway pair</code> (dans le conteneur : <code>docker exec loft loft-container loft-gateway pair</code>) et scannez le code QR avec l’app Loft, ou ouvrez le lien sur l’appareil. Le code contient l’adresse de la passerelle et ses clés : l’app sait ainsi qu’elle parle à <em>votre</em> passerelle dès la toute première connexion. Connectez-vous ensuite avec le nom d’utilisateur et le mot de passe de votre NAS.</p>\n<p>Il n’y a volontairement pas de champ pour saisir l’adresse d’une passerelle : une adresse saisie à la main pourrait vous mener vers une fausse passerelle qui récolte les mots de passe. Si vous en avez vraiment besoin, l’app propose <em>Configurer manuellement</em> sur l’écran d’association.</p>"
 
 [[pages.gateway.steps]]
 id = "outside"
 title = "Hors de chez vous (facultatif)"
-body = "<p>À la maison, rien d’autre n’est nécessaire. Pour utiliser Loft hors de chez vous, choisissez l’une de ces options :</p>\n<ul><li><strong>Un tunnel</strong>, par exemple Cloudflare Tunnel. Aucun port ouvert sur votre routeur, mais le fournisseur du tunnel peut lire le trafic, et vous vous connectez à la maison.</li><li><strong>Le mode direct</strong>, avec une redirection de port de votre routeur vers la passerelle. Chiffré de bout en bout, et vous pouvez vous connecter de n’importe où. La passerelle limite les tentatives de connexion.</li></ul>\n<p>Les différences sont expliquées dans <a href=\"/how-it-works/#security\">Fonctionnement</a>. Après un changement, relancez <code>loft-gateway pair</code> pour que le code contienne la nouvelle adresse.</p>"
+body = "<p>À la maison, rien d’autre n’est nécessaire. Pour utiliser Loft hors de chez vous, choisissez l’une de ces options :</p>\n<ul><li><strong>Un tunnel</strong>, par exemple Cloudflare Tunnel. Aucun port ouvert sur votre routeur, mais le fournisseur du tunnel peut lire le trafic, et vous vous connectez à la maison.</li><li><strong>Le mode direct</strong>, avec une redirection de port de votre routeur vers la passerelle. Chiffré de bout en bout, et vous pouvez vous connecter de n’importe où. La passerelle limite les tentatives de connexion.</li></ul>\n<p>Les différences sont expliquées dans <a href=\"/how-it-works/#security\">Fonctionnement</a>. Après un changement, relancez la commande d’association pour que le code contienne la nouvelle adresse.</p>"
 
 [[pages.gateway.sections]]
 id = "limit"
@@ -383,7 +398,7 @@ lead = "Loft est gratuit, et il est fait par une petite équipe. Il n’y a pas 
 
 [[pages.support.sections]]
 title = "À vérifier d’abord"
-body = "<ul>\n<li><strong>Lancez <code>loft-gateway doctor</code> sur la passerelle.</strong> La plupart des problèmes se situent entre la passerelle et le NAS, et la commande dit généralement ce qui ne va pas.</li>\n<li><strong>Mac : Loft n’apparaît pas dans la barre latérale du Finder.</strong> macOS l’a peut-être désactivé. Cherchez <em>« Loft » n’est pas activé</em> dans le Finder et choisissez <em>Activer</em>, ou activez Loft dans Réglages Système › Général › Ouverture et extensions › Fournisseurs de fichiers.</li>\n<li><strong>Les modifications faites sur le NAS mettent quelques minutes à apparaître.</strong> Celles faites depuis Loft apparaissent en quelques secondes.</li>\n<li><strong>Impossible de vous connecter hors de chez vous ?</strong> Avec un tunnel, la connexion ne fonctionne qu’à la maison. C’est voulu : voir <a href=\"/how-it-works/#security\">Fonctionnement</a>.</li>\n<li><strong>L’app ne trouve pas la passerelle ?</strong> Refaites l’association : lancez <code>loft-gateway pair</code> et scannez le nouveau code.</li>\n</ul>"
+body = "<ul>\n<li><strong>Lancez <code>sudo loft-gateway doctor</code> sur la passerelle</strong> (dans le conteneur : <code>docker exec -it loft loft-container loft-gateway doctor</code>). La plupart des problèmes se situent entre la passerelle et le NAS, et la commande dit généralement ce qui ne va pas.</li>\n<li><strong>Mac : Loft n’apparaît pas dans la barre latérale du Finder.</strong> macOS l’a peut-être désactivé. Cherchez <em>« Loft » n’est pas activé</em> dans le Finder et choisissez <em>Activer</em>, ou activez Loft dans Réglages Système › Général › Ouverture et extensions › Fournisseurs de fichiers.</li>\n<li><strong>Les modifications faites sur le NAS mettent quelques minutes à apparaître.</strong> Celles faites depuis Loft apparaissent en quelques secondes.</li>\n<li><strong>Impossible de vous connecter hors de chez vous ?</strong> Avec un tunnel, la connexion ne fonctionne qu’à la maison. C’est voulu : voir <a href=\"/how-it-works/#security\">Fonctionnement</a>.</li>\n<li><strong>L’app ne trouve pas la passerelle ?</strong> Vérifiez qu’elle tourne : <code>sudo systemctl status loft-gateway</code>, ou <code>docker ps</code> pour le conteneur. Puis refaites l’association : lancez <code>sudo loft-gateway pair</code> et scannez le nouveau code.</li>\n</ul>"
 
 [[pages.support.sections]]
 title = "Signaler un problème"
