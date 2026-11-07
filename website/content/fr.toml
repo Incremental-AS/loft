@@ -68,13 +68,13 @@ name = "Mac"
 shows = "le Finder, dans la barre latérale"
 get = "Téléchargement DMG"
 detail = "Loft met votre NAS dans la barre latérale du Finder. Les fichiers se téléchargent quand vous les ouvrez et repartent à la maison quand vous les enregistrez."
-version = "macOS 14 ou plus récent · version 0.2.0"
+version = "macOS 14 ou plus récent · version 0.2.1"
 after = "Ouvrez le DMG et faites glisser Loft dans Applications. Ensuite, Loft se tient à jour tout seul, et vous demande votre accord avant d’installer quoi que ce soit."
 sha256 = "d35c0eb67fb0a2c62633efc54cb920882d4ade2db4426ff44253a7d70e573fb6"
 
 [[platforms.downloads]]
 label = "Télécharger pour Mac (.dmg)"
-href = "https://github.com/Incremental-AS/loft/releases/download/v0.2.0/Loft-0.2.0-14.dmg"
+href = "https://github.com/Incremental-AS/loft/releases/download/v0.2.1/Loft-0.2.1-16.dmg"
 
 [[platforms]]
 id = "android"
@@ -140,25 +140,25 @@ name = "Passerelle Loft"
 shows = "tourne chez vous sous Linux (x86_64 ou arm64 : un Raspberry Pi 64 bits fait l’affaire)"
 get = ".deb ou image de conteneur"
 detail = "Tourne chez vous sous Linux, x86_64 ou arm64 (un Raspberry Pi 64 bits fait l’affaire), avec Python 3.12 ou plus récent. Debian 13, Ubuntu 24.04 et la version actuelle de Raspberry Pi OS l’incluent. Sur un système plus ancien, utilisez le conteneur."
-list = "<ul><li><strong>Debian 13 et Ubuntu 24.04 :</strong> un <code>.deb</code> pour x86_64 et un autre pour arm64. Sur un Raspberry Pi, prenez Debian 13 arm64. → <a href=\"/gateway/#debian\">Installer une passerelle</a></li><li><strong>Conteneur :</strong> <code>ghcr.io/incremental-as/loft-gateway:0.2.0</code>, une image multi-architecture pour x86_64 et arm64. → <a href=\"/gateway/#container\">Installer une passerelle</a></li></ul>"
-version = "version 0.2.0"
-note = "Vous ne savez pas lequel choisir ? <code>dpkg --print-architecture</code> affiche <code>amd64</code> pour x86_64, ou <code>arm64</code>. S’il affiche <code>armhf</code>, votre Raspberry Pi utilise le système 32 bits : installez Raspberry Pi OS en 64 bits. Les sommes de contrôle SHA-256 des quatre fichiers se trouvent sur la page de la version sur GitHub. → <a href=\"https://github.com/Incremental-AS/loft/releases/tag/v0.2.0\">Sommes de contrôle sur GitHub</a>"
+list = "<ul><li><strong>Debian 13 et Ubuntu 24.04 :</strong> un <code>.deb</code> pour x86_64 et un autre pour arm64. Sur un Raspberry Pi, prenez Debian 13 arm64. → <a href=\"/gateway/#debian\">Installer une passerelle</a></li><li><strong>Conteneur :</strong> <code>ghcr.io/incremental-as/loft-gateway:0.2.1</code>, une image multi-architecture pour x86_64 et arm64. → <a href=\"/gateway/#container\">Installer une passerelle</a></li></ul>"
+version = "version 0.2.1"
+note = "Vous ne savez pas lequel choisir ? <code>dpkg --print-architecture</code> affiche <code>amd64</code> pour x86_64, ou <code>arm64</code>. S’il affiche <code>armhf</code>, votre Raspberry Pi utilise le système 32 bits : installez Raspberry Pi OS en 64 bits. Les sommes de contrôle SHA-256 des quatre fichiers se trouvent sur la page de la version sur GitHub. → <a href=\"https://github.com/Incremental-AS/loft/releases/tag/v0.2.1\">Sommes de contrôle sur GitHub</a>"
 
 [[platforms.downloads]]
 label = "Debian 13 (x86_64)"
-href = "https://github.com/Incremental-AS/loft/releases/download/v0.2.0/loft-gateway_0.2.0-1.debian13_amd64.deb"
+href = "https://github.com/Incremental-AS/loft/releases/download/v0.2.1/loft-gateway_0.2.1-1.debian13_amd64.deb"
 
 [[platforms.downloads]]
 label = "Debian 13 (arm64, Raspberry Pi)"
-href = "https://github.com/Incremental-AS/loft/releases/download/v0.2.0/loft-gateway_0.2.0-1.debian13_arm64.deb"
+href = "https://github.com/Incremental-AS/loft/releases/download/v0.2.1/loft-gateway_0.2.1-1.debian13_arm64.deb"
 
 [[platforms.downloads]]
 label = "Ubuntu 24.04 (x86_64)"
-href = "https://github.com/Incremental-AS/loft/releases/download/v0.2.0/loft-gateway_0.2.0-1.ubuntu24_amd64.deb"
+href = "https://github.com/Incremental-AS/loft/releases/download/v0.2.1/loft-gateway_0.2.1-1.ubuntu24_amd64.deb"
 
 [[platforms.downloads]]
 label = "Ubuntu 24.04 (arm64)"
-href = "https://github.com/Incremental-AS/loft/releases/download/v0.2.0/loft-gateway_0.2.0-1.ubuntu24_arm64.deb"
+href = "https://github.com/Incremental-AS/loft/releases/download/v0.2.1/loft-gateway_0.2.1-1.ubuntu24_arm64.deb"
 
 [pages]
 
@@ -256,7 +256,7 @@ after = "<p>Lancez la commande dans le dossier où se trouve le fichier. Sur un 
 id = "container"
 title = "Conteneur"
 before = "<p>Une image multi-architecture pour x86_64 et arm64, sur le registre de conteneurs de GitHub. Le conteneur démarre la passerelle tout seul. Au premier démarrage, il lance <code>loft-gateway init</code> avec les adresses que vous lui donnez, et affiche le code d’association (<code>docker logs loft</code>).</p>"
-code = "docker run -d --name loft --restart unless-stopped \\\n  -p 8443:8443 \\\n  -e LOFT_SMB_SERVER=&lt;nas-address&gt; \\\n  -e LOFT_LAN_URL=https://&lt;gateway-address&gt;:8443 \\\n  -v loft-etc:/etc/loft -v loft-state:/var/lib/loft \\\n  ghcr.io/incremental-as/loft-gateway:0.2.0\ndocker logs loft\ndocker exec -it loft loft-container loft-gateway doctor --user &lt;nas-username&gt;\ndocker exec loft loft-container loft-gateway pair"
+code = "docker run -d --name loft --restart unless-stopped \\\n  -p 8443:8443 \\\n  -e LOFT_SMB_SERVER=&lt;nas-address&gt; \\\n  -e LOFT_LAN_URL=https://&lt;gateway-address&gt;:8443 \\\n  -v loft-etc:/etc/loft -v loft-state:/var/lib/loft \\\n  ghcr.io/incremental-as/loft-gateway:0.2.1\ndocker logs loft\ndocker exec -it loft loft-container loft-gateway doctor --user &lt;nas-username&gt;\ndocker exec loft loft-container loft-gateway pair"
 after = "<p>Dans le conteneur, le générateur de vignettes s’exécute dans un processus distinct sans privilèges, au lieu du bac à sable systemd qu’utilise le <code>.deb</code>. Les vignettes fonctionnent de la même façon. Sauvegardez les deux volumes : <code>loft-etc</code> contient la configuration et les clés, <code>loft-state</code> l’index et vos appareils.</p>"
 
 [[pages.gateway.steps]]

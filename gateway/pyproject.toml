@@ -1,6 +1,6 @@
 [project]
 name = "loft-gateway"
-version = "0.2.0"
+version = "0.2.1"
 description = "Loft gateway: serves your SMB shares to the Loft apps"
 requires-python = ">=3.12"
 dependencies = [

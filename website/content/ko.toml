@@ -68,13 +68,13 @@ name = "Mac"
 shows = "Finder의 사이드바"
 get = "DMG 다운로드"
 detail = "Loft가 NAS를 Finder 사이드바에 넣어 줘요. 파일은 열 때 다운로드되고, 저장하면 집으로 돌아가요."
-version = "macOS 14 이상 · 버전 0.2.0"
+version = "macOS 14 이상 · 버전 0.2.1"
 after = "DMG를 열고 Loft를 응용 프로그램 폴더로 드래그하세요. 그다음부터는 Loft가 알아서 최신 상태를 유지하고, 무언가를 설치하기 전에는 먼저 물어봐요."
 sha256 = "d35c0eb67fb0a2c62633efc54cb920882d4ade2db4426ff44253a7d70e573fb6"
 
 [[platforms.downloads]]
 label = "Mac용 다운로드(.dmg)"
-href = "https://github.com/Incremental-AS/loft/releases/download/v0.2.0/Loft-0.2.0-14.dmg"
+href = "https://github.com/Incremental-AS/loft/releases/download/v0.2.1/Loft-0.2.1-16.dmg"
 
 [[platforms]]
 id = "android"
@@ -140,25 +140,25 @@ name = "Loft 게이트웨이"
 shows = "집에 있는 Linux에서 실행 (x86_64 또는 arm64이므로 64비트 Raspberry Pi도 가능)"
 get = ".deb 또는 컨테이너 이미지"
 detail = "집에 있는 x86_64 또는 arm64 Linux에서 Python 3.12 이상으로 실행돼요(64비트 Raspberry Pi도 가능). Debian 13, Ubuntu 24.04, 최신 Raspberry Pi OS에는 이 버전이 들어 있어요. 이전 시스템에서는 컨테이너를 사용하세요."
-list = "<ul><li><strong>Debian 13 및 Ubuntu 24.04:</strong> x86_64용과 arm64용 <code>.deb</code> 패키지. Raspberry Pi에서는 Debian 13 arm64를 받으세요. → <a href=\"/gateway/#debian\">게이트웨이 설정</a></li><li><strong>컨테이너:</strong> <code>ghcr.io/incremental-as/loft-gateway:0.2.0</code>, x86_64와 arm64용 멀티 아키텍처 이미지. → <a href=\"/gateway/#container\">게이트웨이 설정</a></li></ul>"
-version = "버전 0.2.0"
-note = "어떤 걸 받아야 할지 모르겠나요? <code>dpkg --print-architecture</code>를 실행하면 x86_64에서는 <code>amd64</code>, 그 밖에는 <code>arm64</code>가 출력돼요. <code>armhf</code>가 출력되면 Raspberry Pi에서 32비트 시스템을 쓰고 있는 거예요. 64비트 Raspberry Pi OS를 사용하세요. 네 파일 모두의 SHA-256 체크섬은 GitHub의 릴리스 페이지에 있어요. → <a href=\"https://github.com/Incremental-AS/loft/releases/tag/v0.2.0\">GitHub의 체크섬</a>"
+list = "<ul><li><strong>Debian 13 및 Ubuntu 24.04:</strong> x86_64용과 arm64용 <code>.deb</code> 패키지. Raspberry Pi에서는 Debian 13 arm64를 받으세요. → <a href=\"/gateway/#debian\">게이트웨이 설정</a></li><li><strong>컨테이너:</strong> <code>ghcr.io/incremental-as/loft-gateway:0.2.1</code>, x86_64와 arm64용 멀티 아키텍처 이미지. → <a href=\"/gateway/#container\">게이트웨이 설정</a></li></ul>"
+version = "버전 0.2.1"
+note = "어떤 걸 받아야 할지 모르겠나요? <code>dpkg --print-architecture</code>를 실행하면 x86_64에서는 <code>amd64</code>, 그 밖에는 <code>arm64</code>가 출력돼요. <code>armhf</code>가 출력되면 Raspberry Pi에서 32비트 시스템을 쓰고 있는 거예요. 64비트 Raspberry Pi OS를 사용하세요. 네 파일 모두의 SHA-256 체크섬은 GitHub의 릴리스 페이지에 있어요. → <a href=\"https://github.com/Incremental-AS/loft/releases/tag/v0.2.1\">GitHub의 체크섬</a>"
 
 [[platforms.downloads]]
 label = "Debian 13 (x86_64)"
-href = "https://github.com/Incremental-AS/loft/releases/download/v0.2.0/loft-gateway_0.2.0-1.debian13_amd64.deb"
+href = "https://github.com/Incremental-AS/loft/releases/download/v0.2.1/loft-gateway_0.2.1-1.debian13_amd64.deb"
 
 [[platforms.downloads]]
 label = "Debian 13 (arm64, Raspberry Pi)"
-href = "https://github.com/Incremental-AS/loft/releases/download/v0.2.0/loft-gateway_0.2.0-1.debian13_arm64.deb"
+href = "https://github.com/Incremental-AS/loft/releases/download/v0.2.1/loft-gateway_0.2.1-1.debian13_arm64.deb"
 
 [[platforms.downloads]]
 label = "Ubuntu 24.04 (x86_64)"
-href = "https://github.com/Incremental-AS/loft/releases/download/v0.2.0/loft-gateway_0.2.0-1.ubuntu24_amd64.deb"
+href = "https://github.com/Incremental-AS/loft/releases/download/v0.2.1/loft-gateway_0.2.1-1.ubuntu24_amd64.deb"
 
 [[platforms.downloads]]
 label = "Ubuntu 24.04 (arm64)"
-href = "https://github.com/Incremental-AS/loft/releases/download/v0.2.0/loft-gateway_0.2.0-1.ubuntu24_arm64.deb"
+href = "https://github.com/Incremental-AS/loft/releases/download/v0.2.1/loft-gateway_0.2.1-1.ubuntu24_arm64.deb"
 
 [pages]
 
@@ -256,7 +256,7 @@ after = "<p>파일이 있는 폴더에서 실행하세요. Raspberry Pi에서는
 id = "container"
 title = "컨테이너"
 before = "<p>GitHub 컨테이너 레지스트리에서 받는 x86_64와 arm64용 멀티 아키텍처 이미지예요. 게이트웨이는 컨테이너가 알아서 시작해요. 처음 시작할 때 입력한 주소로 <code>loft-gateway init</code>을 실행하고, 페어링 코드를 출력해요(<code>docker logs loft</code>).</p>"
-code = "docker run -d --name loft --restart unless-stopped \\\n  -p 8443:8443 \\\n  -e LOFT_SMB_SERVER=&lt;nas-address&gt; \\\n  -e LOFT_LAN_URL=https://&lt;gateway-address&gt;:8443 \\\n  -v loft-etc:/etc/loft -v loft-state:/var/lib/loft \\\n  ghcr.io/incremental-as/loft-gateway:0.2.0\ndocker logs loft\ndocker exec -it loft loft-container loft-gateway doctor --user &lt;nas-username&gt;\ndocker exec loft loft-container loft-gateway pair"
+code = "docker run -d --name loft --restart unless-stopped \\\n  -p 8443:8443 \\\n  -e LOFT_SMB_SERVER=&lt;nas-address&gt; \\\n  -e LOFT_LAN_URL=https://&lt;gateway-address&gt;:8443 \\\n  -v loft-etc:/etc/loft -v loft-state:/var/lib/loft \\\n  ghcr.io/incremental-as/loft-gateway:0.2.1\ndocker logs loft\ndocker exec -it loft loft-container loft-gateway doctor --user &lt;nas-username&gt;\ndocker exec loft loft-container loft-gateway pair"
 after = "<p>컨테이너에서는 썸네일 생성기가 <code>.deb</code> 패키지에서 쓰는 systemd 샌드박스 대신, 권한이 없는 별도 프로세스로 실행돼요. 썸네일은 똑같이 작동해요. 두 볼륨 모두 백업하세요. <code>loft-etc</code>에는 설정과 키가, <code>loft-state</code>에는 인덱스와 기기 정보가 들어 있어요.</p>"
 
 [[pages.gateway.steps]]

@@ -7,6 +7,7 @@
 # build.py --release refuses while this list has entries. Each is copy that reads finished but isn't true yet.
 [release]
 # 0.2.0 (2026-10-31): the Mac app and the gateway are released; the other apps are coming_soon.
+# 0.2.1 (2026-11-07): Mac 0.2.1 (16) and gateway 0.2.1; first version of the download page with them live.
 hold = []
 
 [site]
@@ -77,12 +78,12 @@ name = "Mac"
 shows = "Finder, in the sidebar"
 get = "DMG download"
 detail = "Loft puts your NAS in the Finder sidebar. Files download when you open them and go back home when you save."
-version = "macOS 14 or newer · version 0.2.0"
+version = "macOS 14 or newer · version 0.2.1"
 after = "Open the DMG and drag Loft into Applications. From then on, Loft keeps itself up to date, and asks before it installs anything."
 sha256 = "d35c0eb67fb0a2c62633efc54cb920882d4ade2db4426ff44253a7d70e573fb6"
 [[platforms.downloads]]
 label = "Download for Mac (.dmg)"
-href = "https://github.com/Incremental-AS/loft/releases/download/v0.2.0/Loft-0.2.0-14.dmg"
+href = "https://github.com/Incremental-AS/loft/releases/download/v0.2.1/Loft-0.2.1-16.dmg"
 
 [[platforms]]
 id = "android"
@@ -152,21 +153,21 @@ get = ".deb or container image"
 # Set up a gateway, and the release link in the note, with every gateway release. GitHub turns the "~" in the
 # .deb file names into ".". The checksums for all four are on the GitHub release (one sha256 line can't hold four).
 detail = "Runs at home on Linux, x86_64 or arm64 (a 64-bit Raspberry Pi will do), with Python 3.12 or newer. Debian 13, Ubuntu 24.04 and current Raspberry Pi OS have it. On an older system, use the container."
-list = "<ul><li><strong>Debian 13 and Ubuntu 24.04:</strong> a <code>.deb</code> for x86_64 and one for arm64. On a Raspberry Pi, take Debian 13 arm64. → <a href=\"/gateway/#debian\">Set up a gateway</a></li><li><strong>Container:</strong> <code>ghcr.io/incremental-as/loft-gateway:0.2.0</code>, a multi-arch image for x86_64 and arm64. → <a href=\"/gateway/#container\">Set up a gateway</a></li></ul>"
-version = "version 0.2.0"
-note = "Not sure which one? <code>dpkg --print-architecture</code> prints <code>amd64</code> for x86_64, or <code>arm64</code>. If it prints <code>armhf</code>, your Raspberry Pi runs the 32-bit system: use the 64-bit Raspberry Pi OS. The SHA-256 checksums for all four files are on the release page on GitHub. → <a href=\"https://github.com/Incremental-AS/loft/releases/tag/v0.2.0\">Checksums on GitHub</a>"
+list = "<ul><li><strong>Debian 13 and Ubuntu 24.04:</strong> a <code>.deb</code> for x86_64 and one for arm64. On a Raspberry Pi, take Debian 13 arm64. → <a href=\"/gateway/#debian\">Set up a gateway</a></li><li><strong>Container:</strong> <code>ghcr.io/incremental-as/loft-gateway:0.2.1</code>, a multi-arch image for x86_64 and arm64. → <a href=\"/gateway/#container\">Set up a gateway</a></li></ul>"
+version = "version 0.2.1"
+note = "Not sure which one? <code>dpkg --print-architecture</code> prints <code>amd64</code> for x86_64, or <code>arm64</code>. If it prints <code>armhf</code>, your Raspberry Pi runs the 32-bit system: use the 64-bit Raspberry Pi OS. The SHA-256 checksums for all four files are on the release page on GitHub. → <a href=\"https://github.com/Incremental-AS/loft/releases/tag/v0.2.1\">Checksums on GitHub</a>"
 [[platforms.downloads]]
 label = "Debian 13 (x86_64)"
-href = "https://github.com/Incremental-AS/loft/releases/download/v0.2.0/loft-gateway_0.2.0-1.debian13_amd64.deb"
+href = "https://github.com/Incremental-AS/loft/releases/download/v0.2.1/loft-gateway_0.2.1-1.debian13_amd64.deb"
 [[platforms.downloads]]
 label = "Debian 13 (arm64, Raspberry Pi)"
-href = "https://github.com/Incremental-AS/loft/releases/download/v0.2.0/loft-gateway_0.2.0-1.debian13_arm64.deb"
+href = "https://github.com/Incremental-AS/loft/releases/download/v0.2.1/loft-gateway_0.2.1-1.debian13_arm64.deb"
 [[platforms.downloads]]
 label = "Ubuntu 24.04 (x86_64)"
-href = "https://github.com/Incremental-AS/loft/releases/download/v0.2.0/loft-gateway_0.2.0-1.ubuntu24_amd64.deb"
+href = "https://github.com/Incremental-AS/loft/releases/download/v0.2.1/loft-gateway_0.2.1-1.ubuntu24_amd64.deb"
 [[platforms.downloads]]
 label = "Ubuntu 24.04 (arm64)"
-href = "https://github.com/Incremental-AS/loft/releases/download/v0.2.0/loft-gateway_0.2.0-1.ubuntu24_arm64.deb"
+href = "https://github.com/Incremental-AS/loft/releases/download/v0.2.1/loft-gateway_0.2.1-1.ubuntu24_arm64.deb"
 
 # ---------------------------------------------------------------- home
 
@@ -345,7 +346,7 @@ code = """docker run -d --name loft --restart unless-stopped \\
   -e LOFT_SMB_SERVER=&lt;nas-address&gt; \\
   -e LOFT_LAN_URL=https://&lt;gateway-address&gt;:8443 \\
   -v loft-etc:/etc/loft -v loft-state:/var/lib/loft \\
-  ghcr.io/incremental-as/loft-gateway:0.2.0
+  ghcr.io/incremental-as/loft-gateway:0.2.1
 docker logs loft
 docker exec -it loft loft-container loft-gateway doctor --user &lt;nas-username&gt;
 docker exec loft loft-container loft-gateway pair"""

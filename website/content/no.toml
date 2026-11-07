@@ -69,12 +69,12 @@ name = "Mac"
 shows = "Finder, i sidepanelet"
 get = "DMG-nedlasting"
 detail = "Loft legger NAS-en i sidepanelet i Finder. Filene lastes ned når du åpner dem, og går hjem igjen når du lagrer."
-version = "macOS 14 eller nyere · versjon 0.2.0"
+version = "macOS 14 eller nyere · versjon 0.2.1"
 after = "Åpne DMG-filen og dra Loft til Programmer. Etter det holder Loft seg oppdatert selv, og spør før den installerer noe."
 sha256 = "d35c0eb67fb0a2c62633efc54cb920882d4ade2db4426ff44253a7d70e573fb6"
 [[platforms.downloads]]
 label = "Last ned for Mac (.dmg)"
-href = "https://github.com/Incremental-AS/loft/releases/download/v0.2.0/Loft-0.2.0-14.dmg"
+href = "https://github.com/Incremental-AS/loft/releases/download/v0.2.1/Loft-0.2.1-16.dmg"
 
 [[platforms]]
 id = "android"
@@ -142,21 +142,21 @@ shows = "står hjemme på Linux (x86_64 eller arm64, så en 64-biters Raspberry 
 get = ".deb eller containerbilde"
 # Se en.toml: versjonen i lenkene, containertaggen og utgivelseslenken følger hver gateway-utgivelse.
 detail = "Står hjemme på Linux, x86_64 eller arm64 (en 64-biters Raspberry Pi holder), med Python 3.12 eller nyere. Debian 13, Ubuntu 24.04 og nyeste Raspberry Pi OS har det. På et eldre system bruker du containeren."
-list = "<ul><li><strong>Debian 13 og Ubuntu 24.04:</strong> En <code>.deb</code> for x86_64 og en for arm64. Til Raspberry Pi tar du Debian 13 arm64. → <a href=\"/no/gateway/#debian\">Sett opp en gateway</a></li><li><strong>Container:</strong> <code>ghcr.io/incremental-as/loft-gateway:0.2.0</code>, et multiarkitektur-bilde for x86_64 og arm64. → <a href=\"/no/gateway/#container\">Sett opp en gateway</a></li></ul>"
-version = "versjon 0.2.0"
-note = "Usikker på hvilken? <code>dpkg --print-architecture</code> skriver <code>amd64</code> for x86_64, eller <code>arm64</code>. Skriver den <code>armhf</code>, kjører Raspberry Pi-en 32-biterssystemet: Bruk 64-biters Raspberry Pi OS. SHA-256-sjekksummene for alle fire filene står på utgivelsessiden på GitHub. → <a href=\"https://github.com/Incremental-AS/loft/releases/tag/v0.2.0\">Sjekksummer på GitHub</a>"
+list = "<ul><li><strong>Debian 13 og Ubuntu 24.04:</strong> En <code>.deb</code> for x86_64 og en for arm64. Til Raspberry Pi tar du Debian 13 arm64. → <a href=\"/no/gateway/#debian\">Sett opp en gateway</a></li><li><strong>Container:</strong> <code>ghcr.io/incremental-as/loft-gateway:0.2.1</code>, et multiarkitektur-bilde for x86_64 og arm64. → <a href=\"/no/gateway/#container\">Sett opp en gateway</a></li></ul>"
+version = "versjon 0.2.1"
+note = "Usikker på hvilken? <code>dpkg --print-architecture</code> skriver <code>amd64</code> for x86_64, eller <code>arm64</code>. Skriver den <code>armhf</code>, kjører Raspberry Pi-en 32-biterssystemet: Bruk 64-biters Raspberry Pi OS. SHA-256-sjekksummene for alle fire filene står på utgivelsessiden på GitHub. → <a href=\"https://github.com/Incremental-AS/loft/releases/tag/v0.2.1\">Sjekksummer på GitHub</a>"
 [[platforms.downloads]]
 label = "Debian 13 (x86_64)"
-href = "https://github.com/Incremental-AS/loft/releases/download/v0.2.0/loft-gateway_0.2.0-1.debian13_amd64.deb"
+href = "https://github.com/Incremental-AS/loft/releases/download/v0.2.1/loft-gateway_0.2.1-1.debian13_amd64.deb"
 [[platforms.downloads]]
 label = "Debian 13 (arm64, Raspberry Pi)"
-href = "https://github.com/Incremental-AS/loft/releases/download/v0.2.0/loft-gateway_0.2.0-1.debian13_arm64.deb"
+href = "https://github.com/Incremental-AS/loft/releases/download/v0.2.1/loft-gateway_0.2.1-1.debian13_arm64.deb"
 [[platforms.downloads]]
 label = "Ubuntu 24.04 (x86_64)"
-href = "https://github.com/Incremental-AS/loft/releases/download/v0.2.0/loft-gateway_0.2.0-1.ubuntu24_amd64.deb"
+href = "https://github.com/Incremental-AS/loft/releases/download/v0.2.1/loft-gateway_0.2.1-1.ubuntu24_amd64.deb"
 [[platforms.downloads]]
 label = "Ubuntu 24.04 (arm64)"
-href = "https://github.com/Incremental-AS/loft/releases/download/v0.2.0/loft-gateway_0.2.0-1.ubuntu24_arm64.deb"
+href = "https://github.com/Incremental-AS/loft/releases/download/v0.2.1/loft-gateway_0.2.1-1.ubuntu24_arm64.deb"
 
 # ---------------------------------------------------------------- forside
 
@@ -333,7 +333,7 @@ code = """docker run -d --name loft --restart unless-stopped \\
   -e LOFT_SMB_SERVER=&lt;nas-address&gt; \\
   -e LOFT_LAN_URL=https://&lt;gateway-address&gt;:8443 \\
   -v loft-etc:/etc/loft -v loft-state:/var/lib/loft \\
-  ghcr.io/incremental-as/loft-gateway:0.2.0
+  ghcr.io/incremental-as/loft-gateway:0.2.1
 docker logs loft
 docker exec -it loft loft-container loft-gateway doctor --user &lt;nas-username&gt;
 docker exec loft loft-container loft-gateway pair"""

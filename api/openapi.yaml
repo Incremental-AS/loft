@@ -3,7 +3,7 @@
 openapi: 3.1.0
 info:
   title: Loft gateway API
-  version: 0.2.0
+  version: 0.2.1
   summary: Files on your own SMB server, through a Loft gateway.
   description: |
     The REST API between the Loft apps and a Loft gateway. The gateway sits in front of an SMB

@@ -68,13 +68,13 @@ name = "Mac"
 shows = "Finderのサイドバー"
 get = "DMGダウンロード"
 detail = "LoftはNASをFinderのサイドバーに追加します。ファイルは開いたときにダウンロードされ、保存すると自宅に戻ります。"
-version = "macOS 14以降 · バージョン0.2.0"
+version = "macOS 14以降 · バージョン0.2.1"
 after = "DMGを開き、Loftを「アプリケーション」フォルダにドラッグしてください。以降、Loftは自動で最新の状態を保ち、何かをインストールする前には必ず確認を求めます。"
 sha256 = "d35c0eb67fb0a2c62633efc54cb920882d4ade2db4426ff44253a7d70e573fb6"
 
 [[platforms.downloads]]
 label = "Mac版をダウンロード（.dmg）"
-href = "https://github.com/Incremental-AS/loft/releases/download/v0.2.0/Loft-0.2.0-14.dmg"
+href = "https://github.com/Incremental-AS/loft/releases/download/v0.2.1/Loft-0.2.1-16.dmg"
 
 [[platforms]]
 id = "android"
@@ -140,25 +140,25 @@ name = "Loftゲートウェイ"
 shows = "自宅のLinuxで動作（x86_64またはarm64。64ビットのRaspberry Piでも可）"
 get = ".debまたはコンテナイメージ"
 detail = "自宅のLinux（x86_64またはarm64。64ビットのRaspberry Piでも可）で、Python 3.12以降を使って動作します。Debian 13、Ubuntu 24.04、最新のRaspberry Pi OSには含まれています。古いシステムではコンテナを使ってください。"
-list = "<ul><li><strong>Debian 13とUbuntu 24.04：</strong>x86_64用とarm64用の<code>.deb</code>があります。Raspberry Piでは、Debian 13のarm64版を選んでください。→ <a href=\"/gateway/#debian\">ゲートウェイの設定</a></li><li><strong>コンテナ：</strong><code>ghcr.io/incremental-as/loft-gateway:0.2.0</code>。x86_64とarm64に対応したマルチアーキテクチャイメージです。→ <a href=\"/gateway/#container\">ゲートウェイの設定</a></li></ul>"
-version = "バージョン0.2.0"
-note = "どれを選べばよいか分からない場合は、<code>dpkg --print-architecture</code>を実行してください。x86_64なら<code>amd64</code>、そうでなければ<code>arm64</code>と表示されます。<code>armhf</code>と表示された場合、そのRaspberry Piでは32ビット版のシステムが動いています。64ビット版のRaspberry Pi OSを使ってください。4つのファイルすべてのSHA-256チェックサムは、GitHubのリリースページにあります。→ <a href=\"https://github.com/Incremental-AS/loft/releases/tag/v0.2.0\">GitHub上のチェックサム</a>"
+list = "<ul><li><strong>Debian 13とUbuntu 24.04：</strong>x86_64用とarm64用の<code>.deb</code>があります。Raspberry Piでは、Debian 13のarm64版を選んでください。→ <a href=\"/gateway/#debian\">ゲートウェイの設定</a></li><li><strong>コンテナ：</strong><code>ghcr.io/incremental-as/loft-gateway:0.2.1</code>。x86_64とarm64に対応したマルチアーキテクチャイメージです。→ <a href=\"/gateway/#container\">ゲートウェイの設定</a></li></ul>"
+version = "バージョン0.2.1"
+note = "どれを選べばよいか分からない場合は、<code>dpkg --print-architecture</code>を実行してください。x86_64なら<code>amd64</code>、そうでなければ<code>arm64</code>と表示されます。<code>armhf</code>と表示された場合、そのRaspberry Piでは32ビット版のシステムが動いています。64ビット版のRaspberry Pi OSを使ってください。4つのファイルすべてのSHA-256チェックサムは、GitHubのリリースページにあります。→ <a href=\"https://github.com/Incremental-AS/loft/releases/tag/v0.2.1\">GitHub上のチェックサム</a>"
 
 [[platforms.downloads]]
 label = "Debian 13（x86_64）"
-href = "https://github.com/Incremental-AS/loft/releases/download/v0.2.0/loft-gateway_0.2.0-1.debian13_amd64.deb"
+href = "https://github.com/Incremental-AS/loft/releases/download/v0.2.1/loft-gateway_0.2.1-1.debian13_amd64.deb"
 
 [[platforms.downloads]]
 label = "Debian 13（arm64、Raspberry Pi）"
-href = "https://github.com/Incremental-AS/loft/releases/download/v0.2.0/loft-gateway_0.2.0-1.debian13_arm64.deb"
+href = "https://github.com/Incremental-AS/loft/releases/download/v0.2.1/loft-gateway_0.2.1-1.debian13_arm64.deb"
 
 [[platforms.downloads]]
 label = "Ubuntu 24.04（x86_64）"
-href = "https://github.com/Incremental-AS/loft/releases/download/v0.2.0/loft-gateway_0.2.0-1.ubuntu24_amd64.deb"
+href = "https://github.com/Incremental-AS/loft/releases/download/v0.2.1/loft-gateway_0.2.1-1.ubuntu24_amd64.deb"
 
 [[platforms.downloads]]
 label = "Ubuntu 24.04（arm64）"
-href = "https://github.com/Incremental-AS/loft/releases/download/v0.2.0/loft-gateway_0.2.0-1.ubuntu24_arm64.deb"
+href = "https://github.com/Incremental-AS/loft/releases/download/v0.2.1/loft-gateway_0.2.1-1.ubuntu24_arm64.deb"
 
 [pages]
 
@@ -256,7 +256,7 @@ after = "<p>このコマンドは、ファイルがあるフォルダで実行�
 id = "container"
 title = "コンテナ"
 before = "<p>x86_64とarm64に対応したマルチアーキテクチャイメージで、GitHubのコンテナレジストリから取得します。ゲートウェイはコンテナが自動で起動します。初回起動時には、指定したアドレスを使って<code>loft-gateway init</code>が実行され、ペアリングコードが出力されます（<code>docker logs loft</code>）。</p>"
-code = "docker run -d --name loft --restart unless-stopped \\\n  -p 8443:8443 \\\n  -e LOFT_SMB_SERVER=&lt;nas-address&gt; \\\n  -e LOFT_LAN_URL=https://&lt;gateway-address&gt;:8443 \\\n  -v loft-etc:/etc/loft -v loft-state:/var/lib/loft \\\n  ghcr.io/incremental-as/loft-gateway:0.2.0\ndocker logs loft\ndocker exec -it loft loft-container loft-gateway doctor --user &lt;nas-username&gt;\ndocker exec loft loft-container loft-gateway pair"
+code = "docker run -d --name loft --restart unless-stopped \\\n  -p 8443:8443 \\\n  -e LOFT_SMB_SERVER=&lt;nas-address&gt; \\\n  -e LOFT_LAN_URL=https://&lt;gateway-address&gt;:8443 \\\n  -v loft-etc:/etc/loft -v loft-state:/var/lib/loft \\\n  ghcr.io/incremental-as/loft-gateway:0.2.1\ndocker logs loft\ndocker exec -it loft loft-container loft-gateway doctor --user &lt;nas-username&gt;\ndocker exec loft loft-container loft-gateway pair"
 after = "<p>コンテナでは、サムネイル作成処理は<code>.deb</code>版が使うsystemdのサンドボックスではなく、権限を持たない別プロセスとして動きます。サムネイルの動作は同じです。両方のボリュームをバックアップしてください。<code>loft-etc</code>には設定と鍵が、<code>loft-state</code>にはインデックスとデバイスの情報が入っています。</p>"
 
 [[pages.gateway.steps]]

@@ -68,13 +68,13 @@ name = "Mac"
 shows = "访达边栏"
 get = "下载 DMG"
 detail = "Loft 会把你的 NAS 放进访达边栏。文件在你打开时下载，保存时传回家中。"
-version = "macOS 14 或更高版本 · 版本 0.2.0"
+version = "macOS 14 或更高版本 · 版本 0.2.1"
 after = "打开 DMG，将 Loft 拖到“应用程序”文件夹中。此后，Loft 会自动保持最新，并且在安装任何内容之前都会先征求你的同意。"
 sha256 = "d35c0eb67fb0a2c62633efc54cb920882d4ade2db4426ff44253a7d70e573fb6"
 
 [[platforms.downloads]]
 label = "下载 Mac 版（.dmg）"
-href = "https://github.com/Incremental-AS/loft/releases/download/v0.2.0/Loft-0.2.0-14.dmg"
+href = "https://github.com/Incremental-AS/loft/releases/download/v0.2.1/Loft-0.2.1-16.dmg"
 
 [[platforms]]
 id = "android"
@@ -140,25 +140,25 @@ name = "Loft 网关"
 shows = "在家中的 Linux 上运行（x86_64 或 arm64，64 位树莓派即可）"
 get = ".deb 或容器镜像"
 detail = "在家中的 Linux 上运行，支持 x86_64 或 arm64（64 位树莓派即可），需要 Python 3.12 或更高版本。Debian 13、Ubuntu 24.04 和当前版本的 Raspberry Pi OS 都已自带。在较旧的系统上，请使用容器。"
-list = "<ul><li><strong>Debian 13 和 Ubuntu 24.04：</strong>适用于 x86_64 和 arm64 的 <code>.deb</code> 各一个。树莓派请选择 Debian 13 arm64。→ <a href=\"/gateway/#debian\">设置网关</a></li><li><strong>容器：</strong><code>ghcr.io/incremental-as/loft-gateway:0.2.0</code>，多架构镜像，支持 x86_64 和 arm64。→ <a href=\"/gateway/#container\">设置网关</a></li></ul>"
-version = "版本 0.2.0"
-note = "不确定选哪个？<code>dpkg --print-architecture</code> 在 x86_64 上会输出 <code>amd64</code>，否则输出 <code>arm64</code>。如果输出的是 <code>armhf</code>，说明你的树莓派运行的是 32 位系统：请改用 64 位的 Raspberry Pi OS。全部四个文件的 SHA-256 校验和都在 GitHub 的发布页面上。→ <a href=\"https://github.com/Incremental-AS/loft/releases/tag/v0.2.0\">GitHub 上的校验和</a>"
+list = "<ul><li><strong>Debian 13 和 Ubuntu 24.04：</strong>适用于 x86_64 和 arm64 的 <code>.deb</code> 各一个。树莓派请选择 Debian 13 arm64。→ <a href=\"/gateway/#debian\">设置网关</a></li><li><strong>容器：</strong><code>ghcr.io/incremental-as/loft-gateway:0.2.1</code>，多架构镜像，支持 x86_64 和 arm64。→ <a href=\"/gateway/#container\">设置网关</a></li></ul>"
+version = "版本 0.2.1"
+note = "不确定选哪个？<code>dpkg --print-architecture</code> 在 x86_64 上会输出 <code>amd64</code>，否则输出 <code>arm64</code>。如果输出的是 <code>armhf</code>，说明你的树莓派运行的是 32 位系统：请改用 64 位的 Raspberry Pi OS。全部四个文件的 SHA-256 校验和都在 GitHub 的发布页面上。→ <a href=\"https://github.com/Incremental-AS/loft/releases/tag/v0.2.1\">GitHub 上的校验和</a>"
 
 [[platforms.downloads]]
 label = "Debian 13（x86_64）"
-href = "https://github.com/Incremental-AS/loft/releases/download/v0.2.0/loft-gateway_0.2.0-1.debian13_amd64.deb"
+href = "https://github.com/Incremental-AS/loft/releases/download/v0.2.1/loft-gateway_0.2.1-1.debian13_amd64.deb"
 
 [[platforms.downloads]]
 label = "Debian 13（arm64，树莓派）"
-href = "https://github.com/Incremental-AS/loft/releases/download/v0.2.0/loft-gateway_0.2.0-1.debian13_arm64.deb"
+href = "https://github.com/Incremental-AS/loft/releases/download/v0.2.1/loft-gateway_0.2.1-1.debian13_arm64.deb"
 
 [[platforms.downloads]]
 label = "Ubuntu 24.04（x86_64）"
-href = "https://github.com/Incremental-AS/loft/releases/download/v0.2.0/loft-gateway_0.2.0-1.ubuntu24_amd64.deb"
+href = "https://github.com/Incremental-AS/loft/releases/download/v0.2.1/loft-gateway_0.2.1-1.ubuntu24_amd64.deb"
 
 [[platforms.downloads]]
 label = "Ubuntu 24.04（arm64）"
-href = "https://github.com/Incremental-AS/loft/releases/download/v0.2.0/loft-gateway_0.2.0-1.ubuntu24_arm64.deb"
+href = "https://github.com/Incremental-AS/loft/releases/download/v0.2.1/loft-gateway_0.2.1-1.ubuntu24_arm64.deb"
 
 [pages]
 
@@ -256,7 +256,7 @@ after = "<p>请在文件所在的文件夹中运行。树莓派请使用 Debian 
 id = "container"
 title = "容器"
 before = "<p>多架构镜像，支持 x86_64 和 arm64，来自 GitHub 容器镜像仓库。容器会自行启动网关。首次启动时，它会用你提供的地址运行 <code>loft-gateway init</code>，并输出配对码（<code>docker logs loft</code>）。</p>"
-code = "docker run -d --name loft --restart unless-stopped \\\n  -p 8443:8443 \\\n  -e LOFT_SMB_SERVER=&lt;nas-address&gt; \\\n  -e LOFT_LAN_URL=https://&lt;gateway-address&gt;:8443 \\\n  -v loft-etc:/etc/loft -v loft-state:/var/lib/loft \\\n  ghcr.io/incremental-as/loft-gateway:0.2.0\ndocker logs loft\ndocker exec -it loft loft-container loft-gateway doctor --user &lt;nas-username&gt;\ndocker exec loft loft-container loft-gateway pair"
+code = "docker run -d --name loft --restart unless-stopped \\\n  -p 8443:8443 \\\n  -e LOFT_SMB_SERVER=&lt;nas-address&gt; \\\n  -e LOFT_LAN_URL=https://&lt;gateway-address&gt;:8443 \\\n  -v loft-etc:/etc/loft -v loft-state:/var/lib/loft \\\n  ghcr.io/incremental-as/loft-gateway:0.2.1\ndocker logs loft\ndocker exec -it loft loft-container loft-gateway doctor --user &lt;nas-username&gt;\ndocker exec loft loft-container loft-gateway pair"
 after = "<p>在容器中，缩略图工作进程作为无特权的独立进程运行，而不是像 <code>.deb</code> 那样运行在 systemd 沙盒中。缩略图功能完全相同。请备份这两个卷：<code>loft-etc</code> 存放配置和密钥，<code>loft-state</code> 存放索引和你的设备信息。</p>"
 
 [[pages.gateway.steps]]
