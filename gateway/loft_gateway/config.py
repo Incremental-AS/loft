@@ -118,6 +118,18 @@ class Settings:
     # itself (its own web or phone uploads, jobs running on it), so the scan stays as
     # often as before until changes are detected on the NAS itself. 6 * 3600 was the plan.
     rescan_interval_watched_s: int = 300
+    # NAS agent (nas-agent/): a small program on the NAS reads the filesystem's own
+    # record of what changed (btrfs transaction ids) and reports changed folders, from
+    # every source: SMB, the NAS's web and phone apps, jobs on the NAS, NFS. Key file:
+    # base64 of a random key of 32+ bytes, the same one the agent has. "" = off.
+    nas_agent_key_path: str = ""
+    # A root is covered by the agent when every share in it is reported and a full
+    # pass has run since the agent began reporting them: the full pass then runs only
+    # every rescan_interval_agent_s (0 = never; the agent's log is the record, a
+    # recreated share is rescanned on its own). Not heard from for nas_agent_stale_s:
+    # the intervals above apply again until it is back.
+    rescan_interval_agent_s: int = 0
+    nas_agent_stale_s: int = 180
     safe_save_window_s: int = 60        # delete-then-create inside this = one new version
     versions_keep: int = 10
     versions_days: int = 30
@@ -135,6 +147,16 @@ class Settings:
     thumb_socket: str = "/run/loft-thumb.sock"
     thumb_concurrency: int = 2          # fits a 2-CPU gateway
     thumb_cache_mb: int = 64
+    # Content search (search.py, docs/search.md): the text of documents (plain text,
+    # Markdown, PDF, Word, Excel, PowerPoint, OpenDocument) is indexed on this gateway, read
+    # as each root's own account while one of its devices is connected. False: names only.
+    search_index: bool = True
+    # Languages whose word forms are matched ("budgets" finds "budget"): launch language
+    # tags, e.g. ["nb", "en"]. Each one adds its Snowball stem of every word to the index;
+    # other languages are still found by whole words. Changing the list re-indexes.
+    search_languages: list[str] = field(default_factory=lambda: ["en"])
+    search_text_max_chars: int = 2_000_000     # of one document's text (the rest isn't searched)
+    search_max_file_mb: int = 256              # bigger files aren't read for search
 
     @property
     def meta_dir(self) -> str:
@@ -183,6 +205,8 @@ def validate(s: Settings) -> None:
         raise ValueError(f"smb_encryption must be 'required' or 'server', not {s.smb_encryption!r}")
     if s.public_mode not in ("none", "tunnel", "direct"):
         raise ValueError(f"public_mode must be 'none', 'tunnel' or 'direct', not {s.public_mode!r}")
+    from .search import check_languages
+    check_languages(s.search_languages)
     if s.assistant_url and not s.assistant_url.startswith("https://"):
         raise ValueError("assistant_url must be \"https://...\" (or empty: public_url)")
     if s.public_mode != "none" and not s.public_url.startswith("https://"):

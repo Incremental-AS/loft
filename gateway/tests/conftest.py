@@ -51,7 +51,8 @@ def env(tmp_path):
     gw = Gateway(s, DB(s.db_path), backend, os.urandom(32))
     direct = TestClient(create_app(gw, "direct"))
     public = TestClient(create_app(gw, "public"))
-    return type("Env", (), dict(gw=gw, nas=nas, direct=direct, public=public, tmp=tmp_path))
+    yield type("Env", (), dict(gw=gw, nas=nas, direct=direct, public=public, tmp=tmp_path))
+    gw.watches.stop_all()               # no watch worker outlives its test (late log lines)
 
 
 def login(env, user="alice", pw=None, name="Test Mac"):

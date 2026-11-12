@@ -82,7 +82,7 @@ master_key   = a systemd credential (TPM-bound where the host has one), or a 060
 ### B.3 Housekeeping without a service account
 
 Trash purge (30 days), version pruning (10 versions, 30 days), expired uploads and change-log pruning run lazily
-under the user's own session while that user is active. Thirty days is a minimum, not a deadline, so nothing has
+under the user's own session while that user is active (at most hourly). Thirty days is a minimum, not a deadline, so nothing has
 to act while nobody is connected.
 
 Each chosen root has a hidden area `<root>/.loft/{uploads,versions,trash}/`. It lives inside the root, so a user
@@ -156,8 +156,17 @@ needs no app update.
   re-enumerates.
 - No push service: the app long-polls `GET /v1/changes?wait=25` (well under a proxy's 100 s limit) and refreshes
   when something arrives.
-- **Changes made outside Loft** (over SMB): every folder listing reconciles that folder, and a client request
-  triggers a background rescan of the root when the last one is more than 5 min old. The rescan runs as that user.
+- **Changes made outside Loft**: every folder listing reconciles that folder. SMB change notify reports what
+  changes over SMB within about a second, and the gateway re-reads only those folders (`watch.py`). A full
+  background rescan of the root, as that user, is the safety net: when the last one is more than 5 min old.
+- **The NAS agent** (`nas-agent/`, optional, btrfs NAS boxes): a small program on the NAS reads the filesystem's
+  own record of changes (btrfs transaction ids), so it sees writes from every source: the NAS's own web and phone
+  apps, jobs on the NAS, NFS. It dials out to the gateway's direct listener (pinned key, HMAC-signed requests,
+  nothing listens on the NAS) and reports changed folders; the gateway keeps the cursor, logs the folders and
+  re-reads them as each user: new files and folders within about 2 s, deletes and in-place edits with btrfs's next
+  commit (about 30 s). A share the agent can't read, or hasn't reported for 3 min, counts as unreported. Once a full pass has run since the agent began reporting every
+  share of a root, the agent's log is the complete record and the periodic full rescan stops
+  (`rescan_interval_agent_s`, default never; it resumes while the agent is silent).
 
 ### D.3 Writes, conflicts and Office safe-save
 

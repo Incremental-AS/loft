@@ -1,0 +1,30 @@
+# Loft NAS agent config (README.md). Keep it root-owned; the key file 0600.
+
+# The gateway's DIRECT listener (the one with the pinned key), as the NAS reaches it.
+gateway = "https://192.0.2.10:8443"
+# Its SPKI pins, current + standby: the direct_spki_pins of the gateway's gateway.toml.
+pins = ["<base64 sha256 of the live key's SPKI>", "<standby>"]
+# base64 of 32 random bytes; the gateway's nas_agent_key_path holds the same.
+#   head -c 32 /dev/urandom | base64 > agent.key; chmod 600 agent.key
+key_file = "/data/loft-agent/agent.key"
+
+# Shares from Samba's config: sections, includes, and per-account includes
+# (include = .../share-%U.conf in a share: one share per account file). "" = only the
+# [[share]] entries below.
+smb_conf = "/etc/samba/smb.conf"
+
+# Never watched or reported: "share" or "share/folder", globs allowed, any case.
+exclude = []
+# Per-account folders of these accounts are left out (globs): service accounts that
+# mirror a real account's folder.
+exclude_users = []
+
+# A share Samba's config doesn't name, or one account's folder of a per-account share.
+# [[share]]
+# name = "Personal-Drive"
+# user = "alice"
+# path = "/volume/.../alice/.data"
+
+# poll_s = 1.5         # how often each share is checked (a tree search: milliseconds)
+# heartbeat_s = 30     # the gateway hears from the agent at least this often
+# max_dirs = 200000    # more changed folders than this in one check: rescan the share

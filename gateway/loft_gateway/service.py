@@ -18,13 +18,15 @@ import uuid
 import weakref
 from collections import deque
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timezone
 
 from . import crypto
 from .config import Settings
 from .db import DB
 from .rootfs import (ALL_SHARES, Blocked, CrossShare, FixedItem, RootFS, is_blocked,
                      is_path_blocked, has_dot_parts)
+from .nas_agent import NasAgent
+from . import search as content
 from .thumbs import Thumbnailer
 from .watch import Watches
 from .storage.base import (SFM_PRIVATE, AccessDenied, AuthFailed, Backend, Entry, Exists,
@@ -39,6 +41,23 @@ log = logging.getLogger("loft.rescan")
 EXCLUDED = ["~$*", ".~lock.*#", ".DS_Store", "._*", "Icon\r", "Thumbs.db",
             "desktop.ini", ".loft", ".loft-*"]
 CHANGES_KEEP_S = 30 * 86400
+HOUSEKEEPING_S = 3600
+SLOW_READ_S = 60.0           # a folder read this slow is logged with where the time went
+CORRECTIONS_LOGGED = 200     # per full pass: what a pass on an agent-covered root corrected
+
+
+def utc(t: float | None) -> str:
+    """A wall-clock time for the log, UTC to the millisecond."""
+    if not t:
+        return "-"
+    return datetime.fromtimestamp(t, timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.%f")[:-3] + "Z"
+
+
+def read_cost(st: dict, n: int) -> str:
+    """Where a folder read's time went (reconcile's stats)."""
+    return (f"{st.get('entries', 0)} entries; listing {st.get('list_s', 0):.1f} s,"
+            f" moves {st.get('moves_s', 0):.1f} s, waiting for the index {st.get('wait_s', 0):.1f} s,"
+            f" index {st.get('index_s', 0):.1f} s; {n} change(s)")
 
 def rate_ip(ip: str | None) -> str | None:
     """The address that per-IP limits count: an IPv6 host gets a whole /64, so it counts
@@ -138,12 +157,15 @@ class Gateway:
         self.thumbs = Thumbnailer(settings.thumb_socket, settings.thumb_concurrency,
                                   settings.thumb_cache_mb)
         self._share_cache: dict = {}
+        self.agent = NasAgent(self)
         self.watches = Watches(self)
+        self._housekept: dict[str, float] = {}      # root id -> last housekeeping (monotonic)
         self._closed_sessions: weakref.WeakSet = weakref.WeakSet()   # rescans stop on these
         self._full_start: dict[str, float] = {}     # root id -> start of its last full pass
         self._scanning: dict[Session, int] = {}     # session -> rescans running on it
         self._owner_unread: set[tuple[str, str]] = set()   # logged once per process
         self._owner_audit: list[dict] = []           # mismatches seen inside a caller's tx
+        self.search = content.Indexer(self)          # content search (search.py)
         if hasattr(backend, "share_guard"):          # SMB: check every new tree connect
             backend.share_guard = self.check_share_owner
 
@@ -636,6 +658,21 @@ class Gateway:
         with self._sess_lock:
             return any(s is sess for s, _ in self._sessions.values())
 
+    def session_for_user(self, user: str) -> Session | None:
+        """A live NAS session of any non-revoked device of this account (the content
+        indexer reads as the root's own account; it never signs in by itself)."""
+        with self._sess_lock:
+            ids = list(self._sessions)
+        if not ids:
+            return None
+        mine = {r["id"] for r in self.db.all(
+            "SELECT id FROM devices WHERE nas_user=? AND revoked_at IS NULL", (user,))}
+        with self._sess_lock:
+            for k, (sess, _) in self._sessions.items():
+                if k in mine and sess not in self._closed_sessions:
+                    return sess
+        return None
+
     def _put_session(self, device_id: str, sess: Session):
         with self._sess_lock:
             old = self._sessions.pop(device_id, None)
@@ -756,7 +793,8 @@ class Gateway:
         rows = self.db.all("SELECT id, device_name, created_at, last_used_at, last_ip,"
                            " expires_at, revoked_at, kind, read_only FROM devices WHERE nas_user=?"
                            " ORDER BY created_at", (user,))
-        return [dict(r) for r in rows]
+        # read_only is a boolean on the wire (schemas.Device), an integer in SQLite
+        return [{**dict(r), "read_only": bool(r["read_only"])} for r in rows]
 
     def revoke(self, device_id: str, *, by_user: str | None = None, ip=None, route=None):
         d = self.db.one("SELECT * FROM devices WHERE id=?", (device_id,))
@@ -897,6 +935,7 @@ class Gateway:
     def _notify(self):
         with self._cond:
             self._cond.notify_all()
+        self.search.wake()
 
     def release_waiters(self):
         """Shutting down: answer every open long-poll now (with whatever it has), so
@@ -924,14 +963,21 @@ class Gateway:
                 "SELECT id FROM items WHERE parent_id=? AND deleted=0", (iid,))]
             c.execute("UPDATE items SET deleted=1, superseded_by=? WHERE id=?",
                       (superseded_by if iid == item_id else None, iid))
+            self.search.forget(c, iid)        # out of the content index with it
             self._record(c, root_id, iid, "delete")
 
     # ── reconcile: the NAS is the truth, the index follows ────────────────
 
     def reconcile(self, root, session: Session, start_id: str | None = None,
-                  max_depth: int | None = None, defer: dict | None = None) -> int:
+                  max_depth: int | None = None, defer: dict | None = None,
+                  report: list | None = None, stats: dict | None = None) -> int:
         """Walk the NAS under `start_id` (default: root), bring the index in line,
         and record a change for every difference. Returns the number of changes.
+
+        report: a list that gets one dict per change made (kind new | modified |
+        moved | deleted | file_id, path, the row before and the NAS after), for the
+        caller to log. stats: filled with where the time went (entries, list_s,
+        moves_s, wait_s for the index lock, index_s).
 
         Items that vanished from one path and appear at another with the same
         server file id are MOVES (same item id, meta_version+1), not
@@ -956,6 +1002,8 @@ class Gateway:
         # listing has no say over it (it would delete a file saved a moment ago,
         # roll back a modify, or undo a rename). The next pass sees the truth.
         seq0 = self.db.one("SELECT COALESCE(MAX(seq), 0) s FROM changes")["s"]
+        st = stats if stats is not None else {}
+        t_list = time.monotonic()
 
         # 1. the NAS side, breadth-first, shallowest first
         found: list[tuple[str, int, Entry]] = []     # (parent rel-path, depth, entry)
@@ -990,14 +1038,30 @@ class Gateway:
                 if e.is_dir and (max_depth is None or depth < max_depth):
                     queue.append((join(rel, e.name), depth + 1))
 
+        t_moves = time.monotonic()
+        st.update(entries=len(found), list_s=t_moves - t_list)
         at_multi_root = root["share"] == ALL_SHARES and start_id == root["id"]
         start_share = "" if at_multi_root else self._share_key(self.db.one, root, start_id)
         xmoves = (self._cross_folder_moves(root, fs, start_id, start_share, found)
                   if max_depth and not at_multi_root else {})
         unread_keys = {"/".join(name_key(x) for x in u.split("/")) for u in unread}
 
+        def rep(kind: str, path: str, old: dict | None, e: Entry | None, **kw):
+            if report is not None:
+                report.append({"kind": kind, "path": join(start_path, path),
+                               "old": {k: old[k] for k in ("id", "size", "mtime_ns", "file_id",
+                                                           "updated_seq", "is_dir")}
+                               if old else None,
+                               "new": {"size": e.size, "mtime_ns": e.mtime_ns,
+                                       "file_id": e.file_id, "is_dir": e.is_dir} if e else None,
+                               **kw})
+
         n = 0
+        t_wait = time.monotonic()
+        st["moves_s"] = t_wait - t_moves
         with self.db.tx() as c:
+            t_index = time.monotonic()
+            st["wait_s"] = t_index - t_wait
             # 2. the index side: live descendants of start within max_depth
             items: dict[str, dict] = {}
             frontier, depth = [start_id], 0
@@ -1049,6 +1113,14 @@ class Gateway:
                 return memo[iid]
             old_paths = {iid: old_rel(iid) for iid in items}
 
+            def name_rel(iid: str) -> str:
+                """old_rel in the names as listed (for report)."""
+                parts, cur = [], items.get(iid)
+                while cur is not None:
+                    parts.append(cur["name"])
+                    cur = items.get(cur["parent_id"])
+                return join(*reversed(parts))
+
             # File ids are only unique within one share: on a NAS where every share
             # is its own btrfs subvolume, Samba hands out the raw inode number, so an
             # all-shares root has the same id in several shares (tens of thousands on
@@ -1090,6 +1162,9 @@ class Gateway:
                     if (mid and mid not in seen
                             and (old_paths[mid], bool(items[mid]["is_dir"])) not in now_paths):
                         moved = items[mid]
+                        if report is not None:
+                            rep("moved", join(rel, e.name), moved, e,
+                                was=join(start_path, name_rel(mid)))
                         by_parent.pop((moved["parent_id"], moved["name_key"]), None)
                         c.execute("UPDATE items SET parent_id=?, name=?, name_key=?,"
                                   " meta_version=meta_version+1 WHERE id=?", (pid, e.name, k, mid))
@@ -1103,6 +1178,7 @@ class Gateway:
                     xm = xmoves[(e.file_id, int(e.is_dir))]
                     row = c.execute("SELECT * FROM items WHERE id=? AND deleted=0", (xm,)).fetchone()
                     if row and xm not in fresh_ids and xm not in seen:
+                        rep("moved", join(rel, e.name), dict(row), e, was="(another folder)")
                         c.execute("UPDATE items SET parent_id=?, name=?, name_key=?,"
                                   " meta_version=meta_version+1 WHERE id=?", (pid, e.name, k, xm))
                         cur = dict(row, parent_id=pid, name=e.name, name_key=k,
@@ -1117,6 +1193,7 @@ class Gateway:
                     iid = self._new_item(c, root["id"], pid, e)
                     items[iid] = dict(c.execute("SELECT * FROM items WHERE id=?",
                                                 (iid,)).fetchone())
+                    rep("new", join(rel, e.name), None, e, id=iid)
                     by_parent[(pid, k)] = iid
                     seen.add(iid)
                     n += 1
@@ -1136,6 +1213,9 @@ class Gateway:
                     if upd:
                         self._record(c, root["id"], iid, "upsert")
                         n += 1
+                        rep("modified", join(rel, e.name), cur, e)
+                    elif cur["file_id"] != e.file_id:
+                        rep("file_id", join(rel, e.name), cur, e)   # not a change: a move hint
                 if e.is_dir:
                     dir_ids[join(rel, e.name)] = iid
 
@@ -1152,8 +1232,11 @@ class Gateway:
                             continue
                         self._mark_deleted(c, root["id"], iid)
                         n += 1
+                        if report is not None:
+                            rep("deleted", name_rel(iid), r, None)
             if start_id == root["id"] and max_depth is None:
                 c.execute("UPDATE roots SET last_scan_at=? WHERE id=?", (time.time(), root["id"]))
+        st["index_s"] = time.monotonic() - t_index
         if n:
             self._notify()
         return n
@@ -1231,8 +1314,17 @@ class Gateway:
         t0 = time.time()
         start_id = start_id or root["id"]
         whole = start_id == root["id"]
+        # the NAS agent's log up to here is covered by this pass (agent_since below)
+        seq0 = self.agent.max_seq() if whole and self.agent.enabled else None
         defer: dict[str, tuple] = {}
         st = {"folders": 0, "changes": 0, "skipped": 0}
+        # On a root the NAS agent covers, notify and the agent should already have
+        # told the index everything: whatever this pass still finds is a miss, logged
+        # item by item with what the index had, so the cause can be found (F1 of
+        # review_maja_ba880e0, 2026-11-10).
+        covered = whole and self.agent_covers(root)
+        rep: list | None = [] if covered else None
+        logged = 0
         queue = deque([start_id])
         while queue:
             if self._closing:
@@ -1244,9 +1336,24 @@ class Gateway:
                 log.info("rescan %s stopped: its session was closed", root["id"][:8])
                 return st
             fid = queue.popleft()
+            fst: dict = {}
+            t_f = time.monotonic()
             try:
-                st["changes"] += self.reconcile(root, session, fid, max_depth=1, defer=defer)
+                nf = self.reconcile(root, session, fid, max_depth=1, defer=defer,
+                                    report=rep, stats=fst)
+                st["changes"] += nf
+                secs = time.monotonic() - t_f
+                if secs > SLOW_READ_S:
+                    it = self.db.one("SELECT * FROM items WHERE id=?", (fid,))
+                    log.warning("rescan %s (%s): folder %s took %.0f s (%s)", root["id"][:8],
+                                root["nas_user"], (self._relpath(root, it) if it else fid[:8])
+                                or "(root)", secs, read_cost(fst, nf))
+                if rep:
+                    logged = self._log_corrections(root, rep, logged)
+                    rep.clear()
             except (StorageError, Blocked, FixedItem) as e:
+                if rep:
+                    rep.clear()                  # rolled back: nothing was corrected
                 if fid == start_id:
                     raise
                 st["skipped"] += 1
@@ -1257,40 +1364,126 @@ class Gateway:
             queue.extend(r["id"] for r in self.db.all(
                 "SELECT id FROM items WHERE parent_id=? AND deleted=0 AND is_dir=1", (fid,))
                 if r["id"] not in defer)
-        st["changes"] += self.finish_deferred(root, defer, scanned=whole)
+        st["changes"] += self.finish_deferred(root, defer, scanned=whole, report=rep)
+        if rep:
+            logged = self._log_corrections(root, rep, logged)
+        if covered:
+            st["corrected"] = logged
         if whole:
             self._full_start[root["id"]] = t0
+            if seq0 is not None:
+                with self.db.tx() as c:
+                    c.execute("UPDATE roots SET agent_seq=MAX(agent_seq, ?), agent_since=?"
+                              " WHERE id=?", (seq0, t0, root["id"]))
         st["seconds"] = round(time.time() - t0, 1)
         log.info("rescan %s (%s)%s done: %s", root["id"][:8], root["nas_user"],
                  "" if whole else f" from {start_id[:8]}", st)
         return st
 
-    def finish_deferred(self, root, defer: dict, scanned: bool = False) -> int:
+    def finish_deferred(self, root, defer: dict, scanned: bool = False,
+                        report: list | None = None) -> int:
         """Delete the items a pass found missing from their folder, unless they
         were found elsewhere since (a move) or written to. scanned: a whole-root
-        pass ends here, so the root's last_scan_at is set in the same commit."""
+        pass ends here, so the root's last_scan_at is set in the same commit.
+        report: as reconcile's."""
         gone = 0
         if not defer and not scanned:
             return 0
+        deleted = []
         with self.db.tx() as c:
             for iid, (pid, k, useq) in defer.items():
-                r = c.execute("SELECT parent_id, name_key, deleted, updated_seq FROM items"
-                              " WHERE id=?", (iid,)).fetchone()
+                r = c.execute("SELECT * FROM items WHERE id=?", (iid,)).fetchone()
                 if (r and not r["deleted"] and r["parent_id"] == pid and r["name_key"] == k
                         and r["updated_seq"] == useq):
+                    if report is not None:
+                        deleted.append(dict(r))
                     self._mark_deleted(c, root["id"], iid)
                     gone += 1
             if scanned:
                 c.execute("UPDATE roots SET last_scan_at=? WHERE id=?", (time.time(), root["id"]))
+        for r in deleted:
+            report.append({"kind": "deleted", "path": self._relpath(root, r),
+                           "old": {k: r[k] for k in ("id", "size", "mtime_ns", "file_id",
+                                                     "updated_seq", "is_dir")}, "new": None})
         if gone:
             self._notify()
         return gone
 
-    def rescan_interval(self, root) -> int:
-        """rescan_interval_watched_s while the NAS reports every change for this
-        root: all its watches are up, and a full pass has started since they came
-        up (so nothing from before the watch is still unseen). Otherwise the
-        short interval, as before change notify."""
+    def _log_corrections(self, root, report: list, logged: int) -> int:
+        """Log what a full pass on an agent-covered root corrected (see _rescan): per
+        item the index row before and the NAS now (size, mtime, file id), when the
+        index last wrote the row, and when the agent last reported the item's folder
+        (and whether this root had applied that report). Up to CORRECTIONS_LOGGED
+        lines per pass; returns how many corrections there were so far."""
+        now = time.time()
+        user_key = name_key(root["nas_user"] or "")
+        agent_seq = (self.db.one("SELECT agent_seq FROM roots WHERE id=?", (root["id"],))
+                     or {"agent_seq": 0})["agent_seq"]
+        for r in report:
+            if r["kind"] == "file_id":
+                continue                       # not a change (a move hint): not counted
+            logged += 1
+            if logged > CORRECTIONS_LOGGED:
+                if logged == CORRECTIONS_LOGGED + 1:
+                    log.warning("rescan %s (%s): more than %d corrections in this pass;"
+                                " the rest only counted", root["id"][:8], root["nas_user"],
+                                CORRECTIONS_LOGGED)
+                continue
+            old, new, path = r["old"], r["new"], r["path"]
+
+            def ns(v):
+                return utc(v / 1e9) if v else "-"
+            if r["kind"] == "modified":
+                what = (f"size {old['size']}->{new['size']},"
+                        f" mtime {ns(old['mtime_ns'])}->{ns(new['mtime_ns'])},"
+                        f" file_id {old['file_id']}->{new['file_id']}")
+            elif r["kind"] == "deleted":
+                what = (f"was size {old['size']}, mtime {ns(old['mtime_ns'])},"
+                        f" file_id {old['file_id']}")
+            else:                              # new, moved
+                what = (f"size {new['size']}, mtime {ns(new['mtime_ns'])},"
+                        f" file_id {new['file_id']}")
+                if r["kind"] == "moved":
+                    what = f"from {r.get('was')}, " + what
+            if new and new["mtime_ns"]:
+                what += f", listed {now - new['mtime_ns'] / 1e9:.0f} s after its mtime"
+            if old:
+                ch = self.db.one("SELECT at FROM changes WHERE seq=?", (old["updated_seq"],))
+                what += (f"; row written {utc(ch['at']) if ch else '(change pruned)'}"
+                         f" (seq {old['updated_seq']}, item {old['id'][:8]})")
+            # the agent's side: its last report of the folder this item is in
+            folder = path.rpartition("/")[0] if "/" in path else ""
+            if root["share"] == ALL_SHARES:
+                share, _, folder = folder.partition("/")
+            else:
+                share = root["share"]
+            if share:
+                a = self.db.one("SELECT seq, at FROM nas_changes WHERE share_key=? AND"
+                                " user_key IN ('', ?) AND kind='dir' AND path=?"
+                                " ORDER BY seq DESC LIMIT 1", (name_key(share), user_key, folder))
+                what += (f"; agent last reported {folder or '(share root)'} at {utc(a['at'])}"
+                         f" (log seq {a['seq']}, {'applied' if a['seq'] <= agent_seq else 'NOT applied yet'})"
+                         if a else f"; agent never reported {folder or '(share root)'} (in the log's 30 days)")
+            log.warning("rescan %s (%s): full pass corrected %s %s: %s", root["id"][:8],
+                        root["nas_user"], r["kind"], path, what)
+        return logged
+
+    def agent_covers(self, root) -> bool:
+        """The NAS agent's log is the complete record of this root (nas_agent.py)."""
+        if not (self.s.notify and self.agent.enabled):
+            return False
+        rw = self.watches.get(root["id"])
+        names = rw.share_names if rw is not None else None
+        return self.agent.covers(root, set(names) if names is not None else None)
+
+    def rescan_interval(self, root) -> float:
+        """rescan_interval_agent_s (0: never) while the NAS agent covers the root.
+        rescan_interval_watched_s while the NAS reports every change for this
+        root over SMB: all its watches are up, and a full pass has started since
+        they came up (so nothing from before the watch is still unseen).
+        Otherwise the short interval, as before change notify."""
+        if self.agent_covers(root):
+            return self.s.rescan_interval_agent_s or float("inf")
         since = self.watches.since(root["id"]) if self.s.notify else None
         if since is not None and self._full_start.get(root["id"], 0) >= since:
             return self.s.rescan_interval_watched_s
@@ -1309,15 +1502,23 @@ class Gateway:
                               root["nas_user"])
         if not self.s.background_rescan:
             return
-        if root["last_scan_at"] and time.time() - root["last_scan_at"] < self.rescan_interval(root):
+        full = not (root["last_scan_at"]
+                    and time.time() - root["last_scan_at"] < self.rescan_interval(root))
+        # Housekeeping (trash, uploads, the change feed) ran after each full pass; with
+        # the NAS agent there may be none for weeks, so it has its own clock too.
+        house = time.monotonic() - self._housekept.get(root["id"], float("-inf")) \
+            >= HOUSEKEEPING_S
+        if not (full or house):
             return
         lock = self._scan_locks.setdefault(root["id"], threading.Lock())
         if not lock.acquire(blocking=False):
             return
+        self._housekept[root["id"]] = time.monotonic()
 
         def run():
             try:
-                self.rescan(root, caller.session)
+                if full:
+                    self.rescan(root, caller.session)
                 self.housekeeping(root, caller.session)
             except Exception:  # noqa: BLE001  (next request retries)
                 log.exception("rescan %s (%s) failed; the next request retries",
@@ -1416,6 +1617,99 @@ class Gateway:
             self.reconcile(root, caller.session, it["parent_id"], max_depth=1)
             it = self._item(root, item_id)
         return (it, *fs.nas(path))
+
+    # ── content search ────────────────────────────────────────────────────
+
+    def content_hits(self, places: list, query: str, offset: int, limit: int,
+                     deadline_s: float = 6.0) -> tuple[list, int | None]:
+        """Hits of a content query, best first, each checked NOW for the caller it is
+        found for. places = [(caller, root, start_item_id or None)]: the index roots to
+        search, each with the caller (and so the NAS session) that must be able to open
+        the hit, and optionally a folder the hit must be in. Returns ([(caller, root, item
+        row, passage or None)], offset of the next candidate or None when there are none).
+
+        The index only proposes. A hit is returned when its item is still live in that
+        root, is below the start folder, and the caller's own NAS session can open it
+        (stat); a changed file is re-read into the index and shown without a passage."""
+        by_scope = {}
+        for caller, root, start in places:
+            by_scope.setdefault(root["id"], (caller, root, start))
+        if not by_scope:
+            return [], None
+        deadline = time.monotonic() + deadline_s
+        out: list = []
+        while len(out) < limit:
+            want = max(limit - len(out), 10) * 2
+            rows = self.search.index.candidates(list(by_scope), query, offset, want)
+            for r in rows:
+                if len(out) >= limit or time.monotonic() > deadline:
+                    return out, offset
+                offset += 1
+                caller, root, start = by_scope[r["scope"]]
+                hit = self._check_hit(caller, root, start, r)
+                if hit is not None:
+                    it, fresh = hit
+                    snip = self.search.index.passage(r["id"], query) if fresh else None
+                    out.append((caller, root, it, snip))
+            if len(rows) < want:
+                return out, None
+        return out, offset
+
+    def _check_hit(self, caller: Caller, root, start: str | None, doc):
+        """(item row, fresh) when the caller may open the item now, else None."""
+        it = self.db.one("SELECT * FROM items WHERE id=? AND root_id=? AND deleted=0"
+                         " AND is_dir=0", (doc["item_id"], root["id"]))
+        if it is None:
+            return None
+        if start is not None and start != root["id"]:
+            cur, ok = it, False
+            while cur is not None and cur["parent_id"] is not None:
+                if cur["parent_id"] == start:
+                    ok = True
+                    break
+                cur = self.db.one("SELECT id, parent_id FROM items WHERE id=?",
+                                  (cur["parent_id"],))
+            if not ok:
+                return None
+        path = self._relpath(root, it)
+        try:
+            st = self._fs(root, caller.session).stat(path)
+        except (NotFound, AccessDenied, Blocked, WrongShareOwner):
+            return None
+        except StorageError as e:
+            raise ApiError(503, "nas_unavailable", detail=str(e))
+        if st.is_dir:
+            return None
+        fresh = (st.size == it["size"] and st.mtime_ns == it["mtime_ns"]
+                 and doc["content_version"] == it["content_version"])
+        if not fresh and (st.size != it["size"] or st.mtime_ns != it["mtime_ns"]):
+            self.reconcile(root, caller.session, it["parent_id"], max_depth=1)
+            it = self.db.one("SELECT * FROM items WHERE id=? AND deleted=0", (it["id"],))
+            if it is None:
+                return None
+            self.search.wake()
+        return it, fresh
+
+    def search_content(self, caller: Caller, query: str, cursor: str | None,
+                       limit: int) -> dict:
+        """GET /v1/search: files in the caller's root whose text has every word of the
+        query (in any of its forms), best first, each checked against the caller's NAS
+        rights now. complete: False while the root's documents are still being indexed."""
+        root = self._root(caller)
+        if not self.search.enabled:
+            raise ApiError(404, "search_disabled")
+        if not content.words_in(query):
+            raise ApiError(400, "bad_query")
+        try:
+            offset = content.decode_cursor(cursor)
+        except ValueError:
+            raise ApiError(400, "bad_cursor")
+        self.search.wake()
+        hits, nxt = self.content_hits([(caller, root, None)], query, offset, limit)
+        return {"items": [{**self._json(root, it), "snippet": snip}
+                          for _c, _r, it, snip in hits],
+                "next_cursor": content.encode_cursor(nxt) if nxt is not None else None,
+                "complete": bool(root["last_scan_at"]) and self.search.caught_up(root["id"])}
 
     def thumbnail(self, caller: Caller, item_id: str, px: int) -> tuple[str, bytes, str]:
         """(format, bytes, content etag). Same checks as a download: the caller's root,
@@ -1879,6 +2173,7 @@ class Gateway:
                 pass
             with self.db.tx() as c:
                 c.execute("DELETE FROM uploads WHERE id=?", (u["id"],))
+        self.agent.prune()
         with self.db.tx() as c:
             old = c.execute("SELECT MAX(seq) s FROM changes WHERE root_id=? AND at<?",
                             (root["id"], now - CHANGES_KEEP_S)).fetchone()["s"]

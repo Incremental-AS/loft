@@ -144,6 +144,20 @@ class Children(BaseModel):
                                                 "the last page.")
 
 
+class SearchHit(Item):
+    snippet: str | None = Field(None, description="Up to 400 characters of the file's text "
+                                                  "around the first match; null when the "
+                                                  "file changed since it was indexed.")
+
+
+class SearchResult(BaseModel):
+    items: list[SearchHit] = Field(description="Best first.")
+    next_cursor: str | None = Field(description="Pass as `cursor` for more hits; null when "
+                                                "there are no more.")
+    complete: bool = Field(description="false while the root's documents are still being "
+                                       "read into the index: try again later for more.")
+
+
 class Changes(BaseModel):
     updated: list[Item]
     deleted: list[str] = Field(description="Item ids gone since the anchor.")

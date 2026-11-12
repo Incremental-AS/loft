@@ -14,7 +14,7 @@ import time
 from contextlib import contextmanager
 from pathlib import Path
 
-SCHEMA_VERSION = 3
+SCHEMA_VERSION = 4
 
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS meta (k TEXT PRIMARY KEY, v TEXT NOT NULL);
@@ -143,6 +143,8 @@ CREATE TABLE IF NOT EXISTS roots (
   min_seq INTEGER NOT NULL DEFAULT 0,
   last_scan_at REAL,
   created_at REAL NOT NULL,
+  agent_seq INTEGER NOT NULL DEFAULT 0,   -- nas_changes applied up to (NAS agent)
+  agent_since REAL,                       -- the agent's log is complete since this pass
   UNIQUE (nas_user, share, path)
 );
 
@@ -238,6 +240,29 @@ CREATE TABLE IF NOT EXISTS share_owners (
   PRIMARY KEY (nas_user, share)
 );
 
+-- NAS agent (nas_agent.py): where each share's report has got to, and the folders it
+-- reported, one row per folder (a folder reported again moves to the end).
+CREATE TABLE IF NOT EXISTS agent_shares (
+  id TEXT PRIMARY KEY,           -- as the agent names it: share, or share + newline + user
+  share_key TEXT NOT NULL,       -- name_key(share)
+  user_key TEXT NOT NULL,        -- casefolded account of a per-account share, '' = all
+  uuid TEXT NOT NULL,            -- the share's btrfs subvolume
+  tree_id INTEGER NOT NULL,
+  cursor INTEGER NOT NULL,       -- transaction id reported up to (inclusive next time)
+  since_at REAL NOT NULL,        -- reported since; a full pass after this covers it
+  seen_at REAL NOT NULL
+);
+CREATE TABLE IF NOT EXISTS nas_changes (
+  seq INTEGER PRIMARY KEY AUTOINCREMENT,
+  share_key TEXT NOT NULL,
+  user_key TEXT NOT NULL,
+  kind TEXT NOT NULL CHECK (kind IN ('dir', 'all')),   -- 'all': rescan the share
+  path TEXT NOT NULL,            -- share-relative folder, '' = the share's root
+  at REAL NOT NULL,
+  UNIQUE (share_key, user_key, kind, path)
+);
+CREATE INDEX IF NOT EXISTS nas_changes_at ON nas_changes(at);
+
 CREATE TABLE IF NOT EXISTS login_failures (
   k TEXT NOT NULL,               -- 'u:<user>' or 'ip:<addr>'
   at REAL NOT NULL
@@ -274,6 +299,9 @@ class DB:
             "oauth_requests": [("created_ip", "TEXT")],
             # a schema 3 table made by 0bca895, before approvals kept read/write apart
             "mcp_approved": [("access", "TEXT NOT NULL DEFAULT 'read'")],
+            # schema 4: NAS agent. agent_seq: nas_changes applied up to; agent_since:
+            # start of the full pass after which the agent's log is complete for it
+            "roots": [("agent_seq", "INTEGER NOT NULL DEFAULT 0"), ("agent_since", "REAL")],
         }
         v = self.conn.execute("SELECT v FROM meta WHERE k='schema_version'").fetchone()
         if v and int(v["v"]) < 3:

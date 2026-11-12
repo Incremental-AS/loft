@@ -43,6 +43,7 @@ from .rootfs import ALL_SHARES, Blocked, CrossShare, FixedItem, is_path_blocked
 from .service import ApiError, Caller, Gateway, name_key, valid_name
 from .storage.base import AccessDenied, NotFound, StorageError
 from .thumbs import TEXT_KINDS
+from . import search as content
 
 PROTOCOL_VERSIONS = ("2025-06-18", "2025-03-26", "2024-11-05")
 BODY_MAX = 16 << 20         # one request: an 8 MiB chunk is ~11 MiB of base64 JSON
@@ -52,6 +53,7 @@ TEXT_READ_MAX = 8 << 20     # a plain-text file is read up to this much
 READ_CHARS = 20_000         # read_file, characters per call (Jeevo shows a tool 24 000)
 LIST_MAX = 200
 SEARCH_MAX = 100
+CONTENT_MAX = 50            # content hits per call (mcp conventions rule 8)
 SEARCH_VISIT_MAX = 200_000
 
 
@@ -95,14 +97,26 @@ READ_TOOLS = [
     },
     {
         "name": "search_files",
-        "title": "Find files by name",
-        "description": "Find files and folders whose name contains the given text "
-                       "(not case-sensitive), in a folder and everything below it.",
+        "title": "Find files",
+        "description": "Find files by the words inside them and by name, in a folder and "
+                       "everything below it. Content search reads plain text, Markdown, CSV, "
+                       "JSON, PDF, Word, Excel, PowerPoint and OpenDocument files and matches "
+                       "word forms (\"budgets\" finds \"budget\"); a file must have every "
+                       "word of the query. Hits come best first, each with a short passage "
+                       "around the match: read the file with read_file before relying on it. "
+                       "Name matches (part of the name, not case-sensitive) come first.",
         "inputSchema": {"type": "object", "properties": {
-            "query": {"type": "string", "description": "Part of the name, e.g. \"budget\"."},
+            "query": {"type": "string", "description": "Words to look for, e.g. \"budget "
+                      "2026 marketing\", or part of a name."},
             "path": {**_PATH, "description": "Folder to search in; \"\" searches everything "
                      "you may read."},
-            "limit": {"type": "integer", "minimum": 1, "maximum": SEARCH_MAX, "default": 50}},
+            "in": {"type": "string", "enum": ["both", "content", "name"], "default": "both",
+                   "description": "\"content\": the words inside files; \"name\": names "
+                   "only; \"both\": names first, then content."},
+            "limit": {"type": "integer", "minimum": 1, "maximum": SEARCH_MAX, "default": 20,
+                      "description": f"Hits per call (content hits: at most {CONTENT_MAX})."},
+            "cursor": {"type": "string", "description": "next_cursor from the previous call: "
+                       "more content hits."}},
             "required": ["query"], "additionalProperties": False},
         "annotations": {"readOnlyHint": True, "openWorldHint": False},
     },
@@ -673,35 +687,96 @@ def _search(gw: Gateway, caller: Caller, rel: list[str], q: str, limit: int):
     return [_entry(gw, caller, root, r) for r in hits], bool(fresh)
 
 
-def t_search_files(gw: Gateway, caller: Caller, a: dict):
-    q = name_key(str(a.get("query") or "").strip())
-    if not q:
-        raise ToolError("Give part of a name to look for.")
-    limit = max(1, min(int(a.get("limit") or 50), SEARCH_MAX))
-    parts = _parts(a.get("path", ""))
+def _places(gw: Gateway, caller: Caller, parts: list[str]) -> list:
+    """(scoped caller, path inside its root) for every granted folder a search of `parts`
+    covers: the deepest grant holding it, else each grant below it. Read from the grants
+    as they are at this call, so a folder taken away is never searched again."""
     hit = _readable(gw, caller, parts)
     if hit is not None:
-        places = [hit]
-    else:
-        below = [g for g in caller.access.reads if len(_split(g)) > len(parts)
-                 and _under(_split(g), "/".join(parts))]
-        if not below:
-            raise ToolError(_not_shared(caller, parts))
-        places = [(_scoped(gw, caller, g), []) for g in below]
-    entries, fresh = [], True
+        return [hit]
+    below = [g for g in caller.access.reads if len(_split(g)) > len(parts)
+             and _under(_split(g), "/".join(parts))]
+    if not below:
+        raise ToolError(_not_shared(caller, parts))
+    return [(_scoped(gw, caller, g), []) for g in below]
+
+
+def _content(gw: Gateway, places: list, query: str, cursor, room: int):
+    """Content hits for the places, each checked against the caller's rights now."""
+    try:
+        offset = content.decode_cursor(cursor)
+    except ValueError:
+        raise ToolError("cursor is not one this tool gave out; start again without it.")
+    spots, complete = [], True
     for sc, rel in places:
-        got, ok = _search(gw, sc, rel, q, limit - len(entries))
-        entries += got
+        root, start = _resolve(gw, sc, rel)
+        if not start["is_dir"]:
+            raise ToolError("path must be a folder.")
+        spots.append((sc, root, start["id"]))
+        complete = complete and bool(gw.db.one("SELECT last_scan_at FROM roots WHERE id=?",
+                                               (root["id"],))["last_scan_at"]) \
+            and gw.search.caught_up(root["id"])
+    gw.search.wake()
+    hits, nxt = gw.content_hits(spots, query, offset, room)
+    entries = []
+    for sc, root, it, snip in hits:
+        e = _entry(gw, sc, root, it)
+        entries.append({**e, "ref": f"loft:item:{it['id']}", "title": it["name"],
+                        "snippet": snip, "match": "content"})
+    return entries, (content.encode_cursor(nxt) if nxt is not None else None), complete
+
+
+def t_search_files(gw: Gateway, caller: Caller, a: dict):
+    raw = str(a.get("query") or "").strip()
+    mode = a.get("in") or "both"
+    if mode not in ("both", "content", "name"):
+        raise ToolError('in must be "both", "content" or "name".')
+    limit = max(1, min(int(a.get("limit") or 20), SEARCH_MAX))
+    cursor = a.get("cursor") or None
+    if cursor is not None and not isinstance(cursor, str):
+        raise ToolError("cursor must be a string.")
+    q = name_key(raw)
+    words = content.words_in(raw)
+    if not q or (mode == "content" and not words):
+        raise ToolError("Give some words, or part of a name, to look for.")
+    places = _places(gw, caller, _parts(a.get("path", "")))
+    entries, fresh, nxt = [], True, None
+    if mode != "content" and not cursor:          # names: the first call only
+        cap = limit if mode == "name" else min(limit, CONTENT_MAX)
+        for sc, rel in places:
+            got, ok = _search(gw, sc, rel, q, cap - len(entries))
+            entries += [{**e, "match": "name"} for e in got]
+            fresh = fresh and ok
+            if len(entries) >= cap:
+                break
+    searched = mode != "name" and gw.search.enabled and words
+    if searched:
+        room = max(0, min(limit, CONTENT_MAX) - len(entries))
+        got, nxt, ok = _content(gw, places, raw, cursor, room or 1)
+        if not room:                  # names filled the page: content hits come next call
+            got, nxt = [], content.encode_cursor(0) if got else None
+        seen = {e["path"] for e in entries}
+        for e in got:
+            if e["path"] not in seen:
+                seen.add(e["path"])
+                entries.append(e)
         fresh = fresh and ok
-        if len(entries) >= limit:
-            break
-    note = ("" if fresh else "\nLoft is still reading this folder for the first time, so "
+    note = ("" if fresh else "\nLoft is still reading these folders for the first time, so "
             "results may be incomplete; try again in a few minutes.")
-    text = (f"{len(entries)} match{'es' if len(entries) != 1 else ''} for \"{a.get('query')}\""
-            + (" (limit reached)" if len(entries) >= limit else "") + ":\n"
-            + ("\n".join(_line(e) for e in entries) or "(none)") + note)
+    if mode != "name" and not gw.search.enabled:
+        note += "\nSearching inside files is switched off on this gateway: names only."
+    if nxt:
+        note += "\nMore content hits: call again with cursor."
+    lines = []
+    for e in entries:
+        lines.append(_line(e))
+        if e.get("snippet"):
+            lines.append("    " + e["snippet"].replace("\n", " "))
+    text = (f"{len(entries)} match{'es' if len(entries) != 1 else ''} for \"{raw}\""
+            + (" (limit reached)" if mode == "name" and len(entries) >= limit else "") + ":\n"
+            + ("\n".join(lines) or "(none)") + note)
     return {"content": [{"type": "text", "text": text}],
-            "structuredContent": {"items": entries, "complete": fresh}}
+            "structuredContent": {"items": entries, "complete": fresh, "next_cursor": nxt}}
 
 
 def _decode(data: bytes) -> str | None:

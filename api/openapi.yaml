@@ -50,11 +50,11 @@ info:
 
     | Status | Codes |
     |---|---|
-    | 400 | `bad_anchor`, `bad_path`, `bad_upload`, `cannot_delete_root`, `cannot_move_root`, `invalid_grant`, `is_a_folder`, `missing_credentials`, `move_into_self`, `near_id_required`, `not_a_folder`, `parent_and_name_required` |
-    | 401 | `code_expired`, `device_revoked`, `invalid_code`, `invalid_credentials`, `invalid_token`, `missing_token`, `nas_credentials_invalid`, `token_expired`, `token_superseded` |
+    | 400 | `bad_agent_report`, `bad_anchor`, `bad_cursor`, `bad_path`, `bad_query`, `bad_upload`, `cannot_delete_root`, `cannot_move_root`, `invalid_grant`, `is_a_folder`, `missing_credentials`, `move_into_self`, `near_id_required`, `not_a_folder`, `parent_and_name_required` |
+    | 401 | `agent_auth`, `code_expired`, `device_revoked`, `invalid_code`, `invalid_credentials`, `invalid_token`, `missing_token`, `nas_credentials_invalid`, `token_expired`, `token_superseded` |
     | 403 | `access_denied`, `account_not_allowed`, `codes_direct_only`, `edge_traffic_on_direct_listener`, `origin_not_allowed`, `password_login_direct_only`, `share_blocked`, `share_is_fixed`, `token_not_for_this_api` |
-    | 404 | `no_such_code`, `no_such_device`, `no_such_share`, `no_such_upload`, `no_such_version`, `not_found`, `no_thumbnail`, `root_missing` |
-    | 409 | `cross_share_move`, `name_exists`, `name_exists_on_nas`, `no_root_selected`, `upload_incomplete`, `wrong_offset` |
+    | 404 | `no_such_code`, `no_such_device`, `no_such_share`, `no_such_upload`, `no_such_version`, `not_found`, `no_thumbnail`, `root_missing`, `search_disabled` |
+    | 409 | `cross_share_move`, `cursor_moved`, `name_exists`, `name_exists_on_nas`, `no_root_selected`, `upload_incomplete`, `wrong_offset` |
     | 410 | `anchor_expired` |
     | 412 | `content_etag_mismatch`, `meta_etag_mismatch` |
     | 413 | `chunk_too_large`, `too_large` |
@@ -1031,6 +1031,103 @@ paths:
                 $ref: '#/components/schemas/Error'
         '409':
           description: '`no_root_selected`'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: '`nas_unavailable`'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - deviceToken: []
+  /v1/search:
+    get:
+      tags:
+      - items
+      summary: Find files by what they contain
+      description: 'Files in the chosen root whose text has every word of `q`, in any of its forms ("budgets"
+        finds "budget" in the gateway''s search languages), best first. Documents: plain text, Markdown,
+        CSV, JSON, PDF (text layer), Word, Excel, PowerPoint and OpenDocument. Every hit is checked against
+        the caller''s NAS rights when asked for; `snippet` is a passage around the first match, absent
+        when the file changed since it was indexed. `complete` is false while the root''s documents are
+        still being indexed.'
+      operationId: search_content
+      parameters:
+      - name: q
+        in: query
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 500
+          title: Q
+      - name: cursor
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            maxLength: 64
+          - type: 'null'
+          title: Cursor
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 50
+          minimum: 1
+          default: 20
+          title: Limit
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchResult'
+        '400':
+          description: '`bad_query`, `bad_cursor`'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: '`missing_token`, `invalid_token`, `token_expired`, `device_revoked`, `nas_credentials_invalid`'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: '`edge_traffic_on_direct_listener`, `token_not_for_this_api`, `access_denied`,
+            `share_blocked`'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: '`not_found`, `search_disabled`'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: '`no_root_selected`'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '502':
+          description: '`nas_error`'
           content:
             application/json:
               schema:
@@ -2357,6 +2454,96 @@ components:
       required:
       - share
       title: RootIn
+    SearchHit:
+      properties:
+        id:
+          type: string
+          title: Id
+        parent_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Parent Id
+          description: null for the root.
+        name:
+          type: string
+          title: Name
+        type:
+          type: string
+          enum:
+          - file
+          - dir
+          title: Type
+        size:
+          type: integer
+          title: Size
+        mtime_ns:
+          type: integer
+          title: Mtime Ns
+        content_etag:
+          type: string
+          title: Content Etag
+          description: Changes when the content changes. `If-Match` for modify and delete.
+        meta_etag:
+          type: string
+          title: Meta Etag
+          description: Changes on rename/move. `if_match` for PATCH.
+        sha256:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Sha256
+          description: Known when the file was uploaded through Loft.
+        fixed:
+          type: boolean
+          title: Fixed
+          description: 'All-shares root: the root and each share. No rename, move or delete.'
+        snippet:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Snippet
+          description: Up to 400 characters of the file's text around the first match; null when the file
+            changed since it was indexed.
+      additionalProperties: true
+      type: object
+      required:
+      - id
+      - parent_id
+      - name
+      - type
+      - size
+      - mtime_ns
+      - content_etag
+      - meta_etag
+      - sha256
+      - fixed
+      title: SearchHit
+    SearchResult:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/SearchHit'
+          type: array
+          title: Items
+          description: Best first.
+        next_cursor:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Next Cursor
+          description: Pass as `cursor` for more hits; null when there are no more.
+        complete:
+          type: boolean
+          title: Complete
+          description: 'false while the root''s documents are still being read into the index: try again
+            later for more.'
+      type: object
+      required:
+      - items
+      - next_cursor
+      - complete
+      title: SearchResult
     Shares:
       properties:
         shares:

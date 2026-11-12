@@ -20,6 +20,7 @@ from starlette.concurrency import run_in_threadpool
 
 from . import __version__, mcp, oauth
 from .bodylimit import BodyLimit
+from .nas_agent import AGENT_BODY_MAX, AgentAuthError, AgentBadRequest, CursorMoved
 from . import schemas as S
 from .rootfs import Blocked, CrossShare, FixedItem
 from .service import ApiError, Caller, Gateway
@@ -78,17 +79,17 @@ class PatchIn(BaseModel):
 
 # HTTP status of every error code. A code always comes with the same status.
 ERROR_STATUS = {
-    400: "bad_anchor bad_path bad_upload cannot_delete_root cannot_move_root invalid_grant is_a_folder "
+    400: "bad_agent_report bad_anchor bad_cursor bad_path bad_query bad_upload cannot_delete_root cannot_move_root invalid_grant is_a_folder "
          "missing_credentials move_into_self near_id_required not_a_folder "
          "parent_and_name_required",
-    401: "code_expired device_revoked invalid_code invalid_credentials invalid_token "
+    401: "agent_auth code_expired device_revoked invalid_code invalid_credentials invalid_token "
          "missing_token nas_credentials_invalid token_expired token_superseded",
     403: "access_denied account_not_allowed codes_direct_only edge_traffic_on_direct_listener "
          "origin_not_allowed password_login_direct_only share_blocked share_is_fixed "
          "token_not_for_this_api",
     404: "no_such_code no_such_device no_such_share no_such_upload no_such_version not_found "
-         "no_thumbnail root_missing",
-    409: "cross_share_move name_exists name_exists_on_nas no_root_selected upload_incomplete "
+         "no_thumbnail root_missing search_disabled",
+    409: "cross_share_move cursor_moved name_exists name_exists_on_nas no_root_selected upload_incomplete "
          "wrong_offset",
     410: "anchor_expired",
     412: "content_etag_mismatch meta_etag_mismatch",
@@ -139,6 +140,8 @@ def create_app(gw: Gateway, route: str) -> FastAPI:
     def body_cap(method: str, path: str) -> tuple[int, str]:
         if path == "/mcp":
             return mcp.BODY_MAX, "too_large"
+        if path.startswith("/v1/nas-agent/"):
+            return AGENT_BODY_MAX, "too_large"
         if method == "PUT" and path.startswith("/v1/uploads/"):
             return gw.s.upload_chunk_max, "chunk_too_large"
         return SMALL_BODY_MAX, "too_large"     # every other body is a small JSON or form
@@ -207,6 +210,39 @@ def create_app(gw: Gateway, route: str) -> FastAPI:
         # Pins for the direct route, delivered over the WebPKI-protected public
         # route. Same answer on both listeners.
         return {"direct_spki_sha256": gw.s.direct_spki_pins}
+
+    # ── NAS agent (nas_agent.py): direct listener only, signed, not a public API ──
+
+    async def _agent(req: Request, handler):
+        if route != "direct" or "cf-connecting-ip" in req.headers:
+            return JSONResponse({"error": "not_found"}, status_code=404)
+        if not gw.agent.enabled:
+            return JSONResponse({"error": "not_found"}, status_code=404)
+        body = await req.body()
+        try:
+            gw.agent.verify(req.method, req.url.path, req.headers.get("authorization"), body)
+        except AgentAuthError as e:
+            log.warning("NAS agent request from %s refused: %s",
+                        req.client.host if req.client else "?", e)
+            return JSONResponse({"error": "agent_auth"}, status_code=401)
+        try:
+            data = json.loads(body)
+            if not isinstance(data, dict):
+                raise ValueError("not an object")
+            return await run_in_threadpool(handler, data)
+        except CursorMoved as e:
+            return JSONResponse({"error": "cursor_moved", "cursor": e.cursor}, status_code=409)
+        except (AgentBadRequest, ValueError) as e:
+            return JSONResponse({"error": "bad_agent_report", "detail": str(e)[:200]},
+                                status_code=400)
+
+    @app.post("/v1/nas-agent/sync", include_in_schema=False)
+    async def agent_sync(req: Request):
+        return await _agent(req, gw.agent.sync)
+
+    @app.post("/v1/nas-agent/changes", include_in_schema=False)
+    async def agent_changes(req: Request):
+        return await _agent(req, gw.agent.changes)
 
     # ── MCP (assistants; mcp.py) ─────────────────────────────────────────
 
@@ -397,6 +433,25 @@ def create_app(gw: Gateway, route: str) -> FastAPI:
     def latest(req: Request, authorization: str | None = Header(None)):
         c = caller(req, authorization)
         return {"anchor": gw.latest_anchor(gw._root(c))}
+
+    @app.get("/v1/search", **_doc(
+        "search_content", "Find files by what they contain", "items", S.SearchResult,
+        _ROOTED + " bad_query bad_cursor search_disabled",
+        description="Files in the chosen root whose text has every word of `q`, in any of "
+                    "its forms (\"budgets\" finds \"budget\" in the gateway's search "
+                    "languages), best first. Documents: plain text, Markdown, CSV, JSON, "
+                    "PDF (text layer), Word, Excel, PowerPoint and OpenDocument. Every hit "
+                    "is checked against the caller's NAS rights when asked for; `snippet` "
+                    "is a passage around the first match, absent when the file changed "
+                    "since it was indexed. `complete` is false while the root's documents "
+                    "are still being indexed."))
+    def search(req: Request, q: str = Query(..., min_length=1, max_length=500),
+               cursor: str | None = Query(None, max_length=64),
+               limit: int = Query(20, ge=1, le=50),
+               authorization: str | None = Header(None)):
+        c = caller(req, authorization)
+        gw.maybe_rescan(c)
+        return gw.search_content(c, q, cursor, limit)
 
     @app.get("/v1/items/{item_id}/content", **_doc(
         "get_content", "Download a file (Range supported)", "items", None,

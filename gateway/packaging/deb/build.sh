@@ -29,7 +29,7 @@ python3 -m venv /opt/loft/venv
 /opt/loft/venv/bin/pip install -q --require-hashes -r "$SRC/gateway/requirements.lock"
 cp -r "$SRC/gateway" /tmp/gw && rm -rf /tmp/gw/*.egg-info /tmp/gw/build
 /opt/loft/venv/bin/pip install -q --no-deps /tmp/gw
-/opt/loft/venv/bin/python -c "import loft_gateway.thumbworker, av, pillow_heif, pypdfium2"
+/opt/loft/venv/bin/python -c "import loft_gateway.thumbworker, loft_gateway.search, av, pillow_heif, pypdfium2, snowballstemmer"
 /opt/loft/venv/bin/pip uninstall -q -y pip setuptools wheel 2>/dev/null || true
 find /opt/loft/venv -name '__pycache__' -type d -prune -exec rm -rf {} +
 cp -a /opt/loft/venv "$ROOT/opt/loft/venv"

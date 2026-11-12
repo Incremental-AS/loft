@@ -1,0 +1,535 @@
+# Third-party native code inside the gateway's Python wheels, for thirdparty.py.
+#
+# Python wheels built with auditwheel carry the C libraries they need in <package>.libs/.
+# This file says, for each such wheel at the exact version in requirements.lock, which upstream
+# component every bundled file belongs to, under which licence, and where the exact source of
+# that component is (URL + SHA-256). thirdparty.py refuses an image that has a bundled file this
+# file does not explain, a wheel at a version this file does not list, or a GPL/LGPL/MPL part
+# whose source is not in the source bundle.
+#
+# Where the facts come from (read 2026-11-12):
+# - av 19.0.2: PyAV's wheels are built (CI workflow at tag v19.0.2, scripts/ffmpeg-latest.json)
+#   on the FFmpeg build "pyav-ffmpeg 9.0.2-1"; its scripts/pkg.py names every package with its
+#   source URL and SHA-256 (the sums below for those packages are pyav-ffmpeg's own). The
+#   FFmpeg libraries report "LGPL version 3 or later" (configure --enable-version3, no
+#   --enable-gpl); libx264 and libx265 are linked in as separate libraries. LAME (the
+#   "lamer" fork) is linked statically into libavcodec; GnuTLS is built with its own copy of
+#   libtasn1. libXau, libdrm and libxcb are the build image's AlmaLinux 8 packages (named in
+#   the wheel's dist-info/sboms/auditwheel.cdx.json).
+# - pillow-heif 1.8.1: libheif/build_libs.py at tag v1.8.1 names the libheif, libde265 and x265
+#   tarballs (no checksums upstream: the sums below were recorded by us on 2026-11-12); the
+#   wheel's LICENSES_bundled.txt says "binary wheels: GPLv2".
+# - pillow 13.0.0: versions and licences from the wheel's dist-info/sboms/pillow-13.0.0.cdx.json;
+#   the licence texts are in the wheel's own LICENSE file. libimagequant (GPL-3.0-or-later) is
+#   listed there but not built into the wheel (PIL.features.check("libimagequant") is False and
+#   there is no such file in pillow.libs).
+#
+# Licence ids are SPDX. "copyleft" below means GPL, LGPL, AGPL or MPL in every alternative.
+
+schema = 1
+
+# Our own distribution in the image, and its licence (R-123 changes it from 0.3.0).
+[own]
+dist = "loft-gateway"
+license = "Apache-2.0"
+
+# Python distributions whose METADATA licence is missing or not an SPDX expression, and which
+# ship compiled code (so the check needs a licence it can read).
+[dist_license]
+uvloop = "MIT OR Apache-2.0"   # dist-info/licenses: LICENSE-MIT and LICENSE-APACHE
+pypdfium2 = "(Apache-2.0 OR BSD-3-Clause) AND BSD-3-Clause AND Apache-2.0 AND FTL AND ICU AND MIT AND IJG AND libpng-2.0 AND Zlib AND BSD-2-Clause"  # PDFium build; texts in dist-info/licenses/data/<platform>/BUILD_LICENSES, none copyleft (read 2026-11-12)
+
+# ---------------------------------------------------------------- av 19.0.2 (PyAV)
+
+[[wheel]]
+dist = "av"
+version = "19.0.2"
+libs = "av.libs"
+build = ["av-19.0.2-sdist", "pyav-ffmpeg-9.0.2-1"]
+
+[[component]]
+wheel = "av@19.0.2"
+id = "ffmpeg"
+name = "FFmpeg"
+version = "9.0.2"
+license = "LGPL-3.0-or-later"
+files = ["libavcodec-*", "libavdevice-*", "libavfilter-*", "libavformat-*", "libavutil-*", "libswresample-*", "libswscale-*"]
+sources = ["ffmpeg-9.0.2", "nv-codec-headers-13.0.19.0", "amf-headers-1.5.2"]
+
+[[component]]
+wheel = "av@19.0.2"
+id = "x264"
+name = "x264"
+version = "0.165.b35605a"
+license = "GPL-2.0-or-later"
+files = ["libx264-*"]
+sources = ["x264-b35605a"]
+
+[[component]]
+wheel = "av@19.0.2"
+id = "x265"
+name = "x265"
+version = "4.3"
+license = "GPL-2.0-or-later"
+files = ["libx265-*"]
+sources = ["x265-4.3"]
+
+[[component]]
+wheel = "av@19.0.2"
+id = "lame"
+name = "LAME (lamer)"
+version = "3.101.0"
+license = "LGPL-2.0-or-later"
+inside = "libavcodec-*"
+sources = ["lamer-3.101.0"]
+
+[[component]]
+wheel = "av@19.0.2"
+id = "gnutls"
+name = "GnuTLS (with its own libtasn1)"
+version = "3.8.13"
+license = "LGPL-2.1-or-later"
+files = ["libgnutls-*"]
+sources = ["gnutls-3.8.13"]
+
+[[component]]
+wheel = "av@19.0.2"
+id = "nettle"
+name = "Nettle"
+version = "4.0"
+license = "LGPL-3.0-or-later OR GPL-2.0-or-later"
+files = ["libnettle-*", "libhogweed-*"]
+sources = ["nettle-4.0"]
+
+[[component]]
+wheel = "av@19.0.2"
+id = "gmp"
+name = "GMP"
+version = "6.3.0"
+license = "LGPL-3.0-or-later OR GPL-2.0-or-later"
+files = ["libgmp-*"]
+sources = ["gmp-6.3.0"]
+
+[[component]]
+wheel = "av@19.0.2"
+id = "libunistring"
+name = "libunistring"
+version = "1.4.2"
+license = "LGPL-3.0-or-later OR GPL-2.0-or-later"
+files = ["libunistring-*"]
+sources = ["libunistring-1.4.2"]
+
+[[component]]
+wheel = "av@19.0.2"
+id = "alsa-lib"
+name = "alsa-lib"
+version = "1.2.14"
+license = "LGPL-2.1-or-later"
+files = ["libasound-*"]
+sources = ["alsa-lib-1.2.14"]
+
+[[component]]
+wheel = "av@19.0.2"
+id = "opus"
+name = "Opus"
+version = "1.6.1"
+license = "BSD-3-Clause"
+files = ["libopus-*"]
+sources = ["opus-1.6.1"]
+
+[[component]]
+wheel = "av@19.0.2"
+id = "dav1d"
+name = "dav1d"
+version = "1.5.4"
+license = "BSD-2-Clause"
+files = ["libdav1d-*"]
+sources = ["dav1d-1.5.4"]
+
+[[component]]
+wheel = "av@19.0.2"
+id = "svt-av1"
+name = "SVT-AV1"
+version = "4.2.0"
+license = "BSD-3-Clause-Clear"
+files = ["libSvtAv1Enc-*"]
+sources = ["svt-av1-4.2.0"]
+
+[[component]]
+wheel = "av@19.0.2"
+id = "libvpx"
+name = "libvpx"
+version = "1.17.0"
+license = "BSD-3-Clause"
+files = ["libvpx-*"]
+sources = ["libvpx-1.17.0"]
+
+[[component]]
+wheel = "av@19.0.2"
+id = "libwebp-av"
+name = "libwebp"
+version = "1.6.0"
+license = "BSD-3-Clause"
+files = ["libwebp-*", "libwebpmux-*", "libsharpyuv-*"]
+sources = ["libwebp-1.6.0"]
+
+[[component]]
+wheel = "av@19.0.2"
+id = "vmaf"
+name = "libvmaf"
+version = "3.2.1"
+license = "BSD-2-Clause-Patent"
+files = ["libvmaf-*"]
+sources = ["vmaf-3.2.1"]
+
+[[component]]
+wheel = "av@19.0.2"
+id = "libvpl"
+name = "Intel VPL dispatcher (libvpl)"
+version = "2.16.0"
+license = "MIT"
+files = ["libvpl-*"]
+sources = ["libvpl-2.16.0"]
+
+[[component]]
+wheel = "av@19.0.2"
+id = "libxcb-el8"
+name = "libxcb (AlmaLinux 8 package 1.13.1-1.el8)"
+version = "1.13.1"
+license = "X11"
+files = ["libxcb-*"]
+sources = ["libxcb-1.13.1"]
+
+[[component]]
+wheel = "av@19.0.2"
+id = "libxau-el8-av"
+name = "libXau (AlmaLinux 8 package 1.0.9-3.el8)"
+version = "1.0.9"
+license = "MIT-open-group"
+files = ["libXau-*"]
+sources = ["libXau-1.0.9"]
+
+[[component]]
+wheel = "av@19.0.2"
+id = "libdrm-el8"
+name = "libdrm (AlmaLinux 8 package 2.4.115-2.el8)"
+version = "2.4.115"
+license = "MIT"
+files = ["libdrm-*"]
+sources = ["libdrm-2.4.115"]
+
+# ---------------------------------------------------------------- pillow-heif 1.8.1
+
+[[wheel]]
+dist = "pillow-heif"
+version = "1.8.1"
+libs = "pillow_heif.libs"
+build = ["pillow-heif-1.8.1-sdist"]
+
+[[component]]
+wheel = "pillow-heif@1.8.1"
+id = "libheif"
+name = "libheif"
+version = "1.23.6"
+license = "LGPL-3.0-or-later"
+files = ["libheif-*"]
+sources = ["libheif-1.23.6"]
+
+[[component]]
+wheel = "pillow-heif@1.8.1"
+id = "libde265"
+name = "libde265"
+version = "1.1.3"
+license = "LGPL-3.0-or-later"
+files = ["libde265-*"]
+sources = ["libde265-1.1.3"]
+
+[[component]]
+wheel = "pillow-heif@1.8.1"
+id = "x265-heif"
+name = "x265"
+version = "4.3"
+license = "GPL-2.0-or-later"
+files = ["libx265-*"]
+sources = ["x265-4.3"]
+
+# ---------------------------------------------------------------- pillow 13.0.0
+# Licence texts: the wheel's dist-info/licenses/LICENSE. No copyleft part, so no sources needed.
+
+[[wheel]]
+dist = "pillow"
+version = "13.0.0"
+libs = "pillow.libs"
+build = []
+
+[[component]]
+wheel = "pillow@13.0.0"
+id = "libavif"
+name = "libavif"
+version = "1.4.2"
+license = "BSD-2-Clause"
+files = ["libavif-*"]
+
+[[component]]
+wheel = "pillow@13.0.0"
+id = "brotli"
+name = "Brotli"
+version = "1.2.0"
+license = "MIT"
+files = ["libbrotlicommon-*", "libbrotlidec-*"]
+
+[[component]]
+wheel = "pillow@13.0.0"
+id = "freetype"
+name = "FreeType"
+version = "2.14.3"
+license = "FTL OR GPL-2.0-or-later"
+files = ["libfreetype-*"]
+
+[[component]]
+wheel = "pillow@13.0.0"
+id = "harfbuzz"
+name = "HarfBuzz"
+version = "14.5.0"
+license = "MIT"
+files = ["libharfbuzz-*"]
+
+[[component]]
+wheel = "pillow@13.0.0"
+id = "libjpeg-turbo"
+name = "libjpeg-turbo"
+version = "3.2.0"
+license = "IJG AND BSD-3-Clause"
+files = ["libjpeg-*"]
+
+[[component]]
+wheel = "pillow@13.0.0"
+id = "lcms2"
+name = "Little CMS 2"
+version = "2.19.1"
+license = "MIT"
+files = ["liblcms2-*"]
+
+[[component]]
+wheel = "pillow@13.0.0"
+id = "xz"
+name = "XZ Utils (liblzma)"
+version = "5.8.4"
+license = "0BSD"
+files = ["liblzma-*"]
+
+[[component]]
+wheel = "pillow@13.0.0"
+id = "openjpeg"
+name = "OpenJPEG"
+version = "2.5.4"
+license = "BSD-2-Clause"
+files = ["libopenjp2-*"]
+
+[[component]]
+wheel = "pillow@13.0.0"
+id = "libpng"
+name = "libpng"
+version = "1.6.58"
+license = "libpng-2.0"
+files = ["libpng16-*"]
+
+[[component]]
+wheel = "pillow@13.0.0"
+id = "libwebp-pillow"
+name = "libwebp"
+version = "1.6.0"
+license = "BSD-3-Clause"
+files = ["libwebp-*", "libwebpdemux-*", "libwebpmux-*", "libsharpyuv-*"]
+
+[[component]]
+wheel = "pillow@13.0.0"
+id = "libtiff"
+name = "LibTIFF"
+version = "4.7.2"
+license = "libtiff"
+files = ["libtiff-*"]
+
+[[component]]
+wheel = "pillow@13.0.0"
+id = "libxcb-pillow"
+name = "libxcb"
+version = "1.17.0"
+license = "X11"
+files = ["libxcb-*"]
+
+[[component]]
+wheel = "pillow@13.0.0"
+id = "libxau-el8-pillow"
+name = "libXau (AlmaLinux 8 package 1.0.9-3.el8)"
+version = "1.0.9"
+license = "MIT-open-group"
+files = ["libXau-*"]
+
+[[component]]
+wheel = "pillow@13.0.0"
+id = "zstd"
+name = "Zstandard"
+version = "1.5.7"
+license = "BSD-3-Clause OR GPL-2.0-only"
+files = ["libzstd-*"]
+
+# ---------------------------------------------------------------- sources
+# by = "upstream": the SHA-256 is the one the wheel's own build script or PyPI publishes.
+# by = "recorded": no upstream checksum; recorded by us when first fetched (date in the note).
+# notice_files: members of the archive that hold the licence when it has no COPYING/LICENSE file.
+# The licence files of every source are kept in notices/<source id>/ next to this file (written by
+# `thirdparty.py sources`, copied by hand after review) and go into the image with its SBOM.
+
+[source."av-19.0.2-sdist"]
+url = "https://files.pythonhosted.org/packages/23/01/76b6bf563fe907597cf58f10d10168e93fe588b6db9f2658db87e87efa7e/av-19.0.2.tar.gz"
+sha256 = "bebbc52598886480f4d861c575dc2b020785d6c04e1308680ddcc545e1b94c66"
+by = "upstream"
+note = "PyAV 19.0.2 source (PyPI sdist): the wrapper and scripts/ffmpeg-latest.json, which picks pyav-ffmpeg 9.0.2-1"
+
+[source."pyav-ffmpeg-9.0.2-1"]
+url = "https://github.com/PyAV-Org/pyav-ffmpeg/archive/refs/tags/9.0.2-1.tar.gz"
+filename = "pyav-ffmpeg-9.0.2-1.tar.gz"
+sha256 = "f1d1cce5b20eba71675c1c5efdd90105f79223d40abcad2cd12a0735a0379c2e"
+by = "recorded"
+note = "the scripts and patches that built the libraries in av.libs (recorded 2026-11-12)"
+
+[source."ffmpeg-9.0.2"]
+url = "https://ffmpeg.org/releases/ffmpeg-9.0.2.tar.xz"
+sha256 = "8c3850283eb25fa026482078a04051e0be17347b09ef81a0849bec15a96e002e"
+by = "upstream"
+
+[source."nv-codec-headers-13.0.19.0"]
+url = "https://github.com/FFmpeg/nv-codec-headers/archive/refs/tags/n13.0.19.0.tar.gz"
+filename = "nv-codec-headers-n13.0.19.0.tar.gz"
+sha256 = "86d15d1a7c0ac73a0eafdfc57bebfeba7da8264595bf531cf4d8db1c22940116"
+by = "upstream"
+notice_files = ["nv-codec-headers-n13.0.19.0/include/ffnvcodec/nvEncodeAPI.h"]   # no licence file; the MIT text is in this header
+
+[source."amf-headers-1.5.2"]
+url = "https://github.com/GPUOpen-LibrariesAndSDKs/AMF/releases/download/v1.5.2/AMF-headers-v1.5.2.tar.gz"
+sha256 = "d3c12eb324edf05e214608b6a395a51dd95770ed9d45520185d6c3a206811c99"
+by = "upstream"
+notice_files = ["amf-headers-v1.5.2/AMF/core/Platform.h"]   # no licence file; the MIT text is in this header
+
+[source."x264-b35605a"]
+url = "https://code.videolan.org/videolan/x264/-/archive/b35605ace3ddf7c1a5d67a2eb553f034aef41d55/x264-b35605ace3ddf7c1a5d67a2eb553f034aef41d55.tar.bz2"
+sha256 = "6eeb82934e69fd51e043bd8c5b0d152839638d1ce7aa4eea65a3fedcf83ff224"
+by = "upstream"
+
+[source."x265-4.3"]
+url = "https://github.com/Multicorewareinc/x265/releases/download/4.3/x265_4.3.tar.gz"
+sha256 = "83c53e4c8bbb8f1e33ed59e10a7d621d1d7801ca853910c3eb41f038b8ffb121"
+by = "upstream"
+
+[source."lamer-3.101.0"]
+url = "https://github.com/basswood-io/bwlame/archive/refs/tags/v3.101.0.tar.gz"
+filename = "bwlame-3.101.0.tar.gz"
+sha256 = "506d8a6e855f59151a5407d848557f9ac10acad6ff61718c7b0b3441221bfe72"
+by = "recorded"
+note = """The project was renamed lamer -> bwlame after pyav-ffmpeg built from it, so GitHub's archive now has
+a different top folder and checksum. Same tree: `git archive --prefix=lamer-3.101.0/ v3.101.0 | gzip -n`
+of tag v3.101.0 (commit 3ffd14f5531e0e5078e31eba4b2fb6ccc277b843) gives pyav-ffmpeg's own SHA-256
+81839b16fdc401e20b73389d05f32a7656008f43bcb960feff290d6f08fc109e; with --prefix=bwlame-3.101.0/ it gives
+the SHA-256 above (checked 2026-11-12)."""
+
+[source."gnutls-3.8.13"]
+url = "https://www.gnupg.org/ftp/gcrypt/gnutls/v3.8/gnutls-3.8.13.tar.xz"
+sha256 = "ffed8ec1bf09c2426d4f14aae377de4753b53e537d685e604e99a8b16ca9c97e"
+by = "upstream"
+
+[source."nettle-4.0"]
+url = "https://ftp.gnu.org/gnu/nettle/nettle-4.0.tar.gz"
+sha256 = "3addbc00da01846b232fb3bc453538ea5468da43033f21bb345cb1e9073f5094"
+by = "upstream"
+
+[source."gmp-6.3.0"]
+url = "https://ftp.gnu.org/gnu/gmp/gmp-6.3.0.tar.xz"
+sha256 = "a3c2b80201b89e68616f4ad30bc66aee4927c3ce50e33929ca819d5c43538898"
+by = "upstream"
+
+[source."libunistring-1.4.2"]
+url = "https://ftp.gnu.org/gnu/libunistring/libunistring-1.4.2.tar.gz"
+sha256 = "e82664b170064e62331962126b259d452d53b227bb4a93ab20040d846fec01d8"
+by = "upstream"
+
+[source."alsa-lib-1.2.14"]
+url = "https://www.alsa-project.org/files/pub/lib/alsa-lib-1.2.14.tar.bz2"
+sha256 = "be9c88a0b3604367dd74167a2b754a35e142f670292ae47a2fdef27a2ee97a32"
+by = "upstream"
+
+[source."opus-1.6.1"]
+url = "https://ftp.osuosl.org/pub/xiph/releases/opus/opus-1.6.1.tar.gz"
+sha256 = "6ffcb593207be92584df15b32466ed64bbec99109f007c82205f0194572411a1"
+by = "upstream"
+
+[source."dav1d-1.5.4"]
+url = "https://code.videolan.org/videolan/dav1d/-/archive/1.5.4/dav1d-1.5.4.tar.bz2"
+sha256 = "2abfb0c89212e6e4733a54e0ae509ec00a5b845a6360946f918806e14aedb011"
+by = "upstream"
+
+[source."svt-av1-4.2.0"]
+url = "https://gitlab.com/AOMediaCodec/SVT-AV1/-/archive/v4.2.0/SVT-AV1-v4.2.0.tar.bz2"
+sha256 = "512f2ea5649e3e76c2dddcc25c2556fb67a9582baaab207c9c96161c94659dad"
+by = "upstream"
+
+[source."libvpx-1.17.0"]
+url = "https://github.com/webmproject/libvpx/archive/refs/tags/v1.17.0.tar.gz"
+filename = "libvpx-1.17.0.tar.gz"
+sha256 = "1020f184046187baa2985dbde38e0691f49c44088bca7a1842b0236c6081dc0a"
+by = "upstream"
+
+[source."libwebp-1.6.0"]
+url = "https://github.com/webmproject/libwebp/archive/refs/tags/v1.6.0.tar.gz"
+filename = "libwebp-1.6.0.tar.gz"
+sha256 = "93a852c2b3efafee3723efd4636de855b46f9fe1efddd607e1f42f60fc8f2136"
+by = "upstream"
+
+[source."vmaf-3.2.1"]
+url = "https://github.com/Netflix/vmaf/archive/refs/tags/v3.2.1.tar.gz"
+filename = "vmaf-3.2.1.tar.gz"
+sha256 = "5df7386911bc15fd1ca783132528748d219768ae4fc5f8e0b61184f041648092"
+by = "upstream"
+
+[source."libvpl-2.16.0"]
+url = "https://github.com/intel/libvpl/archive/refs/tags/v2.16.0.tar.gz"
+filename = "libvpl-2.16.0.tar.gz"
+sha256 = "d60931937426130ddad9f1975c010543f0da99e67edb1c6070656b7947f633b6"
+by = "upstream"
+
+[source."libxcb-1.13.1"]
+url = "https://xcb.freedesktop.org/dist/libxcb-1.13.1.tar.bz2"
+sha256 = "a89fb7af7a11f43d2ce84a844a4b38df688c092bf4b67683aef179cdf2a647c4"
+by = "recorded"
+note = "upstream release the AlmaLinux 8 package is built from (recorded 2026-11-12)"
+
+[source."libXau-1.0.9"]
+url = "https://www.x.org/archive/individual/lib/libXau-1.0.9.tar.bz2"
+sha256 = "ccf8cbf0dbf676faa2ea0a6d64bcc3b6746064722b606c8c52917ed00dcb73ec"
+by = "recorded"
+note = "upstream release the AlmaLinux 8 package is built from (recorded 2026-11-12)"
+
+[source."libdrm-2.4.115"]
+url = "https://dri.freedesktop.org/libdrm/libdrm-2.4.115.tar.xz"
+sha256 = "554cfbfe0542bddb391b4e3e05bfbbfc3e282b955bd56218d21c0616481f65eb"
+by = "recorded"
+notice_files = ["libdrm-2.4.115/xf86drm.h"]   # no licence file; the MIT text is in this header
+note = "upstream release the AlmaLinux 8 package is built from (recorded 2026-11-12)"
+
+[source."pillow-heif-1.8.1-sdist"]
+url = "https://files.pythonhosted.org/packages/44/c1/82145984920ca055675af2c2795bd30da6f7461215c41f3c1eacb3d66353/pillow_heif-1.8.1.tar.gz"
+sha256 = "521ebffb8a181d56c3904e5a61f20903edee0d9d3275967b8fb345f866215c06"
+by = "upstream"
+note = "pillow-heif 1.8.1 source (PyPI sdist), with libheif/build_libs.py that built pillow_heif.libs"
+
+[source."libheif-1.23.6"]
+url = "https://github.com/strukturag/libheif/releases/download/v1.23.6/libheif-1.23.6.tar.gz"
+sha256 = "4484346dc5995319dbc11e3a1c35d0a2ec46511ce370900869337fd2c7033125"
+by = "recorded"
+note = "recorded 2026-11-12"
+
+[source."libde265-1.1.3"]
+url = "https://github.com/strukturag/libde265/releases/download/v1.1.3/libde265-1.1.3.tar.gz"
+sha256 = "554228bd17788c99a7e63b37ab5634722190e6e2bf60c1dcb01cef328e133905"
+by = "recorded"
+note = "recorded 2026-11-12"

@@ -19,7 +19,8 @@ Website: https://loft.incremental.no
 | `apple/` | macOS and iOS app (Swift, File Provider) |
 | `android/`, `windows/`, `linux/` | The other apps |
 | `website/` | Source of loft.incremental.no |
-| `docs/` | How it works (`design.md`: trust model, sign-in, routes, sync), the pairing format, `releases.json` |
+| `docs/` | How it works (`design.md`: trust model, sign-in, routes, sync), the pairing format, `releases.json`, assistants (`mcp.md`), content search and its languages (`search.md`) |
+| `ci/check.sh` | The whole check in one command: gateway tests, OpenAPI file, conformance in both modes, suite contracts when `SUITE_CONTRACTS` is set |
 
 ## Run a gateway
 
@@ -29,6 +30,23 @@ sudo loft-gateway init                              # asks for your NAS, makes k
 sudo loft-gateway doctor --user <your NAS account>  # checks SMB, encryption, shares, clock, keys
 sudo systemctl enable --now loft-gateway
 ```
+
+## Third-party source code
+
+The container image and the `.deb` packages of each release include libraries under the GPL and LGPL (among them
+FFmpeg, x264, x265, libheif and libde265; the container image also holds Debian's own packages). Their complete
+source, with the scripts and patches that built them (pyav-ffmpeg's build scripts and patches at 9.0.2-1, included
+because the GPL requires them), is attached to that release as `*-sources.tar`. The `*-third-party.tar` files next
+to them hold each image's and package's SBOM (SPDX) and licence notices; `SHA256SUMS` lists them all.
+
+| Version | Container image `ghcr.io/incremental-as/loft-gateway` | `.deb` packages |
+|---|---|---|
+| [0.2.1](https://github.com/Incremental-AS/loft/releases/tag/v0.2.1) | `loft-gateway-0.2.1-amd64-ghcr-sources.tar`, `loft-gateway-0.2.1-arm64-ghcr-sources.tar` | `loft-gateway-0.2.x-deb-sources.tar` |
+| [0.2.0](https://github.com/Incremental-AS/loft/releases/tag/v0.2.0) | `loft-gateway-0.2.0-amd64-ghcr-sources.tar`, `loft-gateway-0.2.0-arm64-ghcr-sources.tar` | `loft-gateway-0.2.x-deb-sources.tar` |
+
+Every later version carries the same files on its own [release](https://github.com/Incremental-AS/loft/releases).
+Inside the image the SBOM and licence files are in `/usr/share/doc/loft-gateway/third-party/`. How they are made and
+checked: [gateway/packaging/third_party/](gateway/packaging/third_party/README.md).
 
 ## Develop
 

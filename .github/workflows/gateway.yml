@@ -2,9 +2,9 @@ name: gateway
 
 on:
   push:
-    paths: ["gateway/**", "api/**", "conformance/**", ".github/workflows/gateway.yml"]
+    paths: ["gateway/**", "api/**", "conformance/**", "nas-agent/**", ".github/workflows/gateway.yml"]
   pull_request:
-    paths: ["gateway/**", "api/**", "conformance/**", ".github/workflows/gateway.yml"]
+    paths: ["gateway/**", "api/**", "conformance/**", "nas-agent/**", ".github/workflows/gateway.yml"]
   workflow_dispatch:
 
 permissions:
@@ -37,3 +37,19 @@ jobs:
         run: PYTHON=python conformance/run_dev.sh -q
       - name: Conformance against the dev gateway (direct mode)
         run: PUBLIC_MODE=direct PYTHON=python conformance/run_dev.sh -q
+
+  nas-agent:
+    # The NAS agent against a real btrfs (a loop mount): what it reports for each kind
+    # of change. Standard library only, so the runner's own python3.
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: btrfs on a loop device
+        run: |
+          sudo apt-get install -y -q btrfs-progs
+          truncate -s 512M "$RUNNER_TEMP/b.img"
+          mkfs.btrfs -q "$RUNNER_TEMP/b.img"
+          mkdir -p "$RUNNER_TEMP/b"
+          sudo mount -o loop,strictatime "$RUNNER_TEMP/b.img" "$RUNNER_TEMP/b"
+      - name: Agent against btrfs
+        run: sudo python3 nas-agent/test_btrfs.py "$RUNNER_TEMP/b"

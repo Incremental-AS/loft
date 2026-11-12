@@ -134,7 +134,7 @@ shows the working folder and the readable folders, and the path down to them.
 | Tool | Does |
 |---|---|
 | `list_folder` | Files and folders in a folder, 200 per page (`cursor`) |
-| `search_files` | Names containing a text, in a folder and below, across every readable folder (index; complete after each folder's first full scan) |
+| `search_files` | Files whose text has every word of the query (word forms in the gateway's search languages) and names containing it, in a folder and below, across every folder readable at the time of the call. `in`: `both` (default: names first), `content`, `name`. Content hits carry `ref` (`loft:item:<id>`), `title`, a passage of at most 400 characters (`snippet`) and `match`; at most 50 per call, more with `cursor`/`next_cursor`. Every hit is checked against the account's NAS rights and the connection's grants when asked for; `complete` is false while folders are still being scanned or indexed. See [search.md](search.md) |
 | `read_file` | Text of a file, 20 000 characters per call (`offset`). Plain text, and the text of PDF, .docx, .pptx (with speaker notes), .xlsx, .odt, .odp, .ods, extracted in the sandboxed decoder (`thumbworker.py`), never in the gateway process |
 | `download_file` | Raw bytes as an embedded resource (base64), 2 MiB per call (`offset`, `length`) |
 | `write_file` | Save `text` or `content_base64`, up to 8 MiB; `if_exists`: `rename` (default, "name (2).ext"), `replace`, `fail` |

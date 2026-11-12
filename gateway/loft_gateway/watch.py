@@ -34,6 +34,11 @@ The full rescan stays as the safety net, for what Samba doesn't report (files
 written on the NAS itself rather than over SMB) and for gaps (gateway restart, a
 watch lost). While every watch of a root is up and a full pass has started since,
 the pass runs every rescan_interval_watched_s instead of rescan_interval_s.
+
+The NAS agent (nas_agent.py) fills that gap: its log of changed folders reaches
+every root through the same worker (agent_*), with the folder's lowest log seq
+held until the folder has been read, so roots.agent_seq only ever says "applied
+up to here". A root covered by the agent runs no periodic full pass at all.
 """
 from __future__ import annotations
 
@@ -51,6 +56,8 @@ if TYPE_CHECKING:
 
 log = logging.getLogger("loft.notify")
 
+AGENT_PAGE = 5000         # log rows read at once
+NEW_SHARE_RESCAN_S = 10   # a share new to an all-shares root: its top first, then all
 RETRY_S = 60              # a watch that failed to start is retried at most this often
 BUSY_READS = 3            # this many re-reads within the folder's floor = a busy folder
 COST_FACTOR = 20          # a busy folder's floor is at least 20 x its last read time
@@ -149,6 +156,22 @@ class RootWatch:
         self.last_over: dict[tuple, float] = {}               # share key -> last rescan END
         self.over_at: dict[tuple, float] = {}                 # share key -> first report (wall)
         self.over_running = False                             # one overflow rescan per root
+        # NAS agent: log read up to agent_upto; agent_done (= roots.agent_seq) only up
+        # to below the lowest seq still waiting on a folder read or a share rescan
+        self.agent_upto = int(root["agent_seq"] or 0)
+        if root["agent_since"] is None and gw.agent.enabled:
+            # not covered: a full pass reads everything before it anyway
+            self.agent_upto = max(self.agent_upto, gw.agent.max_seq())
+        self.agent_done = self.agent_upto
+        self.agent_new = True                                 # read the log (catch up)
+        self.agent_hold: dict[tuple, int] = {}                # folder key -> lowest seq
+        self.over_hold: dict[tuple, int] = {}                 # share key -> lowest seq
+        self.inflight_hold: list[int] = []                    # popped, being read
+        self.over_running_hold: int | None = None
+        self.progress_due = False
+        from .service import name_key
+        self.share_names: dict[str, str] | None = (           # name_key -> share name
+            None if self.multi else {name_key(self.share): self.share})
         self.stopping = False
         self._refresh_lock = threading.Lock()
         self.worker = threading.Thread(target=self._work, daemon=True,
@@ -162,6 +185,7 @@ class RootWatch:
         missing ones, restart dead ones (at most every RETRY_S), stop the rest."""
         if self.multi:
             want = {_key([s]): (s, "", (s,)) for s in shares or []}
+            self._shares_listed(shares or [])
         else:
             want = {(): (self.share, self.path, ())}
         with self._refresh_lock:
@@ -178,6 +202,25 @@ class RootWatch:
                     continue
                 self.retry_at[k] = now + RETRY_S
                 self.watches[k] = _ShareWatch(self, share, base, prefix)
+
+    def _shares_listed(self, shares: list[str]):
+        """The all-shares root's share list. A share new since the last list (the
+        account was given one) is read top first, then rescanned: no full pass will
+        (the agent's coverage stops them), and SMB notify only reports what changes."""
+        from .service import name_key
+        names = {name_key(s): s for s in shares}
+        with self.cv:
+            old, self.share_names = self.share_names, names
+            if old is None:
+                self.agent_new = True            # the log can be applied now
+            else:
+                now = time.monotonic()
+                for k in names.keys() - old.keys():
+                    log.info("notify %s (%s): new share %s", self.root_id[:8], self.user,
+                             names[k])
+                    self._mark((names[k],), now)
+                    self._over_add((names[k],), now + NEW_SHARE_RESCAN_S)
+            self.cv.notify_all()
 
     def since(self) -> float | None:
         """Since when every watch has been up without a break (None: not all up)."""
@@ -224,28 +267,99 @@ class RootWatch:
                 parts = prefix + tuple(x for x in p.split("/") if x)
                 if len(parts) <= len(prefix) or any(is_excluded(x) for x in parts):
                     continue                     # .loft, .DS_Store, Office lock files ...
-                folder = parts[:-1]
-                k = _key(folder)
-                if k in self.dirty:
-                    continue                     # already due; the listing will see this too
-                due = now + s.notify_debounce_s
-                rd = self.reads.get(k)
-                floor = max(s.notify_folder_min_s, COST_FACTOR * self.cost.get(k, 0.0))
-                if rd and len(rd) >= BUSY_READS and now - rd[0] < floor:
-                    due = max(due, rd[-1] + floor)                     # busy: hold it back
-                self.dirty[k] = (due, folder)
+                self._mark(parts[:-1], now)
             self.cv.notify_all()
 
+    def _mark(self, folder: tuple, now: float, seq: int = 0):
+        """Folder due for a re-read (under self.cv). seq: the agent log row asking."""
+        s = self.gw.s
+        k = _key(folder)
+        if seq:
+            self.agent_hold[k] = min(self.agent_hold.get(k, seq), seq)
+        if k in self.dirty:
+            return                               # already due; the listing will see this too
+        due = now + s.notify_debounce_s
+        rd = self.reads.get(k)
+        floor = max(s.notify_folder_min_s, COST_FACTOR * self.cost.get(k, 0.0))
+        if rd and len(rd) >= BUSY_READS and now - rd[0] < floor:
+            due = max(due, rd[-1] + floor)                             # busy: hold it back
+        self.dirty[k] = (due, folder)
+
     def overflow(self, prefix: tuple):
-        now = time.monotonic()
-        k = _key(prefix)
         with self.cv:
-            self.over_at.setdefault(k, time.time())
-            if k not in self.over:               # at most one waiting per share
-                due = max(now, self.last_over.get(k, float("-inf"))
-                          + self.gw.s.notify_overflow_rescan_s)
-                self.over[k] = (due, prefix)
+            self._over_add(prefix, time.monotonic())
             self.cv.notify_all()
+
+    def _over_add(self, prefix: tuple, now: float, seq: int = 0):
+        """Share due for a rescan (under self.cv)."""
+        k = _key(prefix)
+        if seq:
+            self.over_hold[k] = min(self.over_hold.get(k, seq), seq)
+        self.over_at.setdefault(k, time.time())
+        if k not in self.over:                   # at most one waiting per share
+            due = max(now, self.last_over.get(k, float("-inf"))
+                      + self.gw.s.notify_overflow_rescan_s)
+            self.over[k] = (due, prefix)
+
+    # ── the NAS agent's log ───────────────────────────────────────────────
+
+    def agent_wake(self):
+        with self.cv:
+            self.agent_new = True
+            self.cv.notify_all()
+
+    def _agent_parts(self, r) -> tuple | None:
+        """Root-relative folder of a log row, None if it isn't this root's."""
+        from .service import name_key
+        if r["user_key"] and r["user_key"] != name_key(self.user):
+            return None                          # another account's personal folder
+        names = self.share_names or {}
+        if r["share_key"] not in names:
+            return None
+        parts = tuple(x for x in r["path"].split("/") if x)
+        if self.multi:
+            return (names[r["share_key"]],) + parts
+        base = tuple(name_key(x) for x in self.path.split("/") if x)
+        if tuple(name_key(x) for x in parts[:len(base)]) != base:
+            # above or beside the root folder: only a whole-share rescan matters here
+            return () if r["kind"] == "all" else None
+        return parts[len(base):]
+
+    def _agent_pull(self):
+        rows = self.gw.agent.after(self.agent_upto, AGENT_PAGE)
+        if not rows:
+            return
+        from .service import is_excluded
+        now = time.monotonic()
+        with self.cv:
+            for r in rows:
+                parts = self._agent_parts(r)
+                if parts is None or any(is_excluded(x) for x in parts):
+                    continue
+                if r["kind"] == "all":
+                    self._over_add(parts[:1] if self.multi else (), now, r["seq"])
+                else:
+                    self._mark(parts, now, r["seq"])
+            self.agent_upto = rows[-1]["seq"]
+            if len(rows) == AGENT_PAGE:
+                self.agent_new = True            # more after these
+            self.progress_due = True
+            self.cv.notify_all()
+
+    def _agent_progress(self):
+        """Persist how far the log is applied: below the lowest seq still waiting."""
+        with self.cv:
+            holds = (list(self.agent_hold.values()) + list(self.over_hold.values())
+                     + self.inflight_hold)
+            if self.over_running_hold is not None:
+                holds.append(self.over_running_hold)
+            done = min(holds) - 1 if holds else self.agent_upto
+            self.progress_due = False
+        if done > self.agent_done:
+            self.agent_done = done
+            with self.gw.db.tx() as c:
+                c.execute("UPDATE roots SET agent_seq=MAX(agent_seq, ?) WHERE id=?",
+                          (done, self.root_id))
 
     # ── the worker ────────────────────────────────────────────────────────
 
@@ -260,17 +374,29 @@ class RootWatch:
                     over = {} if self.over_running else self.over   # its end wakes us
                     due_o = [k for k, (d, _) in over.items() if d <= now][:1]
                     due_p = any(d <= now for d in self.pending_due.values())
-                    if due_d or due_o or due_p:
+                    pull = (self.agent_new and self.share_names is not None
+                            and self.gw.agent.enabled)
+                    if due_d or due_o or due_p or pull or self.progress_due:
                         break
                     nxt = min([d for d, _ in self.dirty.values()]
                               + [d for d, _ in over.values()]
                               + list(self.pending_due.values()), default=None)
                     self.cv.wait(timeout=None if nxt is None else max(0.01, nxt - now))
-                batch = [self.dirty.pop(k)[1] for k in due_d]
+                if pull:
+                    self.agent_new = False
+                batch = []
+                for k in due_d:
+                    batch.append(self.dirty.pop(k)[1])
+                    h = self.agent_hold.pop(k, None)
+                    if h is not None:
+                        self.inflight_hold.append(h)
                 obatch = [self.over.pop(k)[1] for k in due_o]
                 if obatch:
                     self.over_running = True
+                    self.over_running_hold = self.over_hold.pop(due_o[0], None)
             try:
+                if pull:
+                    self._agent_pull()
                 for prefix in obatch:
                     self._overflow_rescan(prefix)
                 if batch:
@@ -279,6 +405,14 @@ class RootWatch:
                     self._finish_pending()
             except Exception:  # noqa: BLE001  (the next report or rescan retries)
                 log.exception("notify %s (%s): re-read failed", self.root_id[:8], self.user)
+            finally:
+                with self.cv:
+                    self.inflight_hold.clear()
+            try:
+                self._agent_progress()
+            except Exception:  # noqa: BLE001  (the next round writes it)
+                log.exception("notify %s (%s): saving the agent's progress failed",
+                              self.root_id[:8], self.user)
 
     def _root(self):
         return self.gw.db.one("SELECT * FROM roots WHERE id=?", (self.root_id,))
@@ -305,6 +439,7 @@ class RootWatch:
 
     def read(self, batch: list[tuple]) -> int:
         """Re-read these folders (root-relative name parts), shallowest first."""
+        from .service import SLOW_READ_S, read_cost
         root = self._root()
         if not root:
             return 0
@@ -323,11 +458,22 @@ class RootWatch:
                     done.add(fid)
                     t_read = time.monotonic()
                     try:
-                        n += self.gw.reconcile(root, self.session, fid, max_depth=1, defer=defer)
+                        fst: dict = {}
+                        nf = self.gw.reconcile(root, self.session, fid, max_depth=1, defer=defer,
+                                               stats=fst)
+                        n += nf
                         folders += 1
+                        secs = time.monotonic() - t_read
                         # only a good read sets the floor: one SMB timeout must not hold
                         # the folder back for 20 x the timeout (review of 3027669, n1)
-                        self.cost[_key(parts[:depth])] = min(COST_CAP_S, time.monotonic() - t_read)
+                        self.cost[_key(parts[:depth])] = min(COST_CAP_S, secs)
+                        if secs > SLOW_READ_S:
+                            # one folder holds the root's whole queue this long (F2 of
+                            # review_maja_ba880e0): which one, and where the time went
+                            log.warning("notify %s (%s): re-read of %s took %.0f s (%s)",
+                                        self.root_id[:8], self.user,
+                                        "/".join(parts[:depth]) or "(root)", secs,
+                                        read_cost(fst, nf))
                     except (StorageError, Blocked, FixedItem) as e:
                         log.warning("notify %s (%s): %s not re-read: %s", self.root_id[:8],
                                     self.user, "/".join(parts[:depth]) or "(root)", e)
@@ -408,6 +554,10 @@ class RootWatch:
                     with self.cv:                # the full pass is running: after it
                         if k not in self.over:
                             self.over[k] = (time.monotonic() + OVER_RETRY_S, prefix)
+                        if self.over_running_hold is not None:
+                            h = self.over_running_hold
+                            self.over_hold[k] = min(self.over_hold.get(k, h), h)
+                            self.over_running_hold = None
                     return
                 try:
                     with self.cv:
@@ -435,6 +585,8 @@ class RootWatch:
             finally:
                 with self.cv:
                     self.over_running = False
+                    self.over_running_hold = None
+                    self.progress_due = True
                     if ran:
                         end = time.monotonic()
                         self.last_over[k] = end
@@ -490,6 +642,12 @@ class Watches:
     def since(self, root_id: str) -> float | None:
         rw = self.roots.get(root_id)
         return rw.since() if rw is not None else None
+
+    def agent_wake(self):
+        with self.lock:
+            rws = list(self.roots.values())
+        for rw in rws:
+            rw.agent_wake()
 
     def get(self, root_id: str) -> RootWatch | None:
         return self.roots.get(root_id)

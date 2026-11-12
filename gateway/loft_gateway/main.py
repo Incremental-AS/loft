@@ -48,6 +48,7 @@ class _Server(uvicorn.Server):
 
 
 async def serve(gw: Gateway):
+    gw.search.start()                   # content indexing in the background (search.py)
     d, p = gw.s.direct, gw.s.public
     if not (d.certfile and d.keyfile):
         raise SystemExit("direct listener needs certfile + keyfile (the pinned gateway key); "

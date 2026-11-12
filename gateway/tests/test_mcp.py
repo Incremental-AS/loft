@@ -12,7 +12,7 @@ from urllib.parse import parse_qs, urlparse
 import pytest
 
 from loft_gateway import mcp
-from loft_gateway.db import DB
+from loft_gateway.db import DB, SCHEMA_VERSION
 from loft_gateway.service import MCP_LIVE_ACCESS, ApiError
 
 from conftest import login, rooted
@@ -785,7 +785,7 @@ def test_schema_1_database_gets_the_new_columns(tmp_path):
     row = db.one("SELECT kind, read_only, client_id FROM devices WHERE id='d1'")
     assert (row["kind"], row["read_only"], row["client_id"]) == ("app", 0, None)
     assert db.one("SELECT purpose FROM signin_codes WHERE id='c1'")["purpose"] == "device"
-    assert db.one("SELECT v FROM meta WHERE k='schema_version'")["v"] == "3"
+    assert db.one("SELECT v FROM meta WHERE k='schema_version'")["v"] == str(SCHEMA_VERSION)
     assert db.all("SELECT * FROM mcp_grants") == []
 
 
@@ -804,7 +804,7 @@ def test_schema_2_grants_count_as_approved(tmp_path):
                                      " ORDER BY path")]
     # the working folder's grant is a write approval, a read grant a read approval
     assert rows == [("d1", "home/alice/Docs", "read", 6), ("d1", "home/alice/Jeevo", "write", 5)]
-    assert db.one("SELECT v FROM meta WHERE k='schema_version'")["v"] == "3"
+    assert db.one("SELECT v FROM meta WHERE k='schema_version'")["v"] == str(SCHEMA_VERSION)
 
 
 def test_approvals_table_from_0bca895_gets_access(tmp_path):

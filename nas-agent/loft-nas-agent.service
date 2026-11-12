@@ -1,0 +1,48 @@
+# Loft NAS agent (README.md). Runs on the NAS; dials out to the gateway, listens on nothing.
+[Unit]
+Description=Loft NAS agent: changed folders to the Loft gateway
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/python3 -I /data/loft-agent/loft_nas_agent.py --config /data/loft-agent/agent.toml
+Restart=always
+RestartSec=10
+
+# root, but only these: btrfs tree search + inode lookup (CAP_SYS_ADMIN), opening the
+# share roots whatever their permissions (CAP_DAC_READ_SEARCH). Nothing is written.
+CapabilityBoundingSet=CAP_SYS_ADMIN CAP_DAC_READ_SEARCH
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=read-only
+PrivateTmp=yes
+PrivateDevices=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectKernelLogs=yes
+ProtectControlGroups=yes
+ProtectClock=yes
+ProtectHostname=yes
+RestrictNamespaces=yes
+RestrictRealtime=yes
+RestrictSUIDSGID=yes
+LockPersonality=yes
+MemoryDenyWriteExecute=yes
+# The next four need seccomp and cgroup-BPF in the NAS's kernel; without them systemd
+# ignores them (some NAS kernels lack both). The agent itself talks only to the
+# address in its config, and only once the gateway's key matches a pin.
+SystemCallArchitectures=native
+SystemCallFilter=@system-service ioctl
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+# Only the gateway: set its address in a drop-in (systemctl edit loft-nas-agent):
+#   [Service]
+#   IPAddressAllow=192.0.2.10
+IPAddressDeny=any
+MemoryMax=256M
+CPUQuota=25%
+Nice=10
+IOSchedulingClass=idle
+
+[Install]
+WantedBy=multi-user.target

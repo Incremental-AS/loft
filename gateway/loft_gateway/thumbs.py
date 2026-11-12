@@ -92,9 +92,11 @@ class Thumbnailer:
         return r
 
     def text(self, key: tuple, name: str, size: int,
-             read: Callable[[int, int], Iterator[bytes]]) -> str | None:
+             read: Callable[[int, int], Iterator[bytes]], cache: bool = True) -> str | None:
         """A document's text, extracted in the sandboxed worker, or None (not a document
-        type it reads, or nothing came out). Cached with the thumbnails."""
+        type it reads, or nothing came out). Cached with the thumbnails, unless `cache`
+        is False (the content indexer: one pass over every document would push out
+        everything else)."""
         ext = name.rsplit(".", 1)[-1].lower() if "." in name else ""
         kind = TEXT_KINDS.get(ext)
         if not kind or size <= 0:
@@ -111,6 +113,8 @@ class Thumbnailer:
             r = self._run("text", ext, size, 0, read, budget=READ_CAP[kind])
         finally:
             self.slots.release()
+        if not cache:
+            return r[1].decode("utf-8", "replace") if r else None
         with self.lock:
             self.cache[key] = r
             self.cache_bytes += len(r[1]) if r else 0

@@ -8,6 +8,8 @@ dependencies = [
   "uvicorn[standard]>=0.29",
   "smbprotocol>=1.13",
   "cryptography>=42",
+  # content search: word forms in the search languages (search.py), pure Python
+  "snowballstemmer>=3.0",
   # thumbnails: imported only by the sandboxed worker (thumbworker.py)
   "pillow>=11.3",
   "pillow-heif>=1.0",

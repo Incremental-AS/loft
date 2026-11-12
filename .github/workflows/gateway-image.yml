@@ -3,6 +3,9 @@ name: gateway-image
 # Publishes the gateway container image to ghcr.io/incremental-as/loft-gateway, for x86_64 and arm64.
 # Run it by hand for a release tag (Actions › gateway-image › Run workflow). It builds from that tag and
 # tags the image with the gateway's version from gateway/pyproject.toml, plus "latest".
+# The licenses label comes from the Dockerfile (the SPDX expression the third-party check verifies).
+# The third-party report and source bundles are kept as a workflow artifact; attach them to the
+# GitHub release of the same tag (the GPL/LGPL source has to be offered with the image).
 
 on:
   workflow_dispatch:
@@ -27,6 +30,28 @@ jobs:
         run: echo "version=$(python3 -c "import tomllib;print(tomllib.load(open('gateway/pyproject.toml','rb'))['project']['version'])")" >> "$GITHUB_OUTPUT"
       - uses: docker/setup-qemu-action@v3
       - uses: docker/setup-buildx-action@v3
+      # Before anything is pushed: each platform's image, its SBOM and licence files, and the exact
+      # source of every GPL/LGPL part and Debian package; refused when a part has no source or the
+      # licenses label is not what the image holds (gateway/packaging/third_party/).
+      - name: Build each platform locally (not pushed)
+        run: |
+          for a in amd64 arm64; do
+            docker buildx build --platform linux/$a --load -t gateway-check:$a \
+              --label org.opencontainers.image.version=${{ steps.v.outputs.version }} \
+              -f gateway/packaging/docker/Dockerfile gateway
+          done
+      - name: Third-party check and source bundles
+        run: |
+          for a in amd64 arm64; do
+            gateway/packaging/third_party/image-check.sh gateway-check:$a linux/$a "$RUNNER_TEMP/third-party/$a"
+          done
+      - uses: actions/upload-artifact@v4
+        with:
+          name: third-party-${{ steps.v.outputs.version }}
+          path: |
+            ${{ runner.temp }}/third-party/*/*.tar
+            ${{ runner.temp }}/third-party/*/*.sha256
+          retention-days: 90
       - uses: docker/login-action@v3
         with:
           registry: ghcr.io
@@ -47,10 +72,9 @@ jobs:
             org.opencontainers.image.version=${{ steps.v.outputs.version }}
             org.opencontainers.image.revision=${{ github.sha }}
             org.opencontainers.image.title=Loft gateway
-            org.opencontainers.image.description=Loft gateway: your NAS files on every device, kept at home.
+            org.opencontainers.image.description=Loft gateway: your NAS files on every device, kept at home. Source of its GPL/LGPL parts: the *-sources.tar files on https://github.com/${{ github.repository }}/releases/tag/${{ inputs.tag }}
             org.opencontainers.image.url=https://loft.incremental.no/gateway/
-            org.opencontainers.image.licenses=Apache-2.0
           # GitHub reads a multi-arch package's description from the index annotation, not the labels.
           annotations: |
-            index:org.opencontainers.image.description=Loft gateway: your NAS files on every device, kept at home.
+            index:org.opencontainers.image.description=Loft gateway: your NAS files on every device, kept at home. Source of its GPL/LGPL parts: the *-sources.tar files on https://github.com/${{ github.repository }}/releases/tag/${{ inputs.tag }}
             index:org.opencontainers.image.source=https://github.com/${{ github.repository }}

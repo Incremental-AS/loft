@@ -26,6 +26,10 @@ direct_spki_pins = ["<live-pin>", "<standby-pin>"]
 login_max_fail_user = 5
 login_max_fail_ip = 20
 login_window_s = 900
+# Content search (docs/search.md): languages whose word forms are matched, as launch language
+# tags. Each adds a stem of every word to the index. Others are found by whole words.
+# search_languages = ["en"]
+# search_index = false                 # names only
 
 [direct]                                # home network / VPN, or a port forward in "direct" mode
 host = "0.0.0.0"

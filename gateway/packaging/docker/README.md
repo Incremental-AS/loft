@@ -41,3 +41,11 @@ sandbox, so the image does the part it can:
 * it **does** share the container's network and can read whatever the image makes world-readable.
 
 For the full sandbox, use the `.deb` on a systemd host.
+
+## Third-party source code
+
+The image includes libraries under the GPL and LGPL (FFmpeg, x264, x265, libheif, libde265 and Debian's own
+packages). Their complete source, with the scripts and patches that built them, is attached to the GitHub release of
+the same version as `loft-gateway-<version>-<arch>-ghcr-sources.tar`
+([releases](https://github.com/Incremental-AS/loft/releases)); the SBOM and licence files are inside the image in
+`/usr/share/doc/loft-gateway/third-party/` and next to the source as `*-third-party.tar`.
